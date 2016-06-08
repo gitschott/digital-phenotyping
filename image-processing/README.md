@@ -61,4 +61,24 @@ Parameter:
 
 Source: Felzenszwalb, Pedro F., and Daniel P. Huttenlocher. "Efficient graph-based image segmentation." International Journal of Computer Vision 59.2 (2004): 167-181.
 
-Honestly speaking, I am not that acquainted with the parameters yet. 
+Honestly speaking, I am not that acquainted with the parameters yet.
+
+#8 June Update
+## Current result:
+1. Canny algorithm works best for edges selection. Then, Hough lines prediction is step forward in analysis. The output of HLP is a list of tuples, where tuples are the coordinates of lines predicted.
+
+2. Scikit image is not enough.
+
+##Current challenge:
+Idea is to recognize a square frame, each border of which is rectangular, coloured in CMYW(E) order. In the corners there are small squares, 3 of which are black, one is white (to define a position). In the middle of the square there is skin sample.
+
+##Current solution:
+Switch to openCV package.
+
+###Pipeline to develop:
+	1. Take an image, copy it to grayscale, select edges.
+	2. Find lines, recognize a big square and a small square.
+	3. Recognize small corner squares and the position.
+	4. Recognize rectangles shaping the frame and their colour.
+	5. Match the colour to the CMY, define white balance.
+	6. Mask the original image, select only skin sample, focus on its processing (to be defined).
