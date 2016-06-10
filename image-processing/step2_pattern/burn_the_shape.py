@@ -65,29 +65,44 @@ for c in coords:
 gray = cv2.cvtColor(res_w,cv2.COLOR_RGB2GRAY)
 
 ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-yellow = np.copy(thresh)
-px = yellow[0,0]
 
-masq = np.zeros_like(yellow)
-print(masq[0,0])
+#Get a mask
+closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=4)
+masq = np.empty_like(closing)
+px = thresh[0,0]
 
-import random
-rnd = random.sample(range(255), 10)
-for (x,y), pixel in np.ndenumerate(yellow):
-    c=0
+def neighbors(matrix, x,y):
+    for i in np.matrix[x-1:x+1,y]:
+        if i < 0 or i == len(matrix): continue
+        for j in np.matrix[x,y-1:y+1]:
+            if j < 0 or j == len(matrix[i]): continue
+            if i == x and j == y: continue
+            yield matrix[i][j]
+
+print(type(thresh))
+print(thresh.ndim)
+print(thresh[0,0])
+print(range(len(thresh)))
+
+for (x,y), pixel in np.ndenumerate(thresh):
+    xi = np.arange(x-2,x+2,1)
     if pixel == px:
-        np.put(masq, [x,y], rnd[c])
+        c=1
+        #masq[x,y] = c,
     else:
-        if pixel == yellow[x-1,y-1]:
-            c += 1
-            np.put(masq, [x, y], rnd[c])
-        else:
-            c += 1
-            np.put(masq, [x, y], rnd[c])
+        for element in xi:
+            if thresh[x,y]!= thresh[element,y]:
+                c += 1
+                masq[x, y] = c
+            else:
+                masq[x, y] = c
+
 
 print(np.unique(masq))
+pic = plt.imshow(masq)
+plt.show()
+'''print(lst)
 
-
-#cv2.imshow("Image", yellow)
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()'''
+cv2.imshow("Image", yellow)
+cv2.waitKey(0)
+cv2.destroyAllWindows()'''
