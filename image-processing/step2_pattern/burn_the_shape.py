@@ -72,21 +72,20 @@ masq = np.zeros_like(yellow)
 print(masq[0,0])
 
 import random
-vals = random.sample(range(255), 10)
-c = 0
-print(vals[c])
-
+rnd = random.sample(range(255), 10)
 for (x,y), pixel in np.ndenumerate(yellow):
+    c=0
     if pixel == px:
-        np.put(masq, [x,y], vals[c])
+        np.put(masq, [x,y], rnd[c])
     else:
-        if pixel != yellow[x-1,y-1]:
+        if pixel == yellow[x-1,y-1]:
             c += 1
+            np.put(masq, [x, y], rnd[c])
         else:
-            np.put(masq, [x, y], vals[c])
+            c += 1
+            np.put(masq, [x, y], rnd[c])
 
-print(type(c))
-print(c)
+print(np.unique(masq))
 
 
 #cv2.imshow("Image", yellow)
