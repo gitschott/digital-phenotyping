@@ -66,7 +66,23 @@ gray = cv2.cvtColor(res_w,cv2.COLOR_RGB2GRAY)
 
 ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 yellow = np.copy(thresh)
+px = yellow[0,0]
 
-cv2.imshow("Image", yellow)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+masq = np.array([])
+
+for i in range(len(yellow)):
+    c = 1
+    if yellow.all(yellow[i]) == px:
+        masq[i] = np.append(masq.all(masq, 1)),
+        c+=1
+    else:
+        yellow.any(yellow[i]) != px
+        masq[i] = np.append(masq.all(masq, c))
+
+print(type(px))
+print(px)
+
+
+#cv2.imshow("Image", yellow)
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
