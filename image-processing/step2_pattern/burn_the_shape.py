@@ -68,21 +68,27 @@ ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 yellow = np.copy(thresh)
 px = yellow[0,0]
 
-masq = np.array([])
+masq = np.zeros_like(yellow)
+print(masq[0,0])
 
-for i in range(len(yellow)):
-    c = 1
-    if yellow.all(yellow[i]) == px:
-        masq[i] = np.append(masq.all(masq, 1)),
-        c+=1
+import random
+vals = random.sample(range(255), 10)
+c = 0
+print(vals[c])
+
+for (x,y), pixel in np.ndenumerate(yellow):
+    if pixel == px:
+        np.put(masq, [x,y], vals[c])
     else:
-        yellow.any(yellow[i]) != px
-        masq[i] = np.append(masq.all(masq, c))
+        if pixel != yellow[x-1,y-1]:
+            c += 1
+        else:
+            np.put(masq, [x, y], vals[c])
 
-print(type(px))
-print(px)
+print(type(c))
+print(c)
 
 
 #cv2.imshow("Image", yellow)
 #cv2.waitKey(0)
-#cv2.destroyAllWindows()
+#cv2.destroyAllWindows()'''
