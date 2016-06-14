@@ -8,3 +8,7 @@ This is how the palette looks (palette.jpg), what I am to do is:
 
 ###june the 9th res:
 The machine now knows how to kill background and white area.
+
+##june the 14th res:
+The machine now knows how to get an avg colour of the small piece of other 4 areas (see the example: example.png).
+Input: pic of a certain pattern. Output: 4 3-tuples with average RGB values of an area. 
