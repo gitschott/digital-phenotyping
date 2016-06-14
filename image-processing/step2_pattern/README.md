@@ -11,4 +11,9 @@ The machine now knows how to kill background and white area.
 
 ##june the 14th res:
 The machine now knows how to get an avg colour of the small piece of other 4 areas (see the example: example.png).
-Input: pic of a certain pattern. Output: 4 3-tuples with average RGB values of an area. 
+Input: pic of a certain pattern. Output: 4 3-tuples with average RGB values of an area.
+
+##june the 14th res:
+1) New pattern to recognize (piece.jpg).
+2) Geometrical algorithm of recognition (measurment of distances between centres).
+3) Yet to test on distortions. 
