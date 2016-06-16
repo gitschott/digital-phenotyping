@@ -5,7 +5,7 @@ import cv2
 import math
 
 #read the image and convert it to grayscale
-img = cv2.imread('/Users/apple/tutorial/piece.jpg')
+img = cv2.imread('/Users/apple/tutorial/piece_on skin_rotS.jpg')
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 # find all the 'black' shapes in the image
@@ -17,14 +17,14 @@ kernel = np.ones((5,5),np.uint8)
 # find the contours in the mask
 im2, cnts, hier = cv2.findContours(shapeMask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 hier = hier[0] #get the hierarchy of contours values
-cv2.drawContours(img, cnts, -1, (0, 255, 0), 2)
+#cv2.drawContours(img, cnts, -1, (0, 255, 0), 2)
 
 #get shapes centers according to 'image moments'
 centres = []
 for i in range(len(cnts)):
   moments = cv2.moments(cnts[i])
   centres.append((int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00'])))
-  cv2.circle(img, centres[-1], 3, (0, 0, 255), -1)
+  #cv2.circle(img, centres[-1], 3, (0, 0, 255), -1)
 
 #get the distances between shapes centres
 dist = []
@@ -105,13 +105,13 @@ if iol == True:
         print('Everything is fine, leap ahead.')
         coef = 1
     else:
-        coef = distance / diag[1]
+        coef = DISTANCE / diag[1]
         print('The coefficient is set to %d.' % coef)
 else:
     lin1 = np.asarray([(0, 0), (shape[0], shape[0])])
     lin2 = np.asarray([(x, y),(z, w)])
     angle = ang(lin1,lin2)
-    rows, cols = img.shape
+    rows, cols, dims = img.shape
     M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
     img = cv2.warpAffine(img, M, (cols, rows))
     print('The image was rotated to %d degrees.' % angle)
@@ -119,7 +119,7 @@ else:
         print('Everything is fine, leap ahead.')
         coef = 1
     else:
-        coef = distance / diag[1]
+        coef = DISTANCE / diag[1]
         print('The coefficient is set to %d.' % coef)
 
 masque_sh = img.shape[0],img.shape[1]
@@ -133,10 +133,16 @@ yellow = np.zeros((masque_sh), np.uint8)
 ROI = np.zeros((masque_sh), np.uint8)
 
 #new constants of the shape pattern
-BORDER = 20*coef # width of the borders
-SQUARE = 100*coef #side of the white square
-COLOR = 40*coef #side of CMY rectangle
-ROI_side = 160*coef #side of ROI
+BORDER = int(20*coef) # width of the borders
+SQUARE = int(100*coef) #side of the white square
+COLOR = int(40*coef) #side of CMY rectangle
+ROI_side = int(160*coef) #side of ROI
+
+# #smaller constants
+# BORDER = 19*coef # width of the borders
+# SQUARE = 99*coef #side of the white square
+# COLOR = 39*coef #side of CMY rectangle
+# ROI_side = 159*coef #side of ROI
 
 ##get the zeros:
 x = int(x - (diag[1]-3*COLOR-4*BORDER)/2)
@@ -146,7 +152,9 @@ print(x,y)
 c=0
 while c<4:
     ZERO_X=x
+    #ZERO_X = x+1*coef
     ZERO_Y=y
+    #ZERO_Y = y+1*coef
     cv2.rectangle(white, (ZERO_X,ZERO_Y), (ZERO_X+SQUARE,ZERO_Y+SQUARE), (255, 255, 255), -1)
     cy = ZERO_X+SQUARE+BORDER
     cv2.rectangle(cyan, (cy,ZERO_Y), (cy+COLOR,ZERO_Y+SQUARE), (255, 255, 255), -1)
@@ -154,8 +162,13 @@ while c<4:
     cv2.rectangle(yellow, (ye,ZERO_Y), (ye + COLOR, ZERO_Y + SQUARE), (255, 255, 255), -1)
     ma =ye+COLOR+BORDER
     cv2.rectangle(magenta, (ma,ZERO_Y), (ma+COLOR, ZERO_Y + SQUARE), (255, 255, 255), -1)
-    roi_l = cy+BORDER
-    cv2.rectangle(ROI, (roi_l, roi_l), (roi_l+ROI_side, roi_l+ROI_side), (255, 255, 255), -1)
+    cv2.rectangle(ROI, (cy, cy), (cy+ROI_side, cy+ROI_side), (255, 255, 255), -1)
+    #doublecheck
+    cv2.rectangle(img, (ZERO_X, ZERO_Y), (ZERO_X + SQUARE, ZERO_Y + SQUARE), (0, 255, 0), 5)
+    cv2.rectangle(img, (cy, ZERO_Y), (cy + COLOR, ZERO_Y + SQUARE), (0, 255, 0), 5)
+    cv2.rectangle(img, (ye, ZERO_Y), (ye + COLOR, ZERO_Y + SQUARE), (0, 255, 0), 5)
+    cv2.rectangle(img, (ma, ZERO_Y), (ma + COLOR, ZERO_Y + SQUARE), (0, 255, 0), 5)
+    cv2.rectangle(img, (cy, cy), (cy + ROI_side, cy + ROI_side), (0, 255, 0), 5)
     cols, rows, dims = img.shape
     M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)
     white = cv2.warpAffine(white,M,(cols,rows))
@@ -163,8 +176,10 @@ while c<4:
     magenta = cv2.warpAffine(magenta, M, (cols, rows))
     yellow = cv2.warpAffine(yellow, M, (cols, rows))
     ROI = cv2.warpAffine(ROI, M, (cols, rows))
+    # img = cv2.warpAffine(img, M, (cols, rows))
     c+=1
 
+'''
 #get the colours
 def get_average_color(masque, image):
     """ Returns a 3-tuple containing the RGB value of the average color of the
@@ -178,10 +193,10 @@ def get_average_color(masque, image):
             pass
         else:
             s,t = index
-            pixlr, pixlg, pixlb = image[s,t]
-            r += pixlr
-            g += pixlg
+            pixlb, pixlg, pixlr = image[s,t]
             b += pixlb
+            g += pixlg
+            r += pixlr
             count += 1
     return ((r / count), (g / count), (b / count))
 
@@ -190,11 +205,45 @@ avg_c = get_average_color(cyan,img)
 avg_m = get_average_color(magenta,img)
 avg_y = get_average_color(yellow,img)
 avg_ROI = get_average_color(ROI, img)
-averages = [avg_w, avg_c, avg_m, avg_y, avg_ROI]
-print(averages)
 
+#estimation of white balance
+whites = []
+blue = float(avg_w[0])
+green = float(avg_w[1])
+red = float(avg_w[2])
 
-# cv2.imshow("Mask", ROI)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+whites.append(float(blue/green))
+whites.append(float(green/red))
+whites.append(float(red/blue))
+print(whites)
+
+white_avg = (sum(avg_w))/len(avg_w)
+print(avg_w)
+print(white_avg)
+white_per_cent = (white_avg/255)*100
+print("White on the picture is %d per cent white." % white_per_cent)
+
+#estimation of other colours averages
+avgs = []
+
+avgs.append((avg_c[2]+white_avg+avg_c[0]+avg_c[1])/len(avg_c)) #cyan
+avgs.append((avg_y[0]+white_avg+avg_y[1]+avg_y[2])/len(avg_y)) #yellow
+avgs.append((avg_m[1]+white_avg+avg_m[0]+avg_m[2])/len(avg_m)) #magenta
+avgs.append(white_avg) #white
+
+avgs_a = np.array([avgs])
+print(avgs)
+st_dev = np.std(avgs_a, ddof=1)
+print(st_dev)
+
+if st_dev>1.5:
+    print("Your picture is not balanced.")
+else:
+    print("Your picture is well balanced.")
+'''
+
+#cv2.rectangle(img, (cy, cy), (cy+ROI_side, cy+ROI_side), (0, 255, 0), 5)
+cv2.imshow("Mask", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
