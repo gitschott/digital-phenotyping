@@ -5,7 +5,7 @@ import cv2
 import math
 
 #read the image and convert it to grayscale
-img = cv2.imread('/Users/apple/tutorial/piece_on skin_rotS_noise5.jpg')
+img = cv2.imread('/Users/apple/tutorial/piece_on skin_rotS_noise25.jpg')
 bin = cv2.imread('/Users/apple/tutorial/piece_on skin_rotS_noise5.jpg',0)
 img = cv2.GaussianBlur(img,(5,5),0)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -35,7 +35,8 @@ lst_intensities = []
 # For each list of contour points...
 for c in range(len(cnts)):
     # Create a mask image that contains the contour filled in
-    cimg = np.zeros_like(img)
+    cimg = np.empty_like(img)
+    cimg[:] = np.NaN
     cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
     # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
@@ -58,8 +59,8 @@ def get_average_color(image):
         else:
             s,t = index
             pixlb, pixlg, pixlr = image[s,t]
-            if pixlb == pixlg == pixlr == 0:
-                pass
+            if pixlb == pixlg == pixlr <= 5:
+                count += 0
             else:
                 b += pixlb
                 g += pixlg
@@ -72,7 +73,7 @@ for i in range(len(lst_intensities)):
     colors_avg.append(np.average(lst_intensities[i], axis=0))
 
 
-print(colors_avg)
+print(colors_avg[0])
 max_index = areas.index(max(areas))
 cnt=cnts[max_index]
 
@@ -357,6 +358,17 @@ else:
     print("Your picture is well balanced.")'''
 
 #cv2.rectangle(img, (int(x), int(y)), (w, h), (0, 255, 0), 5)
-cv2.imshow("Mask", img)
+
+#draw first side
+c=0
+check = np.empty_like(img)
+while c<4:
+    for t in range(len(colors_avg)-1):
+        color = colors_avg[t]
+        cv2.drawContours(check, cnts, t, color, thickness=-1)
+    c+=1
+
+cv2.imshow("img", check)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
