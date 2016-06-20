@@ -1,9 +1,34 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # import the necessary packages
 import numpy as np
 import cv2
 import math
 import argparse
 
+#get the colours
+def get_average_color(image):
+    """ 3-tuple containing the BGR value
+    of the average color of masque,
+     ignoring zero values"""
+
+    r, g, b = 0, 0, 0
+    count = 0
+    for index, pixel in np.ndenumerate(image):
+        if pixel == 0:
+            blacks +=1
+        else:
+            s,t = index
+            pixlb, pixlg, pixlr = image[s,t]
+            if pixlb <= pixlg <= pixlr <= 1:
+                count += 0
+            else:
+                b += pixlb
+                g += pixlg
+                r += pixlr
+                count += 1
+    return ((r / count), (g / count), (b / count))
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser(description='Hello. Upload the picture for the analysis please.')
@@ -53,30 +78,6 @@ for c in range(len(cnts)):
     # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
     lst_intensities.append(img[pts[1], pts[0]])
-
-blacks = 0
-#get the colours
-def get_average_color(image):
-    """ 3-tuple containing the BGR value
-    of the average color of masque,
-     ignoring zero values"""
-
-    r, g, b = 0, 0, 0
-    count = 0
-    for index, pixel in np.ndenumerate(image):
-        if pixel == 0:
-            blacks +=1
-        else:
-            s,t = index
-            pixlb, pixlg, pixlr = image[s,t]
-            if pixlb <= pixlg <= pixlr <= 1:
-                count += 0
-            else:
-                b += pixlb
-                g += pixlg
-                r += pixlr
-                count += 1
-    return ((r / count), (g / count), (b / count))
 
 colors_avg = []
 for i in range(len(lst_intensities)):
