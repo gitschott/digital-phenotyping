@@ -23,7 +23,9 @@ This is a tool for skin color recognition and analysis.
 
 There is a small rigid coloured frame which is a CMYK palette that is to be put on the skin and photographed. There is an opening inside that frame in the middle. It shows the skin sample that is analyzed further. 
 
-The photo then is uploded as an argument to recognize.py and processed. First step is contour selection. Second step is mask creation. Next step is retrieval and averaging of color values. 
+The photo then is uploded as an argument to recognize.py and processed. First step is contour selection. Second step is mask creation. Next step is retrieval and averaging of color values.
+
+The algorithm requires OpenCV library to be pre-installed. Comprehensive OpenCV installation tutorial is availiable [2]. 
 
 Current version allows:
 * Palette pattern recognition (to be tested)
@@ -39,4 +41,5 @@ Current version allows:
 6. Skin tone classifier.
 
 ##References
-1. Candille S. I. et al. Genome-wide association studies of quantitatively measured skin, hair, and eye pigmentation in four European populations //PLoS One. – 2012. 
+1. Candille S. I. et al. Genome-wide association studies of quantitatively measured skin, hair, and eye pigmentation in four European populations //PLoS One. – 2012.
+2. http://docs.opencv.org/2.4/doc/tutorials/introduction/table_of_content_introduction/table_of_content_introduction.html 
