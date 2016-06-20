@@ -23,7 +23,7 @@ This is a tool for skin color recognition and analysis.
 
 There is a small rigid coloured frame which is a CMYK palette that is to be put on the skin and photographed. There is an opening inside that frame in the middle. It shows the skin sample that is analyzed further. 
 
-The photo then is uploded as an argument to get_the_shape.py and processed. First step is contour selection. Second step is mask creation. Next step is retrieval and averaging of color values. 
+The photo then is uploded as an argument to recognize.py and processed. First step is contour selection. Second step is mask creation. Next step is retrieval and averaging of color values. 
 
 Current version allows:
 * Palette pattern recognition (to be tested)
@@ -36,4 +36,7 @@ Current version allows:
 3. Testing of real photos.
 4. Recognition tests and recognizing classifyer.
 5. White balance correction.
-6. Skin tone classifyer. 
+6. Skin tone classifier.
+
+##References
+1. Candille S. I. et al. Genome-wide association studies of quantitatively measured skin, hair, and eye pigmentation in four European populations //PLoS One. – 2012. 

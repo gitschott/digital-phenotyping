@@ -35,7 +35,7 @@ ap = argparse.ArgumentParser(description='Hello. Upload the picture for the anal
 ap.add_argument("-i", "--image", help = "path to the image file")
 args = vars(ap.parse_args())
 
-args = parser.parse_args()
+args = ap.parse_args()
 print(args.accumulate(args.integers))
 
 #read the image and convert it to acceptable array for analysis
