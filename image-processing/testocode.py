@@ -6,33 +6,29 @@ from __future__ import print_function
 import numpy as np
 import cv2
 import math
-import argparse
+#import argparser
 from matplotlib import pyplot as plt
 from scipy.signal import argrelextrema
-import sys
 
-
-# Angle-checking function
+#angle-checking function
 def is_on_line(x1, y1, x2, y2, x3, y3):
     slope = (y2 - y1) / (x2 - x1)
     return y3 - y1 == slope * (x3 - x1)
 
-# Colour values stretching function
+# colour values stretching function
 def color_stretch(image):
-    for i in range(image.shape[2]):
-        image = cv2.equalizeHist(image[:,:,i])
     for index, pixel in np.ndenumerate(image):
         if pixel < 20:
             pixel -= 2
-        elif pixel  >230:
-            pixel +=3
+            if pixel < 0:
+                pixel == 0
+        elif pixel > 230:
+            pixel += 3
         else:
             continue
 
         return image
 
-
-# Color values stretching acccording to the histogram
 def histogram_stretch(image):
     # an RGB image is required to perform the analysis
     for i in range(image.shape[2]):
@@ -41,7 +37,7 @@ def histogram_stretch(image):
     image[:,:,i] = blue
     return image
 
-# Contours selection facilitating function
+#contours selection facilitating function
 def contours_selection(image, iterations):
     #the more iterations, the thinner the contours
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -52,7 +48,7 @@ def contours_selection(image, iterations):
 
     return gray_thin
 
-# Contours selection facilitating function enhanced with the threshold
+#contours selection facilitating function enhanced with the threshold
 def contours_selection_threshold(image, iterations):
     #the more iterations, the thinner the contours
     (T, thresh) = cv2.threshold(image, 252, 255, cv2.THRESH_TRUNC)
@@ -62,60 +58,77 @@ def contours_selection_threshold(image, iterations):
 
     return gray_thin
 
-# Construct the argument parse and parse the arguments
-if __name__ == '__main__':
-    ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
-    ap.add_argument("-i", "--image", required=True, help = "path to the image file")
-    ap.add_argument("-c", "--contours", action="store_true", help = "show image with found contours")
-    ap.add_argument("-s", "--save", action = 'store_true', help="saving of the average colors if needed")
-    args = vars(ap.parse_args(['-i','-c','-s']))
-    print(args)
+# # construct the argument parse and parse the arguments
+# if __name__ == '__main__':
+#     ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
+#     ap.add_argument("-i", "--image", help = "path to the image file")
+#     ap.add_argument("-c", "--contours", action="store_true", help = "show image with found contours")
+#     ap.add_argument("-s", "--save", action = 'store_true', help="saving of the average colors if needed")
+#     args = vars(ap.parse_args())
+#     args = ap.parse_args()
+#     print(args.accumulate(args.integers))
 
- # Read the image and convert it to acceptable array for analysis
-img = cv2.imread('image')  # image for analysis
-img = cv2.GaussianBlur(img,(5,5),0)  #blur is added to denoise the image
+#read the image and convert it to acceptable array for analysis
+# img = cv2.imread(args["image"]) #image for analysis
+img = cv2.imread('/Users/apple/digital-phenotyping/image-processing/test_images/IMG_5407.jpg') #image for analysis
+img = cv2.GaussianBlur(img,(5,5),0) #blur is added to denoise the image
 
 #contrasting picture by stretching color values
 img = color_stretch(img)
+print(img.shape)
 
 #convert to grayscale, shrink shapes' sizes
 gray_thin = contours_selection_threshold(img, 4)
+gray_thin = cv2.equalizeHist(gray_thin)
+#gray_thin = color_stretch(gray_thin)
+hist, bins = np.histogram(gray_thin, bins = 256)
 histr = cv2.calcHist(gray_thin,[0],None, [256], [0, 256])
+loc_max = argrelextrema(histr, np.greater)
+print(loc_max)
+lm_indices = loc_max[0]
+
+hsize = histr.shape[0]
+lmsize = lm_indices.shape[0]
 
 black_index = int(float(lmsize)*100/float(hsize))
 blo = int(histr[lm_indices[black_index]])
 print(blo)
 
-# Convert to grayscale, shrink shapes' sizes
-gray_thin = contours_selection_threshold(img,4)
+# find all the 'black' shapes in the image
+lower=np.array([0])
+upper = np.array([blo])
 
-cv2.imshow("img", gray_thin)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-# Find all the 'black' shapes in the image
-lower = np.array([0])
-upper = np.array([20])
+#shapeMask = cv2.inRange(gray, lower, upper)
 shapeMask = cv2.inRange(gray_thin, lower, upper) #selection of smaller contours
 
 # find the contours in the mask
 im, cnts, hier = cv2.findContours(shapeMask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 #If needed: visualization of the contours found
-if args.contours:
+'''if args.contours:
     contour_img = np.copy(img)
-    cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
-
+    cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)'''
 
 ##Geometrical data further can be analyzed in recognition tests
 #finding contour areas
 areas = []
 for c in cnts:
      areas.append(cv2.contourArea(c))
-     print(areas)
 
 print(areas)
-max_index = max(areas)
+max_index = areas.index(max(areas))
+print(max_index)
+contour_img = np.copy(img)
+cv2.drawContours(contour_img, cnts[max_index], -1, (0, 255, 0), thickness=3)
+
+#info on contours
+x, y, w, h = cv2.boundingRect(cnts[max_index])
+print(x,y,w,h)
+ROI = img[y:(y+h),x:(x+w)]
+# cv2.imshow("img", ROI)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 #get shape centers
 centres = []
@@ -147,23 +160,27 @@ main_diag_coords = []
 
 for (x,y) in corner:
     for (i,j) in corner:
-        iol = is_on_line(x,y,centres[max_index],i,j)
+        iol = is_on_line(x,y,centres[max_index][0],centres[max_index][1],i,j)
         if iol == True:
              main_diag_coords.append([x,y,i,j])
         else:
             continue
 
-print(type(main_diag_coords))
-
 # Selection of contours, contours mask creation
 lst_intensities = []
 
-for c in range(len(cnts)):
+#for c in range(len(cnts)):
+for c in range(1):
     cimg = np.empty_like(img)
     cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
     # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
-    lst_intensities.append(img[pts[1], pts[0]])
+    print(type(pts))
+    print(len(pts))
+    print(type(pts[0][0]))
+    print(((pts[1]).shape[0])/len(cnts))
+    print(pts)
+    #lst_intensities.append(img[pts[1], pts[0]])
 
 colors_avg = []
 for i in range(len(lst_intensities)):
@@ -185,7 +202,7 @@ while c<4:
             cv2.drawContours(check, cnts, t, color, thickness=-1)
     c+=1
 
-cv2.imshow("img", contour_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow("img", check)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
