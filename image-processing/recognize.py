@@ -142,6 +142,11 @@ if args['panic'] == True:
     cv2.destroyAllWindows()
     #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
 
+
 # Analyzing the white balance
+
 for c in colors_avg:
-    print(type(c))
+    print(c)
+
+### I AM NOT YET SURE HOW TO RECOGNIZE THE WHITE SQUARES
+
