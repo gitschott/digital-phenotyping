@@ -1,0 +1,2 @@
+usage: recognize.py [-h] --image IMAGE
+recognize.py: error: argument --image: expected one argument

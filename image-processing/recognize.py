@@ -64,34 +64,41 @@ def contours_selection_threshold(image, iterations):
 
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
-    ap.add_argument("-i", "--image", required=True, help = "path to the image file")
-    ap.add_argument("-c", "--contours", action="store_true", help = "show image with found contours")
-    ap.add_argument("-s", "--save", action = 'store_true', help="saving of the average colors if needed")
-    args = vars(ap.parse_args(['-i','-c','-s']))
-    print(args)
+    ap = argparse.ArgumentParser(description="let the process begin")
+    ap.add_argument("-i", "--image", required=True, help="Path to the image")
+    ap.add_argument('-c', '--contours', action='store_true', help="Show image with contours")
+    args = vars(ap.parse_args())
+    # ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
+    # ap.add_argument('-i','--image', required=True, help="Path to the image file")
+    # # ap.add_argument('-c', '--contours', stored='store_true', help="Show image with contours")
+    # # ap.add_argument('-i', '--save', stored='store_true', help="Save the result")
+    # # args = vars(ap.parse_args(['-i','-c','-s']))
+    # args = ap.parse_args()
+    # print(args)
+    # print(args[image])
+
 
  # Read the image and convert it to acceptable array for analysis
-img = cv2.imread('image')  # image for analysis
+img = cv2.imread(args['image'])  # image for analysis
 img = cv2.GaussianBlur(img,(5,5),0)  #blur is added to denoise the image
 
 #contrasting picture by stretching color values
-img = color_stretch(img)
+#img = color_stretch(img)
 
 #convert to grayscale, shrink shapes' sizes
 gray_thin = contours_selection_threshold(img, 4)
 histr = cv2.calcHist(gray_thin,[0],None, [256], [0, 256])
 
-black_index = int(float(lmsize)*100/float(hsize))
-blo = int(histr[lm_indices[black_index]])
-print(blo)
+# black_index = int(float(lmsize)*100/float(hsize))
+# blo = int(histr[lm_indices[black_index]])
+# print(blo)
 
 # Convert to grayscale, shrink shapes' sizes
 gray_thin = contours_selection_threshold(img,4)
 
-cv2.imshow("img", gray_thin)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow("img", gray_thin)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 # Find all the 'black' shapes in the image
 lower = np.array([0])
@@ -102,7 +109,7 @@ shapeMask = cv2.inRange(gray_thin, lower, upper) #selection of smaller contours
 im, cnts, hier = cv2.findContours(shapeMask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 #If needed: visualization of the contours found
-if args.contours:
+if args['contours'] == True:
     contour_img = np.copy(img)
     cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
 
@@ -112,10 +119,9 @@ if args.contours:
 areas = []
 for c in cnts:
      areas.append(cv2.contourArea(c))
-     print(areas)
 
-print(areas)
-max_index = max(areas)
+print(type(areas))
+max_index = areas.index(max(areas))
 
 #get shape centers
 centres = []
@@ -144,10 +150,11 @@ for i in top:
     corner.append(coords[i])
 
 main_diag_coords = []
-
+p = centres[max_index][0]
+q = centres[max_index][1]
 for (x,y) in corner:
     for (i,j) in corner:
-        iol = is_on_line(x,y,centres[max_index],i,j)
+        iol = is_on_line(x,y,p,q,i,j)
         if iol == True:
              main_diag_coords.append([x,y,i,j])
         else:
