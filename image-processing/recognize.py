@@ -140,17 +140,11 @@ lst_intensities = []
 
 count = 0
 for c in range(len(cnts)):
-    count+=1
     cimg = np.zeros_like(ROI)
     cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
-    # Access the image pixels and create a 1D numpy array then add to list
+        # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
-    print(len(pts))
-    print(pts)
-    print(cimg.shape, ROI.shape)
-    print(count, len(cnts))
-    lst_intensities.append(ROI[pts[1], pts[0]])
-
+    lst_intensities.append(ROI[pts[0], pts[1]])
 
 colors_avg = []
 for i in range(len(lst_intensities)):
