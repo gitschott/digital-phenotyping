@@ -1,5 +1,4 @@
 *.lab.md
-<<<<<<< HEAD
-*.DS_Store
+*/image-processing/test_images/.DS_Store
 */image-processing/.idea/~
 

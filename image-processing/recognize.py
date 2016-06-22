@@ -13,8 +13,6 @@ from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
 
-
-
 # Angle-checking function
 def is_on_line(x1, y1, x2, y2, x3, y3):
     slope = (y2 - y1) / (x2 - x1)
@@ -59,7 +57,6 @@ def contours_selection(image, iterations):
 def contours_selection_threshold(image, iterations):
     #the more iterations, the thinner the contours
     (T, thresh) = cv2.threshold(image, 250, 255, cv2.THRESH_TRUNC)
-    # (T, thresh) = cv2.threshold(image, 252, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((5, 5), np.uint8)
     print(thresh.shape)
     erosion = cv2.erode(thresh, kernel, iterations=iterations)
