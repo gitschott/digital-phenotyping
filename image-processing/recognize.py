@@ -113,11 +113,11 @@ max_index = areas.index(np.max(areas))
 lst_intensities = []
 count = 0
 for c in range(len(cnts)):
-    cimg = np.zeros_like(ROI)
+    cimg = np.zeros_like(img)
     cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
         # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
-    lst_intensities.append(ROI[pts[0], pts[1]])
+    lst_intensities.append(img[pts[0], pts[1]])
 
 # Obtaining average intensity values
 colors_avg = []
@@ -127,7 +127,7 @@ for i in range(len(lst_intensities)):
 # Drawing the colours, checking the averages
 if args['panic'] == True:
     c=0
-    check = np.empty_like(ROI)
+    check = np.empty_like(img)
     while c<4:
         for t in range(len(colors_avg)):
             if t >= max_index-1:
@@ -143,3 +143,4 @@ if args['panic'] == True:
     #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
 
 # Analyzing the white balance
+print(colors_avg)
