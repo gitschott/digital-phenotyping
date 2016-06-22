@@ -8,7 +8,9 @@ import cv2
 import math
 import argparse
 from matplotlib import pyplot as plt
+import matplotlib.mlab as mlab
 from scipy.signal import argrelextrema
+from scipy.stats import norm
 import sys
 
 
@@ -55,7 +57,8 @@ def contours_selection(image, iterations):
 # Contours selection facilitating function enhanced with the threshold
 def contours_selection_threshold(image, iterations):
     #the more iterations, the thinner the contours
-    (T, thresh) = cv2.threshold(image, 252, 255, cv2.THRESH_TRUNC)
+    (T, thresh) = cv2.threshold(image, 250, 255, cv2.THRESH_TRUNC)
+    # (T, thresh) = cv2.threshold(image, 252, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((5, 5), np.uint8)
     erosion = cv2.erode(thresh, kernel, iterations=iterations)
     gray_thin = cv2.cvtColor(erosion, cv2.COLOR_BGR2GRAY)
@@ -85,43 +88,38 @@ img = cv2.GaussianBlur(img,(5,5),0)  #blur is added to denoise the image
 #contrasting picture by stretching color values
 #img = color_stretch(img)
 
-#convert to grayscale, shrink shapes' sizes
-gray_thin = contours_selection_threshold(img, 4)
-histr = cv2.calcHist(gray_thin,[0],None, [256], [0, 256])
-
 # black_index = int(float(lmsize)*100/float(hsize))
 # blo = int(histr[lm_indices[black_index]])
 # print(blo)
 
 # Convert to grayscale, shrink shapes' sizes
 gray_thin = contours_selection_threshold(img,4)
-
-# cv2.imshow("img", gray_thin)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-
-# Find all the 'black' shapes in the image
-lower = np.array([0])
-upper = np.array([20])
-shapeMask = cv2.inRange(gray_thin, lower, upper) #selection of smaller contours
+ret3,th3 = cv2.threshold(gray_thin,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+if len(np.unique(th3)) > 2:
+    print('Something went wrong.')
+min, max = np.unique(th3)
 
 # find the contours in the mask
-im, cnts, hier = cv2.findContours(shapeMask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+im, cnts, hier = cv2.findContours(th3, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 #If needed: visualization of the contours found
 if args['contours'] == True:
     contour_img = np.copy(img)
     cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
 
-
-##Geometrical data further can be analyzed in recognition tests
+#cut the ROI
 #finding contour areas
 areas = []
 for c in cnts:
-     areas.append(cv2.contourArea(c))
+    areas.append(cv2.contourArea(c))
 
 print(type(areas))
 max_index = areas.index(max(areas))
+
+img_ROI = img[cnts[max_index]]
+cv2.imshow("img", img_ROI)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 #get shape centers
 centres = []
@@ -192,7 +190,7 @@ while c<4:
             cv2.drawContours(check, cnts, t, color, thickness=-1)
     c+=1
 
-cv2.imshow("img", contour_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow("img", check)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
