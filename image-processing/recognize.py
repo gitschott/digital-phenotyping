@@ -143,4 +143,5 @@ if args['panic'] == True:
     #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
 
 # Analyzing the white balance
-print(colors_avg)
+for c in colors_avg:
+    print(type(c))

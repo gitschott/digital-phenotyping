@@ -31,9 +31,6 @@ while c<4:
 cv2.rectangle(img, (0,0), (600,600), (255, 255, 255), 120)
 cv2.rectangle(img, (220,220), (380,380), (255, 255, 255), -1)
 
-##List of constants we know:
-diagonal = 160*(2**(-2))
-
 #Save
 cv2.imwrite("~/digital-phenotyping/image-processing/sample/piece.jpg", img)
 #Display the image
