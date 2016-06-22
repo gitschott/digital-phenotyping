@@ -1,5 +1,4 @@
 numpy
 python-dev
-virtualenv virtualenvwrapper
 matplotlib
 scipy

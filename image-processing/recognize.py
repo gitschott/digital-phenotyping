@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # import the necessary packages
-from __future__ import print_function
 import numpy as np
 import cv2
 import math
@@ -68,7 +67,7 @@ def contours_selection_threshold(image, iterations):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description="let the process begin")
     ap.add_argument("-i", "--image", required=True, help="Path to the image")
-    ap.add_argument('-c', '--contours', action='store_true', help="Show image with contours")
+    ap.add_argument('-p', '--panic', action='store_true', help="Show every image on each step")
     args = vars(ap.parse_args())
     # ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
     # ap.add_argument('-i','--image', required=True, help="Path to the image file")
@@ -84,53 +83,112 @@ if __name__ == '__main__':
 img = cv2.imread(args['image'])  # image for analysis
 img = cv2.GaussianBlur(img,(5,5),0)  #blur is added to denoise the image
 
-# Convert to grayscale, shrink shapes' sizes
-gray_thin = contours_selection_threshold(img,4)
-ret3,th3 = cv2.threshold(gray_thin,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-if len(np.unique(th3)) > 2:
-    print('Something went wrong.')
-min, max = np.unique(th3)
+# if args['panic'] == True:
+#     cv2.imshow("img", img)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#
+# # Convert to grayscale, shrink shapes' sizes
+# gray_thin = contours_selection_threshold(img,4)
+#
+# if args['panic'] == True:
+#     cv2.imshow("img", gray_thin)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#
+# ret3,th3 = cv2.threshold(gray_thin,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+# if len(np.unique(th3)) > 2:
+#     print('Something went wrong.')
+# min, max = np.unique(th3)
+#
+# if args['panic'] == True:
+#     cv2.imshow("img", th3)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#
+# # find the contours in the mask
+# im, cnts, hier = cv2.findContours(th3, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+#
+# #If needed: visualization of the contours found
+# if args['panic'] == True:
+#     contour_img = np.copy(img)
+#     cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
+#     cv2.imshow("img", img)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#     contour_img = np.copy(img)
+#     cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
+#
+# #cut the ROI
+# #finding contour areas
+# areas = []
+# for c in cnts:
+#     areas.append(cv2.contourArea(c))
+#
+# max_index = areas.index(np.max(areas))
+#
+#
+# mask = np.zeros_like(img) # Create mask where white is what we want, black otherwise
+# cv2.drawContours(mask, cnts, (max_index-1), [255,255,255], -1) # Draw filled contour in mask
+# out = np.zeros_like(img) # Extract out the object and place into output image
+# out[mask == 255] = img[mask == 255]
+# cv2.drawContours(out, cnts, -1, (0, 255, 0), thickness=3)
+#
+# if args['panic'] == True:
+#     cv2.imshow("img", out)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#
+# ROI = np.copy(img)
+# # # Cut the ROI
+# # x, y, w, h = cv2.boundingRect(cnts[max_index-1])
+# # ROI = img[y:(y+h),x:(x+w)]
+#
+#
+# if args['panic'] == True:
+#     cv2.imshow("img", ROI)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
 
-# find the contours in the mask
-im, cnts, hier = cv2.findContours(th3, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-
-#If needed: visualization of the contours found
-if args['contours'] == True:
-    contour_img = np.copy(img)
-    cv2.drawContours(contour_img, cnts, -1, (0, 255, 0), thickness=3)
-
-#cut the ROI
-#finding contour areas
-areas = []
-for c in cnts:
-    areas.append(cv2.contourArea(c))
-
-max_index = areas.index(np.max(areas))
-
-
-mask = np.zeros_like(img) # Create mask where white is what we want, black otherwise
-cv2.drawContours(mask, cnts, (max_index-1), [255,255,255], -1) # Draw filled contour in mask
-out = np.zeros_like(img) # Extract out the object and place into output image
-out[mask == 255] = img[mask == 255]
-cv2.drawContours(out, cnts, -1, (0, 255, 0), thickness=3)
-
-#info on contours
-x, y, w, h = cv2.boundingRect(cnts[max_index-1])
-ROI = img[y:(y+h),x:(x+w)]
-
-
+ROI = np.copy(img)
 # Cutting the contours in the new picture
 frame = np.copy(ROI)
 ret3,th4 = cv2.threshold(frame,100,256,cv2.THRESH_BINARY)
+
+if args['panic'] == True:
+    cv2.imshow("img", th4)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 gray = cv2.cvtColor(th4, cv2.COLOR_BGR2GRAY)
+
+if args['panic'] == True:
+    cv2.imshow("img", gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 rango = np.unique(gray)
 
 mask = np.zeros_like(gray) # Create mask where white is what we want, black otherwise
 mask[gray == rango[0]] = 255
 ret3,th4 = cv2.threshold(mask,100,256,cv2.THRESH_BINARY_INV)
 
+if args['panic'] == True:
+    cv2.imshow("img", th4)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 # find the contours in the mask
 im, cnts, hier = cv2.findContours(th4, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
+#finding contour areas
+areas = []
+for c in cnts:
+    areas.append(cv2.contourArea(c))
+
+max_index = areas.index(np.max(areas))
 
 # Selection of contours, contours mask creation
 lst_intensities = []
