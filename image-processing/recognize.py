@@ -87,13 +87,6 @@ if __name__ == '__main__':
 img = cv2.imread(args['image'])  # image for analysis
 img = cv2.GaussianBlur(img,(5,5),0)  #blur is added to denoise the image
 
-#contrasting picture by stretching color values
-#img = color_stretch(img)
-
-# black_index = int(float(lmsize)*100/float(hsize))
-# blo = int(histr[lm_indices[black_index]])
-# print(blo)
-
 # Convert to grayscale, shrink shapes' sizes
 gray_thin = contours_selection_threshold(img,4)
 ret3,th3 = cv2.threshold(gray_thin,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -115,12 +108,8 @@ areas = []
 for c in cnts:
     areas.append(cv2.contourArea(c))
 
-print(areas)
 max_index = areas.index(np.max(areas))
-print(max_index)
-print(cnts[max_index])
 
-# if areas[max_index]>=
 
 mask = np.zeros_like(img) # Create mask where white is what we want, black otherwise
 cv2.drawContours(mask, cnts, (max_index-1), [255,255,255], -1) # Draw filled contour in mask
@@ -128,34 +117,40 @@ out = np.zeros_like(img) # Extract out the object and place into output image
 out[mask == 255] = img[mask == 255]
 cv2.drawContours(out, cnts, -1, (0, 255, 0), thickness=3)
 
-# Show the output image
-# cv2.imshow('Output', out)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 #info on contours
 x, y, w, h = cv2.boundingRect(cnts[max_index-1])
-print(x,y,w,h)
 ROI = img[y:(y+h),x:(x+w)]
-cv2.imshow("img", ROI)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-ret3,th3 = cv2.threshold(ROI,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-cv2.imshow("img", th3)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+# Cutting the contours in the new picture
+frame = np.copy(ROI)
+ret3,th4 = cv2.threshold(frame,100,256,cv2.THRESH_BINARY)
+gray = cv2.cvtColor(th4, cv2.COLOR_BGR2GRAY)
+rango = np.unique(gray)
+
+mask = np.zeros_like(gray) # Create mask where white is what we want, black otherwise
+mask[gray == rango[0]] = 255
+ret3,th4 = cv2.threshold(mask,100,256,cv2.THRESH_BINARY_INV)
 
 # find the contours in the mask
-im, cnts, hier = cv2.findContours(th3, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+im, cnts, hier = cv2.findContours(th4, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
 # Selection of contours, contours mask creation
 lst_intensities = []
 
+count = 0
 for c in range(len(cnts)):
-    cimg = np.empty_like(img)
+    count+=1
+    cimg = np.zeros_like(ROI)
     cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
     # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
-    lst_intensities.append(img[pts[1], pts[0]])
+    print(len(pts))
+    print(pts)
+    print(cimg.shape, ROI.shape)
+    print(count, len(cnts))
+    lst_intensities.append(ROI[pts[1], pts[0]])
+
 
 colors_avg = []
 for i in range(len(lst_intensities)):
@@ -167,17 +162,17 @@ for i in range(len(lst_intensities)):
 
 #Drawing the colours
 c=0
-check = np.empty_like(img)
+check = np.empty_like(ROI)
 while c<4:
     for t in range(len(colors_avg)):
-        if t == max_index:
+        if t >= max_index-1:
             pass
         else:
             color = colors_avg[t]
             cv2.drawContours(check, cnts, t, color, thickness=-1)
     c+=1
 
-# cv2.imshow("img", check)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+cv2.imshow("img", check)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 #cv2.imwrite("/Users/apple/tutorial/how_computer_sees.jpg", img)
