@@ -94,13 +94,18 @@ def shrink_the_mask(square_contour, image):
         print('The square is not recognized.')
 
     x, y, z, h = approx
-    x = x[0]
-    y = y[0]
-    z = z[0]
-    h = h[0]
+    x = tuple(x[0])
+    y = tuple(y[0])
+    z = tuple(z[0])
+    h = tuple(h[0])
+
     print('There are new coordinates of corners lying inside the contour of the square.')
 
     return x,y,z,h, component
+
+#def get_the_square(x,y,z,h):
+    # x,y,z,h are square corners
+
 
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
@@ -123,22 +128,63 @@ img = cv2.imread(args['image'])  # image for analysis
 contours = contours_selection_threshold(img)
 top, top_regime = square_selection(contours, img)
 
+# Checkpoint of contour sides
 if top_regime == True:
     sq = int(top[1])
 else:
     sq = int(top[0])
 
+# Getting the centre of the contour
 moments = cv2.moments(contours[sq])
 centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
 
-x,y,z,h, component = shrink_the_mask(contours[sq], img)
+# Getting the corners and lengths of the sides
+topleft, botleft, botright, topright, component = shrink_the_mask(contours[sq], img)
+
+corners = [topleft, botleft, botright, topright]
+
+diag = math.hypot(topleft[0] - botright[0], topleft[1] - botright[1])
+wid = math.hypot(topleft[0] - topright[0], topleft[1] - topright[1])
+hei = math.hypot(topleft[0] - botleft[0], topleft[1] - botleft[1])
+
+if diag**2 == wid**2+hei**2:
+    print('Everything is fine.')
+
+print('The diagonal of the rectangle is %d.' % diag)
+print('The width of the rectangle is %d.' % wid)
+print('The height of the rectangle is %d.' % hei)
+
+#Selecting the areas for the analysis
+
+x_coef = wid/480
+y_coef = hei/480
+d_coef = 678.8225099390856 / diag
+#white
+white = np.zeros_like(img)
+white_coords = []
+for i in corners:
+    if i[0]<300:
+        x = int(i[0] + 60*x_coef)
+        p = int(i[0] + 120*x_coef)
+    else:
+        x = int(i[0] - 60*x_coef)
+        p = int(i[0] - 120*x_coef)
+    if i[1]<300:
+        y = int(i[1] + 60*y_coef)
+        q = int(i[1] + 12*y_coef)
+    else:
+        y = int(i[1] - 60 * y_coef)
+        q = int(i[1] - 12 * y_coef)
+
+    white_coords.append(((x,y),(p,q)))
+print(white_coords[0])
+for i in white_coords:
+    cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
+    white[np.where(white == [255,255,255])] = img[np.where(white == [255,255,255])]
+
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
-cv2.circle(img, (x[0],x[1]), 3, (0, 0, 255), -1)
-cv2.circle(img, (y[0],y[1]), 3, (255, 0, 255), -1)
-cv2.circle(img, (z[0],z[1]), 3, (0, 255, 0), -1)
-cv2.circle(img, (h[0],h[1]), 3, (0, 255, 255), -1)
-cv2.imshow("img", img)
+cv2.imshow("img", white)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
