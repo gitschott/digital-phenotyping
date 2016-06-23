@@ -114,7 +114,7 @@ areas = []
 for c in cnts:
     areas.append(cv2.contourArea(c))
 
-a = np.array(areas)
+a = np.asarray(areas)
 hist = np.histogram(a)
 plt.plot(hist)
 plt.xlim([0,len(areas)])
