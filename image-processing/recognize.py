@@ -49,6 +49,14 @@ def contours_selection_threshold(image, iterations):
 
     return gray_thin
 
+def is_contour_bad(c):
+    # approximate the contour
+    peri = cv2.arcLength(c, True)
+    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+
+    # the contour is 'bad' if it is not a rectangle
+    return not len(approx) == 4
+
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description="let the process begin")
@@ -107,6 +115,8 @@ areas = []
 for c in cnts:
     areas.append(cv2.contourArea(c))
 
+
+
 max_index = areas.index(np.max(areas))
 
 # Selection of contours, contours mask creation
@@ -114,7 +124,10 @@ lst_intensities = []
 count = 0
 for c in range(len(cnts)):
     cimg = np.zeros_like(img)
-    cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
+    if is_contour_bad(cnts[c]):
+        continue
+    else:
+        cv2.drawContours(cimg, cnts, c, color=[255,255,255], thickness=-1)
         # Access the image pixels and create a 1D numpy array then add to list
     pts = np.where(cimg == [255,255,255])
     lst_intensities.append(img[pts[0], pts[1]])
@@ -136,6 +149,7 @@ if args['panic'] == True:
                 color = colors_avg[t]
                 cv2.drawContours(check, cnts, t, color, thickness=-1)
         c+=1
+    cv2.drawContours(check, cnts, -1, [0,255,0], thickness=5)
 
     cv2.imshow("img", check)
     cv2.waitKey(0)
@@ -144,9 +158,41 @@ if args['panic'] == True:
 
 
 # Analyzing the white balance
+##Whites are the squares in the corners
 
-for c in colors_avg:
-    print(c)
+#get shapes centers according to 'image moments'
+centres = []
+for i in range(len(cnts)):
+  moments = cv2.moments(cnts[i])
+  print(moments['m00'])
+  if moments['m00'] != 0:
+      centres.append((int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00'])))
+
+  # get the distances between shapes centres
+  dist = []
+  coords = []
+  for (x, y) in centres:
+      for (i, j) in centres:
+          dist.append(math.hypot(x - i, y - j))
+          coords.append((x, y))
+  dist = np.asarray(dist)
+
+  # get the corners coordinates
+  top = dist.argsort()[-4:][::-1]
+  top = top.tolist()
+  corner = []
+
+  for i in top:
+      corner.append(coords[i])
+
+print(corner)
+cv2.circle(check, corner[-1], 3, (0, 255, 0), -1)
+cv2.imshow("img", check)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+# for c in colors_avg:
+#     for i in range(len(c)):
+#         print(int(c[i]))
 
 ### I AM NOT YET SURE HOW TO RECOGNIZE THE WHITE SQUARES
 
