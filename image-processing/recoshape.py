@@ -61,6 +61,47 @@ def square_selection(contours, image):
     #selection of second large contour on the picture that is the square
     return top, top_regime
 
+def shrink_the_mask(square_contour, image):
+    perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
+    if perimeter == 0:
+        print('The square is not recognized.')
+    epsilon = 0.1 * perimeter
+    approx = cv2.approxPolyDP(square_contour, epsilon, True)
+
+    if len(approx) > 4:
+        print('The square is not recognized.')
+
+    component = np.zeros_like(image)
+    x, y, z, h = approx
+    x = x[0]
+    z = z[0]
+    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+
+    kernel = np.ones((5, 5), np.uint8)
+    component = cv2.erode(component, kernel, iterations=6)
+    component = cv2.cvtColor(component,cv2.COLOR_BGR2GRAY)
+    im, cnts, hier = cv2.findContours(component, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if len(cnts) == 1:
+        print('The square is shrinked properly.')
+
+    perimeter = cv2.arcLength(cnts[0], True)  # finds closed contour
+    if perimeter == 0:
+        print('The square is not recognized.')
+    epsilon = 0.1 * perimeter
+    approx = cv2.approxPolyDP(cnts[0], epsilon, True)
+
+    if len(approx) > 4:
+        print('The square is not recognized.')
+
+    x, y, z, h = approx
+    x = x[0]
+    y = y[0]
+    z = z[0]
+    h = h[0]
+    print('There are new coordinates of corners lying inside the contour of the square.')
+
+    return x,y,z,h, component
+
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description="let the process begin")
@@ -89,8 +130,17 @@ else:
 
 moments = cv2.moments(contours[sq])
 centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
-print(centre)
-print(moments)
+
+x,y,z,h, component = shrink_the_mask(contours[sq], img)
+
+# cv2.drawContours(component, contours, sq, (255,255,255), -1)
+cv2.circle(img, (x[0],x[1]), 3, (0, 0, 255), -1)
+cv2.circle(img, (y[0],y[1]), 3, (255, 0, 255), -1)
+cv2.circle(img, (z[0],z[1]), 3, (0, 255, 0), -1)
+cv2.circle(img, (h[0],h[1]), 3, (0, 255, 255), -1)
+cv2.imshow("img", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 #finding contour areas
 
