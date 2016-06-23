@@ -189,7 +189,7 @@ for i in white_coords:
 cv2.imshow("img", white)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-cv2.imwrite("/Users/apple/digital-phenotyping/test_photos/badwhite.jpg", white)
+cv2.imwrite("/Users/apple/digital-phenotyping/test_images/badwhite.jpg", white)
 #finding contour areas
 
 
