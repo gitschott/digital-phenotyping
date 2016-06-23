@@ -162,14 +162,16 @@ d_coef = 678.8225099390856 / diag
 #white
 white = np.zeros_like(img)
 white_coords = []
+
+
 for i in corners:
-    if i[0]<300:
+    if i[0]<300*x_coef:
         x = int(i[0] + 60*x_coef)
         p = int(i[0] + 120*x_coef)
     else:
         x = int(i[0] - 60*x_coef)
         p = int(i[0] - 120*x_coef)
-    if i[1]<300:
+    if i[1]<300*y_coef:
         y = int(i[1] + 60*y_coef)
         q = int(i[1] + 12*y_coef)
     else:
@@ -187,7 +189,7 @@ for i in white_coords:
 cv2.imshow("img", white)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
+cv2.imwrite("/Users/apple/digital-phenotyping/test_photos/badwhite.jpg", white)
 #finding contour areas
 
 
