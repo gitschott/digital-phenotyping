@@ -98,7 +98,7 @@ def shrink_the_mask(square_contour, image):
 
         print('There are new coordinates of corners lying inside the contour of the square.')
 
-        if mask[x[0], x[1]] == 255:
+        if mask[x[1], x[0]] == 255:
             print('Your square fits perfectly.')
             checkpoint = True
         else:
@@ -185,6 +185,8 @@ if __name__ == '__main__':
 
  # Read the image and convert it to acceptable array for analysis
 img = cv2.imread(args['image'])  # image for analysis
+a,b,c = info(img)
+print(a,b,c)
 contours,th2 = contours_selection_threshold(img)
 top, top_regime = square_selection(contours, img)
 
