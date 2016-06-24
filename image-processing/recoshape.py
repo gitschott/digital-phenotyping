@@ -24,13 +24,13 @@ def contours_selection_threshold(image):
 
 def square_selection(contours, image):
     areas = []
+    a = int(image.shape[0])
+    b = int(image.shape[1])
     for c in contours:
         areas.append(cv2.contourArea(c))
 
     c_areas = np.asarray(areas)
     top = c_areas.argsort()[-2:][::-1]
-    a = int(image.shape[0])
-    b = int(image.shape[1])
     c = cv2.contourArea(contours[top[0]])
 
     if c >= 0.97*a*b:
@@ -43,48 +43,6 @@ def square_selection(contours, image):
     #selection of second large contour on the picture that is the square
     return top, top_regime
 
-'''def shrink_the_mask(square_contour, image):
-    perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
-    if perimeter == 0:
-        print('The square is not recognized.')
-    epsilon = 0.1 * perimeter
-    approx = cv2.approxPolyDP(square_contour, epsilon, True)
-
-    if len(approx) > 4:
-        print('The square is not recognized.')
-
-    component = np.zeros_like(image)
-    x, y, z, h = approx
-    x = x[0]
-    z = z[0]
-    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
-
-    kernel = np.ones((5, 5), np.uint8)
-    component = cv2.erode(component, kernel, iterations=6)
-    component = cv2.cvtColor(component,cv2.COLOR_BGR2GRAY)
-    im, cnts, hier = cv2.findContours(component, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if len(cnts) == 1:
-        print('The square is shrinked properly.')
-
-    perimeter = cv2.arcLength(cnts[0], True)  # finds closed contour
-    if perimeter == 0:
-        print('The square is not recognized.')
-    epsilon = 0.1 * perimeter
-    approx = cv2.approxPolyDP(cnts[0], epsilon, True)
-
-    if len(approx) > 4:
-        print('The square is not recognized.')
-
-    x, y, z, h = approx
-    x = tuple(x[0])
-    y = tuple(y[0])
-    z = tuple(z[0])
-    h = tuple(h[0])
-
-    print('There are new coordinates of corners lying inside the contour of the square.')
-
-    return x,y,z,h, component'''
-
 def shrink_the_mask(square_contour, image):
     perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
     if perimeter == 0:
@@ -95,27 +53,37 @@ def shrink_the_mask(square_contour, image):
     if len(approx) > 4:
         print('The square is not recognized.')
 
-
     component = np.zeros_like(image)
     mask = np.zeros_like(image)
 
     if len(approx) == 2:
+        print("It is a square!")
         x, z = approx
         x = x[0]
+        y = 0
         z = z[0]
+        h = 0
         cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
         component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
         cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        for x in np.ndenumerate(component):
-            print(component[x,y])
-            if component[x,y] == mask[x,y]:
-                print('Your square fits perfectly.')
+
+        c = 0
+        for (x,y), unit in np.ndenumerate(component):
+            if component[x, y] == mask[x, y]:
+                c += 0
             else:
-                print('The square is rotated or distorted.')
+                c += 1
+
+        if c > image.shape[0] * image.shape[1] * 0.97:
+            print('Your square fits perfectly.')
+            checkpoint = True
+        else:
+            print('The square is rotated or distorted.')
+            checkpoint = False
 
     else:
-        x,z,y,h = approx
+        x,y,z,h = approx
         x = tuple(x[0])
         y = tuple(y[0])
         z = tuple(z[0])
@@ -128,15 +96,14 @@ def shrink_the_mask(square_contour, image):
 
         print('There are new coordinates of corners lying inside the contour of the square.')
 
-        for (x,y) in np.ndenumerate(component):
-            print(component[x,y])
-            if component[x,y] == mask[x,y]:
-                print('Your square fits perfectly.')
-            else:
-                print('The square is rotated or distorted.')
+        if mask[x[0], x[1]] == 255:
+            print('Your square fits perfectly.')
+            checkpoint = True
+        else:
+            print('The square is rotated or distorted.')
+            checkpoint = False
 
-
-    return x, z, mask, component
+    return x, y, z, h, mask, component, checkpoint
 
 
 # Angle-checking function
@@ -165,9 +132,6 @@ if __name__ == '__main__':
  # Read the image and convert it to acceptable array for analysis
 img = cv2.imread(args['image'])  # image for analysis
 contours,th2 = contours_selection_threshold(img)
-# cv2.imshow("img", th2)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 top, top_regime = square_selection(contours, img)
 
 # Checkpoint of contour sides
@@ -176,14 +140,11 @@ if top_regime == True:
 else:
     sq = int(top[0])
 
-topleft, botright, mask, component = shrink_the_mask(contours[sq], img)
-print()
+topleft, botleft, botright, topright, mask, component, checkpoint = shrink_the_mask(contours[sq], img)
 
 # Getting the centre of the contour
 moments = cv2.moments(contours[sq])
 centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
-
-corners = [topleft, botleft, botright, topright]
 
 diag = math.hypot(topleft[0] - botright[0], topleft[1] - botright[1])
 wid = math.hypot(topleft[0] - topright[0], topleft[1] - topright[1])
@@ -196,35 +157,46 @@ print('The diagonal of the rectangle is %d.' % diag)
 print('The width of the rectangle is %d.' % wid)
 print('The height of the rectangle is %d.' % hei)
 
+corners = [topleft, botleft, botright, topright]
+
 #Selecting the areas for the analysis
 
 x_coef = wid/480
 y_coef = hei/480
-d_coef = 678.8225099390856 / diag
+d_coef = diag/678.8225099390856
 #white
 white = np.zeros_like(img)
 white_coords = []
 
-
 for i in corners:
-    if i[0]<300*x_coef:
+    if i[0]<centre[0]:
         x = int(i[0] + 60*x_coef)
         p = int(i[0] + 120*x_coef)
     else:
         x = int(i[0] - 60*x_coef)
         p = int(i[0] - 120*x_coef)
-    if i[1]<300*y_coef:
+    if i[1]<centre[1]:
         y = int(i[1] + 60*y_coef)
-        q = int(i[1] + 12*y_coef)
+        q = int(i[1] + 120*y_coef)
     else:
         y = int(i[1] - 60 * y_coef)
-        q = int(i[1] - 12 * y_coef)
+        q = int(i[1] - 120 * y_coef)
 
     white_coords.append(((x,y),(p,q)))
 print(white_coords[0])
+
 for i in white_coords:
     cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
-    white[np.where(white == [255,255,255])] = img[np.where(white == [255,255,255])]
+
+pts = np.where(white == [255,255,255])
+
+x = pts[0]
+y = pts[1]
+
+pts = (x[0],y[0])
+print(pts)
+print(pts[0])
+        # white[i] = img[i]
 
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
