@@ -58,19 +58,20 @@ def shrink_the_mask(square_contour, image):
 
     if len(approx) == 2:
         print("It is a square!")
-        x, z = approx
+        square = True
+        x,z = approx
         x = x[0]
-        y = 0
+        y = (0,0)
         z = z[0]
-        h = 0
+        h = (0,0)
         cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
         component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
         cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
         c = 0
-        for (x,y), unit in np.ndenumerate(component):
-            if component[x, y] == mask[x, y]:
+        for (l,m), unit in np.ndenumerate(component):
+            if component[l, m] == mask[l, m]:
                 c += 0
             else:
                 c += 1
@@ -83,6 +84,7 @@ def shrink_the_mask(square_contour, image):
             checkpoint = False
 
     else:
+        square = False
         x,y,z,h = approx
         x = tuple(x[0])
         y = tuple(y[0])
@@ -103,15 +105,67 @@ def shrink_the_mask(square_contour, image):
             print('The square is rotated or distorted.')
             checkpoint = False
 
-    return x, y, z, h, mask, component, checkpoint
+    return x, y, z, h, mask, component, square, checkpoint
 
 
-# Angle-checking function
-def is_on_line(x1, y1, x2, y2, x3, y3):
-    # integer class variables expected
-    slope = (y2 - y1) / (x2 - x1)
-    return y3 - y1 == slope * (x3 - x1)
+def geometry_of_white(image, list_of_corners, width, height):
+    x_coef = width / 480
+    y_coef = height / 480
+    # d_coef = diag / 678.8225099390856
 
+    white = np.zeros_like(image)
+    white_coords = []
+
+    for i in corners:
+        if i[0] < centre[0]:
+            x = int(i[0] + 60 * x_coef)
+            p = int(i[0] + 120 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + 60 * y_coef)
+                q = int(i[1] + 120 * y_coef)
+            else:
+                y = int(i[1] - 60 * y_coef)
+                q = int(i[1] - 120 * y_coef)
+        else:
+            x = int(i[0] - 60 * x_coef)
+            p = int(i[0] - 120 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + 60 * y_coef)
+                q = int(i[1] + 120 * y_coef)
+            else:
+                y = int(i[1] - 60 * y_coef)
+                q = int(i[1] - 120 * y_coef)
+
+        white_coords.append(((x, y), (p, q)))
+
+    for i in white_coords:
+        cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
+
+    pts = np.where(white == [255, 255, 255])
+
+    x = pts[0]
+    y = pts[1]
+
+    wh = []
+    for i in range(len(x)):
+        wh.append((x[i], y[i]))
+
+    intensities = []
+    for i in range(len(wh)):
+        x, y = wh[i]
+        intensities.append(image[x, y])
+        white[x, y] = intensities[i]
+
+    whites = np.unique(white)
+
+    return whites, intensities, white
+
+def info(array):
+    a = print(type(array))
+    b = print(array[0])
+    c = print(array.shape)
+
+    return a,b,c
 
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
@@ -140,15 +194,22 @@ if top_regime == True:
 else:
     sq = int(top[0])
 
-topleft, botleft, botright, topright, mask, component, checkpoint = shrink_the_mask(contours[sq], img)
+topleft, botleft, botright, topright, mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
+
+if square == True:
+    botleft = (topleft[0], botright[1])
+    topright = (botright[0], topleft[1])
+    corners = [topleft, botleft, botright, topright]
+else:
+    corners = [topleft, botleft, botright, topright]
 
 # Getting the centre of the contour
 moments = cv2.moments(contours[sq])
 centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
 
-diag = math.hypot(topleft[0] - botright[0], topleft[1] - botright[1])
-wid = math.hypot(topleft[0] - topright[0], topleft[1] - topright[1])
-hei = math.hypot(topleft[0] - botleft[0], topleft[1] - botleft[1])
+diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
+wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
+hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
 
 if diag**2 == wid**2+hei**2:
     print('Everything is fine.')
@@ -157,53 +218,32 @@ print('The diagonal of the rectangle is %d.' % diag)
 print('The width of the rectangle is %d.' % wid)
 print('The height of the rectangle is %d.' % hei)
 
-corners = [topleft, botleft, botright, topright]
 
-#Selecting the areas for the analysis
 
-x_coef = wid/480
-y_coef = hei/480
-d_coef = diag/678.8225099390856
-#white
-white = np.zeros_like(img)
-white_coords = []
+whites, intensities, white = geometry_of_white(img,corners, wid, hei)
 
-for i in corners:
-    if i[0]<centre[0]:
-        x = int(i[0] + 60*x_coef)
-        p = int(i[0] + 120*x_coef)
+white_av = sum(whites)/(len(whites)-1)
+
+for i in range(len(whites)):
+    if i == 0:
+        pass
     else:
-        x = int(i[0] - 60*x_coef)
-        p = int(i[0] - 120*x_coef)
-    if i[1]<centre[1]:
-        y = int(i[1] + 60*y_coef)
-        q = int(i[1] + 120*y_coef)
-    else:
-        y = int(i[1] - 60 * y_coef)
-        q = int(i[1] - 120 * y_coef)
+        a = round(whites[i]/white_av)
+        c = 0
+        if a !=1:
+            c+=1
 
-    white_coords.append(((x,y),(p,q)))
-print(white_coords[0])
-
-for i in white_coords:
-    cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
-
-pts = np.where(white == [255,255,255])
-
-x = pts[0]
-y = pts[1]
-
-pts = (x[0],y[0])
-print(pts)
-print(pts[0])
-        # white[i] = img[i]
+if c > 0:
+    print("White areas are not recognized.")
+else:
+    print("White is white. Let it be.")
 
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
 cv2.imshow("img", white)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-#cv2.imwrite("/Users/apple/digital-phenotyping/image-processing/test_images/badwhite3.jpg", white)
+#cv2.imwrite("/test_images/badwhite3.jpg", white)
 #finding contour areas
 
 
