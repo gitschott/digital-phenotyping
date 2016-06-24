@@ -12,33 +12,15 @@ from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
 
-# Color values stretching acccording to the histogram
-def histogram_stretch(image):
-    # an RGB image is required to perform the analysis
-    for i in range(image.shape[2]):
-        blue = image[:,:,i]
-        blue = cv2.equalizeHist(blue)
-        image[:,:,i] = blue
-    return image
-
-# Contours selection facilitating function
-def contours_selection(image, iterations):
-    #the more iterations, the thinner the contours
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    kernel = np.ones((5, 5), np.uint8)
-    erosion = cv2.erode(gray, kernel, iterations=iterations)
-    gray_thin = cv2.cvtColor(erosion, cv2.COLOR_BGR2GRAY)
-
-    return gray_thin
-
 # Contours selection facilitating function enhanced with the threshold
 def contours_selection_threshold(image):
     image = cv2.GaussianBlur(image, (5, 5), 0)  # blur is added to denoise the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    tresh = np.copy(th2)
     im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-    return cnts
+    return cnts,tresh
 
 def square_selection(contours, image):
     areas = []
@@ -61,7 +43,7 @@ def square_selection(contours, image):
     #selection of second large contour on the picture that is the square
     return top, top_regime
 
-def shrink_the_mask(square_contour, image):
+'''def shrink_the_mask(square_contour, image):
     perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
     if perimeter == 0:
         print('The square is not recognized.')
@@ -101,10 +83,67 @@ def shrink_the_mask(square_contour, image):
 
     print('There are new coordinates of corners lying inside the contour of the square.')
 
-    return x,y,z,h, component
+    return x,y,z,h, component'''
 
-#def get_the_square(x,y,z,h):
-    # x,y,z,h are square corners
+def shrink_the_mask(square_contour, image):
+    perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
+    if perimeter == 0:
+        print('The square is not recognized.')
+    epsilon = 0.1 * perimeter
+    approx = cv2.approxPolyDP(square_contour, epsilon, True)
+
+    if len(approx) > 4:
+        print('The square is not recognized.')
+
+
+    component = np.zeros_like(image)
+    mask = np.zeros_like(image)
+
+    if len(approx) == 2:
+        x, z = approx
+        x = x[0]
+        z = z[0]
+        cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+        component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
+        cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        for x in np.ndenumerate(component):
+            print(component[x,y])
+            if component[x,y] == mask[x,y]:
+                print('Your square fits perfectly.')
+            else:
+                print('The square is rotated or distorted.')
+
+    else:
+        x,z,y,h = approx
+        x = tuple(x[0])
+        y = tuple(y[0])
+        z = tuple(z[0])
+        h = tuple(h[0])
+
+        cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+        cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
+        component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+        print('There are new coordinates of corners lying inside the contour of the square.')
+
+        for (x,y) in np.ndenumerate(component):
+            print(component[x,y])
+            if component[x,y] == mask[x,y]:
+                print('Your square fits perfectly.')
+            else:
+                print('The square is rotated or distorted.')
+
+
+    return x, z, mask, component
+
+
+# Angle-checking function
+def is_on_line(x1, y1, x2, y2, x3, y3):
+    # integer class variables expected
+    slope = (y2 - y1) / (x2 - x1)
+    return y3 - y1 == slope * (x3 - x1)
 
 
 # Construct the argument parse and parse the arguments
@@ -125,7 +164,10 @@ if __name__ == '__main__':
 
  # Read the image and convert it to acceptable array for analysis
 img = cv2.imread(args['image'])  # image for analysis
-contours = contours_selection_threshold(img)
+contours,th2 = contours_selection_threshold(img)
+# cv2.imshow("img", th2)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 top, top_regime = square_selection(contours, img)
 
 # Checkpoint of contour sides
@@ -134,12 +176,12 @@ if top_regime == True:
 else:
     sq = int(top[0])
 
+topleft, botright, mask, component = shrink_the_mask(contours[sq], img)
+print()
+
 # Getting the centre of the contour
 moments = cv2.moments(contours[sq])
 centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
-
-# Getting the corners and lengths of the sides
-topleft, botleft, botright, topright, component = shrink_the_mask(contours[sq], img)
 
 corners = [topleft, botleft, botright, topright]
 
@@ -189,7 +231,7 @@ for i in white_coords:
 cv2.imshow("img", white)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-cv2.imwrite("/Users/apple/digital-phenotyping/image-processing/test_images/badwhite3.jpg", white)
+#cv2.imwrite("/Users/apple/digital-phenotyping/image-processing/test_images/badwhite3.jpg", white)
 #finding contour areas
 
 
