@@ -12,38 +12,49 @@ from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
 
+#list of constants for colors
+tol = 0.97 # tolerance to contour area is 97 per cent
+side = 480 # from five-sliced-shape script
+w_const = [60,60,120,120]
+c_const = [170,210,120,120]
+
 # Contours selection facilitating function enhanced with the threshold
 def contours_selection_threshold(image):
+    # this is a primary step of image processing, its output is list of contours and a thresholded image array
     image = cv2.GaussianBlur(image, (5, 5), 0)  # blur is added to denoise the image
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    tresh = np.copy(th2)
-    im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # further operations are for binary pictures only
+    ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU) # thresholding step allows select the black frame
+    tresh = np.copy(th2) # when "panic regime" is on this picture is shown
+    im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE) #getting the external contours
 
     return cnts,tresh
 
 def square_selection(contours, image):
+    #this selects contour of a black square
     areas = []
+    #a and b are needed to calculate the square
     a = int(image.shape[0])
     b = int(image.shape[1])
     for c in contours:
         areas.append(cv2.contourArea(c))
 
     c_areas = np.asarray(areas)
+    #biggest areas are the whole image and a square
     top = c_areas.argsort()[-2:][::-1]
     c = cv2.contourArea(contours[top[0]])
 
-    if c >= 0.97*a*b:
+    if c >= tol*a*b:
         print('The biggest contour is the picture border, the second biggest contour was selected.')
         top_regime = True
     else:
         print('The biggest contour is not defined properly. The result might be unreliable.')
         top_regime = False
 
-    #selection of second large contour on the picture that is the square
+    #the choice of the contour depends on the square
     return top, top_regime
 
 def shrink_the_mask(square_contour, image):
+    #this gives the coordinates of a frame
     perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
     if perimeter == 0:
         print('The square is not recognized.')
@@ -58,6 +69,7 @@ def shrink_the_mask(square_contour, image):
 
     if len(approx) == 2:
         print("It is a square!")
+        #square marker is used further in analysis of white areas
         square = True
         x,z = approx
         x = x[0]
@@ -76,7 +88,9 @@ def shrink_the_mask(square_contour, image):
             else:
                 c += 1
 
-        if c > image.shape[0] * image.shape[1] * 0.97:
+        #checkpoint marker tells whether the square is distorted, might be combined with distortion-correction algorithm
+
+        if c > image.shape[0] * image.shape[1] * tol:
             print('Your square fits perfectly.')
             checkpoint = True
         else:
@@ -108,9 +122,13 @@ def shrink_the_mask(square_contour, image):
     return x, y, z, h, mask, component, square, checkpoint
 
 
-def geometry_of_white(image, list_of_corners, width, height):
-    x_coef = width / 480
-    y_coef = height / 480
+def geometry_of_white(image, list_of_corners, width, height, constants):
+    # this finds white areas
+    # constants are known from the palette sketch found in sample folder
+    x_coef = width / side
+    y_coef = height / side
+    wi = constants[0]
+    he = constants[1]
     # d_coef = diag / 678.8225099390856
 
     white = np.zeros_like(image)
@@ -118,26 +136,27 @@ def geometry_of_white(image, list_of_corners, width, height):
 
     for i in corners:
         if i[0] < centre[0]:
-            x = int(i[0] + 60 * x_coef)
-            p = int(i[0] + 120 * x_coef)
+            x = int(i[0] + wi * x_coef)
+            p = int(i[0] + he * x_coef)
             if i[1] < centre[1]:
-                y = int(i[1] + 60 * y_coef)
-                q = int(i[1] + 120 * y_coef)
+                y = int(i[1] + wi * y_coef)
+                q = int(i[1] + he * y_coef)
             else:
-                y = int(i[1] - 60 * y_coef)
-                q = int(i[1] - 120 * y_coef)
+                y = int(i[1] - wi * y_coef)
+                q = int(i[1] - he * y_coef)
         else:
-            x = int(i[0] - 60 * x_coef)
-            p = int(i[0] - 120 * x_coef)
+            x = int(i[0] - wi * x_coef)
+            p = int(i[0] - he * x_coef)
             if i[1] < centre[1]:
-                y = int(i[1] + 60 * y_coef)
-                q = int(i[1] + 120 * y_coef)
+                y = int(i[1] + wi * y_coef)
+                q = int(i[1] + he * y_coef)
             else:
-                y = int(i[1] - 60 * y_coef)
-                q = int(i[1] - 120 * y_coef)
+                y = int(i[1] - wi * y_coef)
+                q = int(i[1] - he * y_coef)
 
         white_coords.append(((x, y), (p, q)))
 
+    # white can be seen if "panic regime" is on
     for i in white_coords:
         cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
 
@@ -157,8 +176,85 @@ def geometry_of_white(image, list_of_corners, width, height):
         white[x, y] = intensities[i]
 
     whites = np.unique(white)
+    whites = whites[1:]
 
     return whites, intensities, white
+
+def geometry_of_color(image, list_of_corners, width, height, constants):
+    # this finds white areas
+    # constants are known from the palette sketch found in sample folder
+    x_coef = width / 480
+    y_coef = height / 480
+    wi1 = constants[0]
+    wi2 = constants[1]
+    he1 = constants[2]
+    he2 = constants[3]
+    # d_coef = diag / 678.8225099390856
+
+    color = np.zeros_like(image)
+    color_coords = []
+
+    for i in corners:
+        if i[0] < centre[0]:
+            x = int(i[0] + wi1 * x_coef)
+            p = int(i[0] + he1 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + wi2 * y_coef)
+                q = int(i[1] + he2 * y_coef)
+            else:
+                y = int(i[1] - wi2 * y_coef)
+                q = int(i[1] - he2 * y_coef)
+        else:
+            x = int(i[0] - wi1 * x_coef)
+            p = int(i[0] - he1 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + wi2 * y_coef)
+                q = int(i[1] + he2 * y_coef)
+            else:
+                y = int(i[1] - wi2 * y_coef)
+                q = int(i[1] - he2 * y_coef)
+
+        color_coords.append(((x, y), (p, q)))
+
+    # white can be seen if "panic regime" is on
+    for i in color_coords:
+        cv2.rectangle(color, i[0], i[1], (255, 255, 255), -1)
+
+    pts = np.where(color == [255, 255, 255])
+
+    x = pts[0]
+    y = pts[1]
+
+    col = []
+    for i in range(len(x)):
+        col.append((x[i], y[i]))
+
+    intensities = []
+    for i in range(len(col)):
+        x, y = col[i]
+        intensities.append(image[x, y])
+        color[x, y] = intensities[i]
+
+    return intensities, color
+
+def whitecheck(white_pixel_values):
+    white_av = sum(white_pixel_values) / (len(white_pixel_values))
+    for i in range(len(white_pixel_values)):
+        a = round(white_pixel_values[i] / white_av)
+        c = 0
+        if a != 1:
+            c += 1
+
+    if c > 0:
+        print("White areas are not recognized.")
+    else:
+        print("White is white. Let it be.")
+
+    color_dev = np.std(white_pixel_values)
+    print(white_pixel_values)
+    print("Colors may vary in range +/- %d in each channel" % color_dev)
+
+    return white_av, color_dev
 
 def info(array):
     a = print(type(array))
@@ -185,8 +281,6 @@ if __name__ == '__main__':
 
  # Read the image and convert it to acceptable array for analysis
 img = cv2.imread(args['image'])  # image for analysis
-a,b,c = info(img)
-print(a,b,c)
 contours,th2 = contours_selection_threshold(img)
 top, top_regime = square_selection(contours, img)
 
@@ -220,29 +314,16 @@ print('The diagonal of the rectangle is %d.' % diag)
 print('The width of the rectangle is %d.' % wid)
 print('The height of the rectangle is %d.' % hei)
 
+whites, intensities, white = geometry_of_white(img,corners, wid, hei, w_const)
 
+white_av, color_dev = whitecheck(whites)
 
-whites, intensities, white = geometry_of_white(img,corners, wid, hei)
+cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
-white_av = sum(whites)/(len(whites)-1)
-
-for i in range(len(whites)):
-    if i == 0:
-        pass
-    else:
-        a = round(whites[i]/white_av)
-        c = 0
-        if a !=1:
-            c+=1
-
-if c > 0:
-    print("White areas are not recognized.")
-else:
-    print("White is white. Let it be.")
 
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
-cv2.imshow("img", white)
+cv2.imshow("img", cyan)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 #cv2.imwrite("/test_images/badwhite3.jpg", white)
