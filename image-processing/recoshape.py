@@ -291,14 +291,14 @@ contours,th2 = contours_selection_threshold(img)
 top, top_regime = square_selection(contours, img)
 
 # Checkpoint of contour sides
-if top_regime == True:
+if top_regime:
     sq = int(top[1])
 else:
     sq = int(top[0])
 
 topleft, botleft, botright, topright, mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
 
-if square == True:
+if square:
     botleft = (topleft[0], botright[1])
     topright = (botright[0], topleft[1])
     corners = [topleft, botleft, botright, topright]
@@ -307,13 +307,13 @@ else:
 
 # Getting the centre of the contour
 moments = cv2.moments(contours[sq])
-centre = (int(moments['m10']/moments['m00']), int(moments['m01']/moments['m00']))
+centre = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
 
 diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
 wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
 hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
 
-if diag**2 == wid**2+hei**2:
+if diag ** 2 == wid ** 2 + hei ** 2:
     print('Everything is fine.')
 
 print('The diagonal of the rectangle is %d.' % diag)
@@ -342,7 +342,7 @@ cv2.imshow("img", yellow)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-# Comparing the 
+# Comparing the
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
 #cv2.imwrite("/test_images/badwhite3.jpg", white)
