@@ -16,7 +16,9 @@ import sys
 tol = 0.97 # tolerance to contour area is 97 per cent
 side = 480 # from five-sliced-shape script
 w_const = [60,60,120,120]
-c_const = [170,210,120,120]
+c_const = [170,200,90,130]
+m_const = [290,320,90,130]
+y_const = [230,260,90,130]
 
 # Contours selection facilitating function enhanced with the threshold
 def contours_selection_threshold(image):
@@ -196,22 +198,26 @@ def geometry_of_color(image, list_of_corners, width, height, constants):
 
     for i in corners:
         if i[0] < centre[0]:
-            x = int(i[0] + wi1 * x_coef)
-            p = int(i[0] + he1 * x_coef)
             if i[1] < centre[1]:
-                y = int(i[1] + wi2 * y_coef)
+                x = int(i[0] + wi1 * x_coef)
+                p = int(i[0] + wi2 * x_coef)
+                y = int(i[1] + he1 * y_coef)
                 q = int(i[1] + he2 * y_coef)
             else:
-                y = int(i[1] - wi2 * y_coef)
-                q = int(i[1] - he2 * y_coef)
+                x = int(i[0] + he1 * x_coef)
+                p = int(i[0] + he2 * x_coef)
+                y = int(i[1] - wi1 * y_coef)
+                q = int(i[1] - wi2 * y_coef)
         else:
-            x = int(i[0] - wi1 * x_coef)
-            p = int(i[0] - he1 * x_coef)
             if i[1] < centre[1]:
-                y = int(i[1] + wi2 * y_coef)
-                q = int(i[1] + he2 * y_coef)
+                x = int(i[0] - he1 * x_coef)
+                p = int(i[0] - he2 * x_coef)
+                y = int(i[1] + wi1 * y_coef)
+                q = int(i[1] + wi2 * y_coef)
             else:
-                y = int(i[1] - wi2 * y_coef)
+                x = int(i[0] - wi1 * x_coef)
+                p = int(i[0] - wi2 * x_coef)
+                y = int(i[1] - he1 * y_coef)
                 q = int(i[1] - he2 * y_coef)
 
         color_coords.append(((x, y), (p, q)))
@@ -320,12 +326,25 @@ white_av, color_dev = whitecheck(whites)
 
 cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
-
-
-# cv2.drawContours(component, contours, sq, (255,255,255), -1)
 cv2.imshow("img", cyan)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+ma_int, magenta = geometry_of_color(img, corners,wid,hei,m_const)
+
+cv2.imshow("img", magenta)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+ye_int, yellow = geometry_of_color(img, corners,wid,hei,y_const)
+
+cv2.imshow("img", yellow)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Comparing the 
+
+# cv2.drawContours(component, contours, sq, (255,255,255), -1)
 #cv2.imwrite("/test_images/badwhite3.jpg", white)
 #finding contour areas
 
