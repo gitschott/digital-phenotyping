@@ -13,6 +13,7 @@ from scipy.stats import norm
 import sys
 
 # List of constants for colors
+# all of the constants are 
 tol = 0.97  # tolerance to contour area is 97 per cent
 side = 480  # from five-sliced-shape script
 w_const = [60, 60, 120, 120]
