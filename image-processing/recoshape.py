@@ -262,6 +262,18 @@ def whitecheck(white_pixel_values):
 
     return white_av, color_dev
 
+def color_average(values_interval):
+    # values interval is a list of pixel values
+    r, g, b = 0, 0, 0
+    count = 0
+    for i, c in enumerate(values_interval):
+        pixlb, pixlg, pixlr = c
+        r += pixlr
+        g += pixlg
+        b += pixlb
+        count += 1
+    return ((r / count), (g / count), (b / count))
+
 def info(array):
     a = print(type(array))
     b = print(array[0])
@@ -326,23 +338,80 @@ white_av, color_dev = whitecheck(whites)
 
 cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
-cv2.imshow("img", cyan)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if args['panic'] == True:
+    cv2.imshow("img", cyan)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 ma_int, magenta = geometry_of_color(img, corners,wid,hei,m_const)
 
-cv2.imshow("img", magenta)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if args['panic'] == True:
+    cv2.imshow("img", magenta)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 ye_int, yellow = geometry_of_color(img, corners,wid,hei,y_const)
 
-cv2.imshow("img", yellow)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if args['panic'] == True:
+    cv2.imshow("img", yellow)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-# Comparing the
+# Comparing the retreived values
+
+cy_r, cy_g, cy_b = color_average(cy_int)
+ma_r, ma_g, ma_b = color_average(ma_int)
+ye_r, ye_g, ye_b = color_average(ye_int)
+
+print(cy_r, cy_g, cy_b, white_av)
+print(ma_r, ma_g, ma_b, white_av)
+print(ye_r, ye_g, ye_b, white_av)
+
+cy_r = white_av
+
+if cy_r < ma_r:
+    if cy_r < ye_r:
+        cyanred = True
+    else:
+        cyanred = False
+else:
+    cyanred = False
+
+
+if ma_g < cy_g:
+    if ma_g < ye_g:
+        magentagreen = True
+    else:
+        magentagreen = False
+else:
+    magentagreen = False
+
+if ye_b < cy_b:
+    if ye_b < ma_b:
+        yellowblue = True
+    else:
+        yellowblue = False
+else:
+    yellowblue = False
+
+if cyanred:
+    print("Your cyan is cyan")
+else:
+    print("Your cyan is not quite cyan, normalisation is required.")
+
+if magentagreen:
+    print("Your magenta is magenta")
+else:
+    print("Your magenta is not quite magenta, normalisation is required.")
+
+if yellowblue:
+    print("Your yellow is yellow")
+else:
+    print("Your yellow is not quite yellow, normalisation is required.")
+
+# Normalisation of values
+
+
 
 # cv2.drawContours(component, contours, sq, (255,255,255), -1)
 #cv2.imwrite("/test_images/badwhite3.jpg", white)
