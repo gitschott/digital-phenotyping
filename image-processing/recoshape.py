@@ -12,36 +12,42 @@ from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
 
-#list of constants for colors
-tol = 0.97 # tolerance to contour area is 97 per cent
-side = 480 # from five-sliced-shape script
-w_const = [60,60,120,120]
-c_const = [170,200,90,130]
-m_const = [290,320,90,130]
-y_const = [230,260,90,130]
+# List of constants for colors
+tol = 0.97  # tolerance to contour area is 97 per cent
+side = 480  # from five-sliced-shape script
+w_const = [60, 60, 120, 120]
+c_const = [170, 200, 90, 130]
+m_const = [290, 320, 90, 130]
+y_const = [230, 260, 90, 130]
 
 # Contours selection facilitating function enhanced with the threshold
+
+
 def contours_selection_threshold(image):
     # this is a primary step of image processing, its output is list of contours and a thresholded image array
     image = cv2.GaussianBlur(image, (5, 5), 0)  # blur is added to denoise the image
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # further operations are for binary pictures only
-    ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU) # thresholding step allows select the black frame
-    tresh = np.copy(th2) # when "panic regime" is on this picture is shown
-    im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE) #getting the external contours
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # further operations are for binary pictures only
+    ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # thresholding step allows select the black frame
+    tresh = np.copy(th2)  # when "panic regime" is on this picture is shown
+    im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    # getting the external contours
 
-    return cnts,tresh
+    return cnts, tresh
+
 
 def square_selection(contours, image):
-    #this selects contour of a black square
+    # this selects contour of a black square
     areas = []
-    #a and b are needed to calculate the square
+    # a and b are needed to calculate the square
     a = int(image.shape[0])
     b = int(image.shape[1])
     for c in contours:
         areas.append(cv2.contourArea(c))
 
     c_areas = np.asarray(areas)
-    #biggest areas are the whole image and a square
+    # biggest areas are the whole image and a square
     top = c_areas.argsort()[-2:][::-1]
     c = cv2.contourArea(contours[top[0]])
 
@@ -52,11 +58,12 @@ def square_selection(contours, image):
         print('The biggest contour is not defined properly. The result might be unreliable.')
         top_regime = False
 
-    #the choice of the contour depends on the square
+    # the choice of the contour depends on the square
     return top, top_regime
 
+
 def shrink_the_mask(square_contour, image):
-    #this gives the coordinates of a frame
+    # this gives the coordinates of a frame
     perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
     if perimeter == 0:
         print('The square is not recognized.')
@@ -71,26 +78,27 @@ def shrink_the_mask(square_contour, image):
 
     if len(approx) == 2:
         print("It is a square!")
-        #square marker is used further in analysis of white areas
+        # square marker is used further in analysis of white areas
         square = True
-        x,z = approx
+        x, z = approx
         x = x[0]
-        y = (0,0)
+        y = (0, 0)
         z = z[0]
-        h = (0,0)
+        h = (0, 0)
         cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
         component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
         cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
         c = 0
-        for (l,m), unit in np.ndenumerate(component):
+        for (l, m), unit in np.ndenumerate(component):
             if component[l, m] == mask[l, m]:
                 c += 0
             else:
                 c += 1
 
-        #checkpoint marker tells whether the square is distorted, might be combined with distortion-correction algorithm
+        # checkpoint marker tells whether the square is distorted,
+        # might be combined with distortion-correction algorithm
 
         if c > image.shape[0] * image.shape[1] * tol:
             print('Your square fits perfectly.')
@@ -101,7 +109,7 @@ def shrink_the_mask(square_contour, image):
 
     else:
         square = False
-        x,y,z,h = approx
+        x, y, z, h = approx
         x = tuple(x[0])
         y = tuple(y[0])
         z = tuple(z[0])
@@ -136,7 +144,7 @@ def geometry_of_white(image, list_of_corners, width, height, constants):
     white = np.zeros_like(image)
     white_coords = []
 
-    for i in corners:
+    for i in list_of_corners:
         if i[0] < centre[0]:
             x = int(i[0] + wi * x_coef)
             p = int(i[0] + he * x_coef)
@@ -182,6 +190,7 @@ def geometry_of_white(image, list_of_corners, width, height, constants):
 
     return whites, intensities, white
 
+
 def geometry_of_color(image, list_of_corners, width, height, constants):
     # this finds white areas
     # constants are known from the palette sketch found in sample folder
@@ -196,7 +205,7 @@ def geometry_of_color(image, list_of_corners, width, height, constants):
     color = np.zeros_like(image)
     color_coords = []
 
-    for i in corners:
+    for i in list_of_corners:
         if i[0] < centre[0]:
             if i[1] < centre[1]:
                 x = int(i[0] + wi1 * x_coef)
@@ -243,6 +252,7 @@ def geometry_of_color(image, list_of_corners, width, height, constants):
 
     return intensities, color
 
+
 def whitecheck(white_pixel_values):
     white_av = sum(white_pixel_values) / (len(white_pixel_values))
     for i in range(len(white_pixel_values)):
@@ -262,6 +272,7 @@ def whitecheck(white_pixel_values):
 
     return white_av, color_dev
 
+
 def color_average(values_interval):
     # values interval is a list of pixel values
     r, g, b = 0, 0, 0
@@ -272,14 +283,16 @@ def color_average(values_interval):
         g += pixlg
         b += pixlb
         count += 1
-    return ((r / count), (g / count), (b / count))
+    return (r / count), (g / count), (b / count)
+
 
 def info(array):
-    a = print(type(array))
-    b = print(array[0])
-    c = print(array.shape)
+    a = type(array)
+    b = array[0]
+    c = array.shape
 
-    return a,b,c
+    return a, b, c
+
 
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
@@ -296,125 +309,119 @@ if __name__ == '__main__':
     # print(args)
     # print(args[image])
 
+    # Read the image and convert it to acceptable array for analysis
+    img = cv2.imread(args['image'])  # image for analysis
+    contours, th2 = contours_selection_threshold(img)
+    top, top_regime = square_selection(contours, img)
 
- # Read the image and convert it to acceptable array for analysis
-img = cv2.imread(args['image'])  # image for analysis
-contours,th2 = contours_selection_threshold(img)
-top, top_regime = square_selection(contours, img)
+    # Checkpoint of contour sides
+    if top_regime:
+        sq = int(top[1])
+    else:
+        sq = int(top[0])
 
-# Checkpoint of contour sides
-if top_regime:
-    sq = int(top[1])
-else:
-    sq = int(top[0])
+    topleft, botleft, botright, topright, mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
 
-topleft, botleft, botright, topright, mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
+    if square:
+        botleft = (topleft[0], botright[1])
+        topright = (botright[0], topleft[1])
+        corners = [topleft, botleft, botright, topright]
+    else:
+        corners = [topleft, botleft, botright, topright]
 
-if square:
-    botleft = (topleft[0], botright[1])
-    topright = (botright[0], topleft[1])
-    corners = [topleft, botleft, botright, topright]
-else:
-    corners = [topleft, botleft, botright, topright]
+    # Getting the centre of the contour
+    moments = cv2.moments(contours[sq])
+    centre = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
 
-# Getting the centre of the contour
-moments = cv2.moments(contours[sq])
-centre = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
+    diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
+    wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
+    hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
 
-diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
-wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
-hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
+    if diag ** 2 == wid ** 2 + hei ** 2:
+        print('Everything is fine.')
 
-if diag ** 2 == wid ** 2 + hei ** 2:
-    print('Everything is fine.')
+    print('The diagonal of the rectangle is %d.' % diag)
+    print('The width of the rectangle is %d.' % wid)
+    print('The height of the rectangle is %d.' % hei)
 
-print('The diagonal of the rectangle is %d.' % diag)
-print('The width of the rectangle is %d.' % wid)
-print('The height of the rectangle is %d.' % hei)
+    whites, intensities, white = geometry_of_white(img, corners, wid, hei, w_const)
 
-whites, intensities, white = geometry_of_white(img,corners, wid, hei, w_const)
+    white_av, color_dev = whitecheck(whites)
 
-white_av, color_dev = whitecheck(whites)
+    cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
-cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
+    if args['panic']:
+        cv2.imshow("img", cyan)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-if args['panic'] == True:
-    cv2.imshow("img", cyan)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    ma_int, magenta = geometry_of_color(img, corners, wid, hei, m_const)
 
-ma_int, magenta = geometry_of_color(img, corners,wid,hei,m_const)
+    if args['panic']:
+        cv2.imshow("img", magenta)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-if args['panic'] == True:
-    cv2.imshow("img", magenta)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    ye_int, yellow = geometry_of_color(img, corners, wid, hei, y_const)
 
-ye_int, yellow = geometry_of_color(img, corners,wid,hei,y_const)
+    if args['panic']:
+        cv2.imshow("img", yellow)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-if args['panic'] == True:
-    cv2.imshow("img", yellow)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # Comparing the retreived values
 
-# Comparing the retreived values
+    cy_r, cy_g, cy_b = color_average(cy_int)
+    ma_r, ma_g, ma_b = color_average(ma_int)
+    ye_r, ye_g, ye_b = color_average(ye_int)
 
-cy_r, cy_g, cy_b = color_average(cy_int)
-ma_r, ma_g, ma_b = color_average(ma_int)
-ye_r, ye_g, ye_b = color_average(ye_int)
+    print(cy_r, cy_g, cy_b, white_av)
+    print(ma_r, ma_g, ma_b, white_av)
+    print(ye_r, ye_g, ye_b, white_av)
 
-print(cy_r, cy_g, cy_b, white_av)
-print(ma_r, ma_g, ma_b, white_av)
-print(ye_r, ye_g, ye_b, white_av)
-
-cy_r = white_av
-
-if cy_r < ma_r:
-    if cy_r < ye_r:
-        cyanred = True
+    if cy_r < ma_r:
+        if cy_r < ye_r:
+            cyanred = True
+        else:
+            cyanred = False
     else:
         cyanred = False
-else:
-    cyanred = False
 
-
-if ma_g < cy_g:
-    if ma_g < ye_g:
-        magentagreen = True
+    if ma_g < cy_g:
+        if ma_g < ye_g:
+            magentagreen = True
+        else:
+            magentagreen = False
     else:
         magentagreen = False
-else:
-    magentagreen = False
 
-if ye_b < cy_b:
-    if ye_b < ma_b:
-        yellowblue = True
+    if ye_b < cy_b:
+        if ye_b < ma_b:
+            yellowblue = True
+        else:
+            yellowblue = False
     else:
         yellowblue = False
-else:
-    yellowblue = False
 
-if cyanred:
-    print("Your cyan is cyan")
-else:
-    print("Your cyan is not quite cyan, normalisation is required.")
+    if cyanred:
+        print("Your cyan is cyan")
+    else:
+        print("Your cyan is not quite cyan, normalisation is required.")
 
-if magentagreen:
-    print("Your magenta is magenta")
-else:
-    print("Your magenta is not quite magenta, normalisation is required.")
+    if magentagreen:
+        print("Your magenta is magenta")
+    else:
+        print("Your magenta is not quite magenta, normalisation is required.")
 
-if yellowblue:
-    print("Your yellow is yellow")
-else:
-    print("Your yellow is not quite yellow, normalisation is required.")
+    if yellowblue:
+        print("Your yellow is yellow")
+    else:
+        print("Your yellow is not quite yellow, normalisation is required.")
 
-# Normalisation of values
+    # Normalisation of values
 
+    # cv2.drawContours(component, contours, sq, (255,255,255), -1)
+    # cv2.imwrite("/test_images/badwhite3.jpg", white)
+    # finding contour areas
 
-
-# cv2.drawContours(component, contours, sq, (255,255,255), -1)
-#cv2.imwrite("/test_images/badwhite3.jpg", white)
-#finding contour areas
-
-
+print("the end")
