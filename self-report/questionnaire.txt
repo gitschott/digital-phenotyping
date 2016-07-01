@@ -1,9 +1,8 @@
 Идентификация внешности. Phenotype identification.
 
 
-Это опрос по собственной оценке внешних черт. Ответы на вопросы будут использоваться для оценки результатов исследования. Необходимо указать естественные черты собственной внешности, касающиеся цвета глаз, волос и кожи, а также некоторые дополнительные признаки.
-
-This is phenotypical self-assessment questionnaire. Replies to these questions ore going to be used for verification of gene test-panel. You should specify your natural phenotypic traits for skin, eyes, hair and some additional parameters.
+Это опрос по оценке собственной внешности и ряда других фенотипических признаков. Ответы будут использоваться для оценки моделей предсказания фенотипических признаков на основании генетических данных. От Вас потребуется максимально объективно описать естественные черты собственной внешности и предоставить информацию о группе крови. Дополнительно может потребоваться информация о внешности и других фенотипических признаках Ваших ближайших родственников. Если вам потребуется какая-нибудь дополнительная информация касательно анкеты, присылайте ваши вопросы и комментарии Анне (anna.belousova@skolkovotech.ru).
+This is phenotypical self-assessment questionnaire. Replies to these questions will facilitate estimation of genetic-test-based phenotypic traits prediction. You are to describe your natural traits as impartial as possible and to provide some information on your blood type. You might be asked for additional information on the appearance and other phenotypical traits of your relatives. Shall you have any questions or comments on the questionnaire do not hesitate to contact Anna (anna.belousova@skolkovotech.ru).
 
 * Обязательно
 
@@ -11,11 +10,11 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Информированное согласие на обработку персональных данных. Informed consent on personal data processing. *
 
     В рамках исследований по верификации тест-панели для предсказания внешних признаков на основе анализа ДНК, проводимых компанией Parseq Lab (http://www.parseq.pro/), требуется получение сведений о собственной оценке внешности. Для получения этих сведений требуется информированное согласие добровольцев, участвующих в этом исследовании. В соответствии с Вашим желанием, Вам предлагается ответить на вопросы анкеты. Ваши ответы в дальнейшем будут использоваться для верификации тест-панели. Отмечая данный пункт, Вы подтверждаете, что даете свое согласие на использование данных, указанных вами в анкете, добровольно, обладая достаточной информацией, и что у Вас была возможность задать все вопросы, которые могли у Вас возникнуть относительно этого исследования. Все личные данные, касающиеся Вас или Ваших родственников, являются конфиденциальными, и не могут быть переданы другим лицам иначе, как с Вашего ясно выраженного согласия. Данные опросов будут храниться и обрабатываться в анонимном виде и будут доступны ограниченному кругу лиц. Вы можете отозвать свое согласие в любой момент без дополнительных объяснений. // It is required to get data on self-esteemed phenotype in accordance to research on Human Phenotypic Traits Identification Panel verification carried out by Parseq Lab Company (http://www.parseq.pro/). Volunteers' informed consent on personal data processing is to be obtained. Consistent with your agreement you are asked to reply the following questionnaire. Your replies are going to be processed further for verification of the panel. By marking this point you knowingly and voluntarily agree on processing of the information given in the questionnaire. You also agree that you have received sufficient information and that you have had an opportunity to ask all the questions on the research you might be interested in. All personal data that concerns you or your relatives is confidential, it is not to be transferred to others unless you agree on it. Your replies will be stored and processed anonymously with restricted access. You can withdraw your consent anytime without any additional comments.
-    Отметьте только один овал.
+
         Я даю свое согласие на обработку персональных данных. / Yes, I agree on my personal data processing. 
 
 
-    Идентификационный номер / ID Number *
+    Идентификационный номер, который вы получили при заборе образца биологического материала / ID Number you were given during sampling *
 
 
     Общая информация / General information
@@ -28,20 +27,19 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Возраст / Age *
     Укажите число полных лет на момент проведения исследования // Please specify number of complete years at investigation time
 
-    Этническая принадлежность / Ethnic origins *
-    Если среди перечисленных национальностей нет той, которая соответствует вашей, впишите, пожалуйста, в свободную строку наиболее подходящий вариант из списка национальностей по переписи населения, доступного по ссылке: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm // If no one of nationalities from the list matches your nationality, please type one of the nationalities from the following list available by link: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm
-    Отметьте только один овал.
-        Русская / Russian
-        Татарка / Tatar
-        Украинка / Ukranian
-        Башкирка / Bashkir
-        Чувашка / Chuvash
-        Чеченка / Chechen
-        Армянка / Armenian
-        Аварка / Avar
-        Казашка / Kazakh
-        Другое: 
+    К какой этнической группе вы относитесь? / What is your ethnic origin? *
+Если среди перечисленных национальностей нет той, которая соответствует вашей, впишите, пожалуйста, в свободную строку наиболее подходящий вариант из списка национальностей по переписи населения, доступного по ссылке: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm // If no one of nationalities from the list matches your nationality, please type one of the nationalities from the following list available by link: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm
 
+ Русские / Russians
+ Татары / Tatars
+ Украинцы / Ukrainians
+ Башкиры / Bashkirs
+ Чуваши / Chuvashs
+ Чеченцы / Chechens
+ Армяне / Armenians
+ Аварцы / Avars
+ Казахи / Kazakhs
+ Other: 
 
 
     Характеристика собственной внешности / Phenotypical self-assesement.
@@ -69,15 +67,15 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
 
     Цвет глаз: насыщенность / Eye color: saturation *
     В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз. Please, specify the saturation of your eye color.
-    Отметьте только один овал.
+
         Светлый / Light
         Средний / Medium
         Тёмный / Dark 
 
-    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Цвет глаз: пигментные кольца радужки / Eye colour: pigmented ring
     (picture: self-report/images/pigmented_ring.png)
 
-    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Цвет глаз: пигментные кольца радужки / Eye colour: pigmented ring
     Наблюдаются ли у Вас пигментные кольца, отличные от основного цвета, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your eyes?
     Отметьте только один овал.
         Да / Yes
@@ -122,7 +120,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Структура волос / Hair structure
     (picture: self-report/images/hair_type.png)
 
-    Структура волос / Hair structure
+    Структура волос: тип / Hair structure: type
     Оцените, пожалуйста, Ваш тип волос в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your head hair based on picture above?
     Отметьте только один овал.
         Прямые / Straight
@@ -132,28 +130,29 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Курчавые / Small curls
         С очень мелкими завитками / Kinky 
 
-    Структура волос / Hair structure
-    Как вы можете оценить текстуру Ваших волос? // How would you classify the natural texture of your head hair?
+Структура волос: жёсткость / Hair structure: coarseness     
+
+Как вы можете оценить текстуру Ваших волос? // How would you classify the natural texture of your head hair?
     Отметьте только один овал.
         Мягкие / Fine
         Средние / Medium
         Жёсткие / Coarse 
 
-    Структура волос / Hair structure
+Структура волос: толщина / Hair structure: thickness
     Как вы можете оценить толщину Ваших волос? // How would you classify the thickness of your head hair?
     Отметьте только один овал.
         Тонкие / Thin
         Средние / Medium
         Толстые / Thick 
 
-    Облысение / Hair loss
+Облысение: класс / Hair loss: class
     Шкала классификации типов и стадий облысения / Norwood Hamilton Scale for hair loss stages
     (picture: self-report/images/baldness_Norwood_Hamilton_Scale.png)
 
-    Облысение / Hair loss
+Облысение: класс / Hair loss: class
     Укажите, пожалуйста, класс из приведённой выше классификации, наиболее близкий к Вашему (число 1 соответствует нормальному фенотипу) // Please, specify class from the Norwood Hamilton Scale mentioned above most close to your own (1 is for normal phenotype)
 
-    Облысение / Hair loss
+Облысение: тип / Hair loss: type
     Если вы указали класс выше первого при ответе на предыдущий вопрос, отметьте, пожалуйста, тип наблюдающегося у Вас облысения (номер от 1 до 5 из соответствующей строки приведённой выше классификации) // If you have mentioned class above the first in the previous question, please specify your hair loss type as a row number (from 1 to 5) from Norwood Hamilton Scale noted above
 
 
@@ -220,11 +219,11 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Replies to this cluster of questions aim to be an additional control for verification of the phenotype prediction algorithm.  You should specify your mother's natural phenotypic traits. Eye color stands for natural eye color without lenses, hair color is defined for not dyed hair, skin color is your ordinary skin color.
     
 
-    Цвет глаз: варианты цветов радужной оболочки / Eye colour: Iris hue options
+Цвет глаз матери: варианты цветов радужной оболочки / Mother's eye colour: Iris hue options
     Используйте эту подсказку для определения цвета глаз Вашей биологической матери вне связи с прочими чертами внешности // Use this prompt to define your biological mother's eye color paying no attention to other appearance traits. (Photo credit Walsh et al., 2011)
     (picture ?)
     
-    Цвет глаз: основной оттенок / Eye color: basic hue *
+Цвет глаз матери: основной оттенок / Mother's eye color: basic hue
     В ответе на вопрос укажите, пожалуйста, цвет глаз, наиболее близкий к цвету глаз Вашей матери. Если у неё смешанный цвет глаз -- укажите, пожалуйста, все оттенки (например, серый и голубой, если вы считаете, что у Вашей матери серо-голубые глаза), а также пункт "Смешанный цвет глаз". *Гетерохромия -- это разница в окраске радужных оболочек глаз. // Please, specify the closest color to your mother's basic eye hue. If she has a mixed eye color, tick all relevant options (for example, gray and blue for mixed gray blue eye color) and "Mixed eye color" option. *Heterochromia is a difference in coloration of the irises.
     Отметьте все подходящие варианты.
         Серый / Gray
@@ -236,7 +235,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Гетерохромия / Heterochromia
         Красный (альбинизм) / Red (albino phenotype) 
 
-    Цвет глаз: насыщенность / Eye color: saturation *
+Цвет глаз матери: насыщенность / Mother's eye color: saturation
     В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз вашей матери // Please, specify the saturation of your mother's eye color.
     Отметьте только один овал.
         Светлый / Light
@@ -246,8 +245,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Цвет глаз: особенности пигментации / Eye colour: pigmented ring
     (picture self-report/images/pigmented_ring.png)
 
-    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
-    Наблюдаются ли у Вашей матери пигментные кольца, отличные от основного цвета глаз, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your mother's eyes?
+Цвет глаз матери: пигментные кольца радужки / Mother's eye colour: iris pigmented ring    Наблюдаются ли у Вашей матери пигментные кольца, отличные от основного цвета глаз, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your mother's eyes?
     Отметьте только один овал.
         Да / Yes
         Нет / No 
@@ -262,11 +260,11 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Карий / Brown 
 
 
-    Цвет волос / Hair color
+Цвет волос матери / Mother's hair color
     Варианты цвета волос / Hair color options
     (picture ?)
 
-    Цвет волос: основной оттенок / Hair color: basic hue *
+Цвет волос матери: основной оттенок / Mother's hair color: basic hue
     Укажите цвет волос Вашей матери (в соответствии с иллюстрацией) / Pick your mother's hair color (according to the graphic prompt)
     Отметьте только один овал.
         Блондин / Blonde
@@ -275,17 +273,17 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Каштановые / Auburn
         Чёрные / Black 
 
-    Цвет волос: насыщенность / Hair color: saturation *
+Цвет волос матери: насыщенность / Mother's hair color: saturation
     В ответе на вопрос укажите, пожалуйста, насыщенность оттенка волос. Please, specify the saturation of your mother's hair color.
     Отметьте только один овал.
         Светлый / Light
         Средний / Medium
         Тёмный / Dark 
 
-    Структура волос / Hair structure
+Структура волос матери / Mother's hair structure
     (picture: self-report/images/hair_type.png)
 
-    Структура волос / Hair structure
+Структура волос матери: тип / Mother's hair structure: type
     Оцените, пожалуйста, тип волос Вашей матери в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your mother's head hair based on picture above?
     Отметьте только один овал.
         Прямые / Straight
@@ -295,32 +293,32 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Курчавые / Small curls
         С очень мелкими завитками / Kinky 
 
-    Структура волос / Hair structure
+Структура волос матери: жёсткость / Mother's air structure: coarseness
     Как вы можете оценить текстуру волос Вашей матери? // How would you classify the natural texture of your mother's head hair?
     Отметьте только один овал.
         Мягкие / Fine
         Средние / Medium
         Жёсткие / Coarse 
 
-    Структура волос / Hair structure
+Структура волос матери: толщина / Mother's hair structure: thickness
     Как вы можете оценить толщину волос Вашей матери? // How would you classify the thickness of your mother's head hair?
     Отметьте только один овал.
         Тонкие / Thin
         Средние / Medium
         Толстые / Thick 
 
-    Облысение / Hair loss
+Облысение матери / Mother's hair loss
     Наблюдаются ли у Вашей матери симптомы облысения? // Has your mother ever mentioned hair loss symptoms?
     Отметьте только один овал.
         Да / Yes
         Нет / No 
 
 
-    Цвет кожи: варианты оттенков / Skin colour: tone options
+Цвет кожи матери: варианты оттенков / Mother's skin colour: tone options
     Используйте эту подсказку для определения цвета кожи Вашей матери вне связи с прочими чертами внешности // Use this prompt to define your mother's skin color paying no attention to other appearance traits. (Photo credit Humanae project)
     (picture ?)
 
-    Цвет кожи: оттенок / Skin color: hue *
+Цвет кожи матери: оттенок / Mother's skin color: hue
     Отметьте только один овал.
         Розовая / Pink
         Бежевая / Beige
@@ -329,7 +327,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Черная / Black
         Альбинос / Albino 
 
-    Цвет кожи: насыщенность / Skin color: saturation *
+Цвет кожи матери: насыщенность / Mother's skin color: saturation
     Отметьте только один овал.
         Бледная / Fair
         Средняя / Medium
@@ -340,7 +338,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Да / Yes
         Нет / No 
 
-    Группа крови / Blood type *
+Группа крови матери / Mother's blood type
     Отметьте только один овал.
         I / 0
         II / A
@@ -348,7 +346,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         IV / AB
         Не знаю / Don't know 
 
-    Резус-фактор / Rh *
+Резус-фактор матери / Mother's Rh
     Отметьте только один овал.
         Положительный / Rh +
         Отрицательный / Rh -
@@ -411,11 +409,11 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
     Replies to this cluster of questions aim to be an additional control for verification of the phenotype prediction algorithm.   You should specify your mother's natural phenotypic traits. Eye color stands for natural eye color without lenses, hair color is defined for not dyed hair, skin color is your ordinary skin color.
     
 
-    Цвет глаз: варианты цветов радужной оболочки / Eye colour: Iris hue options
+Цвет глаз отца: варианты цветов радужной оболочки / Father's eye colour: Iris hue options
     Используйте эту подсказку для определения цвета глаз Вашего биологического отца вне связи с прочими чертами внешности // Use this prompt to define your biological father's eye color paying no attention to other appearance traits. (Photo credit Walsh et al., 2011)
     (picture ?)
 
-    Цвет глаз: основной оттенок / Eye color: basic hue *
+Цвет глаз отца: основной оттенок / Father's eye color: basic hue
     В ответе на вопрос укажите, пожалуйста, цвет, наиболее близкий к оттенку глаз вашего отца. Если у него смешанный цвет глаз -- укажите, пожалуйста, все оттенки (например, серый и голубой, если вы считаете, что у него серо-голубые глаза), а также пункт "Смешанный цвет глаз". *Гетерохромия -- это разница в окраске радужных оболочек глаз. // Please, specify the closest color to your father's basic eye hue. If he has a mixed eye color, tick all relevant options (for example, gray and blue for mixed gray blue eye color) and "Mixed eye color" option. *Heterochromia is a difference in coloration of the irises.
     Отметьте все подходящие варианты.
         Серый / Gray
@@ -427,17 +425,16 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Гетерохромия / Heterochromia
         Красный (альбинизм) / Red (albino phenotype) 
 
-    Цвет глаз: насыщенность / Eye color: saturation *
+Цвет глаз отца: насыщенность / Father's eye color: saturation
     В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз Вашего отца // Please, specify the saturation of your father's eye color.
     Отметьте только один овал.
         Светлый / Light
         Средний / Medium
         Тёмный / Dark 
 
-    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
-    (picture self-report/images/pigmented_ring.png)
+Цвет глаз отца: особенности пигментации / Father's eye colour: pigmented ring    (picture self-report/images/pigmented_ring.png)
 
-    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+Цвет глаз отца: пигментные кольца радужки / Father's eye colour: iris pigmented ring
     Наблюдаются ли у Вашего отца пигментные кольца, отличные от основного цвета глаз, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your father's eyes?
     Отметьте только один овал.
         Да / Yes
@@ -453,11 +450,11 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Карий / Brown 
 
 
-    Цвет волос / Hair color
+Цвет волос отца / Father's hair color
     Варианты цвета волос / Hair color options
     (picture ?)
 
-    Цвет волос: основной оттенок / Hair color: basic hue *
+Цвет волос отца: основной оттенок / Father's hair color: basic hue
     Укажите цвет волос вашего отца (в соответствии с иллюстрацией) / Pick your father's hair color (according to the graphic prompt)
     Отметьте только один овал.
         Блондин / Blonde
@@ -466,7 +463,7 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Каштановые / Auburn
         Чёрные / Black 
 
-    Цвет волос: насыщенность / Hair color: saturation *
+Цвет волос отца: насыщенность / Father's hair color: saturation
     В ответе на вопрос укажите, пожалуйста, насыщенность оттенка волос. Please, specify the saturation of your father's hair color.
     Отметьте только один овал.
         Светлый / Light
@@ -474,10 +471,10 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Тёмный / Dark 
 
 
-    Структура волос / Hair structure
+Структура волос отца / Father's hair structure
     (picture: self-report/images/hair_type.png)
 
-    Структура волос / Hair structure
+    Структура волос отца: тип / Father's hair structure: type
     Оцените, пожалуйста, тип волос Вашего отца в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your father's head hair based on picture above?
     Отметьте только один овал.
         Прямые / Straight
@@ -487,14 +484,14 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Курчавые / Small curls
         С очень мелкими завитками / Kinky 
 
-    Структура волос / Hair structure
+    Структура волос отца: жёсткость / Father's air structure: coarseness
     Как вы можете оценить текстуру волос вашего отца? // How would you classify the natural texture of your father's head hair?
     Отметьте только один овал.
         Мягкие / Fine
         Средние / Medium
         Жёсткие / Coarse 
 
-    Структура волос / Hair structure
+    Структура волос отца: толщина / Father's air structure: thickness 
     Как вы можете оценить толщину волос Вашего отца? // How would you classify the thickness of your father's head hair?
     Отметьте только один овал.
         Тонкие / Thin
@@ -502,22 +499,24 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Толстые / Thick 
 
 
-    Облысение / Hair loss
+Облысение отца / Father's hair loss
     Наблюдаются ли у Вашего отца симптомы облысения? // Has your father ever mentioned hair loss symptoms?
     Отметьте только один овал.
         Да / Yes
         Нет / No 
 
-    Облысение / Hair loss
+    Облысение деда по отцу / Grandfather's hair loss
     Наблюдаются ли у Вашего деда по отцу симптомы облысения? // Has your paternal grandfather ever mentioned hair loss symptoms?
     Отметьте только один овал.
         Да / Yes
         Нет / No 
 
-    Цвет кожи: варианты оттенков / Skin colour: tone options
+Цвет кожи отца: варианты оттенков / Father's skin colour: tone options
+
     Используйте эту подсказку для определения цвета кожи вашего отца вне связи с прочими чертами внешности. Use this prompt to define your father's skin color paying no attention to other appearance traits. (Photo credit Humanae project)
     (picture ?)
-    Цвет кожи: оттенок / Skin color: hue *
+Цвет кожи отца: оттенок / Father's skin color: hue
+
     Отметьте только один овал.
         Розовая / Pink
         Бежевая / Beige
@@ -526,7 +525,8 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Черная / Black
         Альбинос / Albino 
 
-    Цвет кожи: насыщенность / Skin color: saturation *
+Цвет кожи отца: насыщенность / Father's skin color: saturation
+
     Отметьте только один овал.
         Бледная / Fair
         Средняя / Medium
@@ -537,7 +537,8 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         Да / Yes
         Нет / No 
 
-    Группа крови / Blood type *
+Группа крови отца / Father's blood type
+
     Отметьте только один овал.
         I / 0
         II / A
@@ -545,7 +546,8 @@ This is phenotypical self-assessment questionnaire. Replies to these questions o
         IV / AB
         Не знаю / Don't know 
 
-    Резус-фактор / Rh *
+Резус-фактор отца / Father's Rh
+
     Отметьте только один овал.
         Положительный / Rh +
         Отрицательный / Rh -
