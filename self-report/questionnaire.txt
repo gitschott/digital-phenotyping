@@ -1,27 +1,34 @@
-Идентификация внешности. Phenotype identification.
+#Фенотипическое описание
 
+#Phenotype identification
 
-Это опрос по собственной оценке внешних черт. Ответы на вопросы будут использоваться для оценки результатов исследования. Необходимо указать естественные черты собственной внешности, касающиеся цвета глаз, волос и кожи, а также некоторые дополнительные признаки.
+Это опрос по оценке собственной внешности и ряда других фенотипических признаков. Ответы будут использоваться для оценки моделей предсказания фенотипических признаков на основании генетических данных. От Вас потребуется максимально объективно описать естественные черты собственной внешности и предоставить информацию о группе крови. Дополнительно может потребоваться информация о внешности и других фенотипических признаках Ваших ближайших родственников.
 
-This is phenotypical self-assessment questionnaire. Replies to these questions ore going to be used for verification of gene test-panel. You should specify your natural phenotypic traits for skin, eyes, hair and some additional parameters.
+// TODO: change according to russian version of the text
+This is phenotypical self-assessment questionnaire. Replies to these questions are going to be used for verification of gene test-panel. You should specify your natural phenotypic traits for skin, eyes, hair and some additional parameters.
 
-* Обязательно
+* Обязательно для заполнения
 
+##Информированное согласие на обработку персональных данных
 
-    Информированное согласие на обработку персональных данных. Informed consent on personal data processing. *
+В рамках проводимых исследований по верификации тест-панели для идентификации фенотипических черт требуется получение сведений о собственной оценке внешности. Для получения этих сведений требуется информированное согласие добровольцев, проходящих этот опрос. В соответствии с Вашим желанием Вам предлагается ответить на вопросы анкеты. Ваши ответы в дальнейшем будут использоваться для верификации и оценки моделей предсказания фенотипических признаков на основании генетических данных. Отмечая данный пункт, Вы подтверждаете, что даете свое согласие на использование данных, указанных вами в анкете, добровольно, обладая достаточной информацией, и что у Вас была возможность задать все вопросы, которые могли у Вас возникнуть относительно этого исследования. Все личные данные, касающиеся Вас или Ваших родственников, являются конфиденциальными, и не могут быть переданы другим лицам иначе, как с Вашего ясно выраженного согласия. Данные опросов будут храниться и обрабатываться в анонимном виде и будут доступны ограниченному кругу лиц. Вы можете отозвать свое согласие в любой момент без дополнительных объяснений.
 
-    В рамках исследований по верификации тест-панели для предсказания внешних признаков на основе анализа ДНК, проводимых компанией Parseq Lab (http://www.parseq.pro/), требуется получение сведений о собственной оценке внешности. Для получения этих сведений требуется информированное согласие добровольцев, участвующих в этом исследовании. В соответствии с Вашим желанием, Вам предлагается ответить на вопросы анкеты. Ваши ответы в дальнейшем будут использоваться для верификации тест-панели. Отмечая данный пункт, Вы подтверждаете, что даете свое согласие на использование данных, указанных вами в анкете, добровольно, обладая достаточной информацией, и что у Вас была возможность задать все вопросы, которые могли у Вас возникнуть относительно этого исследования. Все личные данные, касающиеся Вас или Ваших родственников, являются конфиденциальными, и не могут быть переданы другим лицам иначе, как с Вашего ясно выраженного согласия. Данные опросов будут храниться и обрабатываться в анонимном виде и будут доступны ограниченному кругу лиц. Вы можете отозвать свое согласие в любой момент без дополнительных объяснений. // It is required to get data on self-esteemed phenotype in accordance to research on Human Phenotypic Traits Identification Panel verification carried out by Parseq Lab Company (http://www.parseq.pro/). Volunteers' informed consent on personal data processing is to be obtained. Consistent with your agreement you are asked to reply the following questionnaire. Your replies are going to be processed further for verification of the panel. By marking this point you knowingly and voluntarily agree on processing of the information given in the questionnaire. You also agree that you have received sufficient information and that you have had an opportunity to ask all the questions on the research you might be interested in. All personal data that concerns you or your relatives is confidential, it is not to be transferred to others unless you agree on it. Your replies will be stored and processed anonymously with restricted access. You can withdraw your consent anytime without any additional comments.
-    Отметьте только один овал.
-        Я даю свое согласие на обработку персональных данных. / Yes, I agree on my personal data processing. 
+##Informed consent on personal data processing*
 
+It is required to get data on self-esteemed phenotype in accordance to research on Human Phenotypic Traits Identification Panel verification carried out by Parseq Lab Company (http://www.parseq.pro/). Volunteers' informed consent on personal data processing is to be obtained. Consistent with your agreement you are asked to reply the following questionnaire. Your replies are going to be processed further for verification of phenotype prediction algorithms using genetics data. By marking this point you knowingly and voluntarily agree on processing of the information given in the questionnaire. You also agree that you have received sufficient information and that you have had an opportunity to ask all the questions on the research you might be interested in. All personal data that concerns you or your relatives is confidential, it is not to be transferred to others unless you agree on it. Your replies will be stored and processed anonymously with restricted access. You can withdraw your consent anytime without any additional comments.
+
+Я даю свое согласие на обработку персональных данных / Yes, I agree on my personal data processing
+
+##Questionnaire
 
     Идентификационный номер / ID Number *
 
+Идентификационный номер, который вы получили при заборе образца биологического материала
 
     Общая информация / General information
 
     Пол / Gender *
-    Отметьте только один овал.
+
         Мужской / Male
         Женский / Female 
 
