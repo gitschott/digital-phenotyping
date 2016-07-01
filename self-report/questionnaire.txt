@@ -1,0 +1,603 @@
+Идентификация внешности. Phenotype identification.
+
+
+Это опрос по собственной оценке внешних черт. Ответы на вопросы будут использоваться для оценки результатов исследования. Необходимо указать естественные черты собственной внешности, касающиеся цвета глаз, волос и кожи, а также некоторые дополнительные признаки.
+
+This is phenotypical self-assessment questionnaire. Replies to these questions ore going to be used for verification of gene test-panel. You should specify your natural phenotypic traits for skin, eyes, hair and some additional parameters.
+
+* Обязательно
+
+
+    Информированное согласие на обработку персональных данных. Informed consent on personal data processing. *
+
+    В рамках исследований по верификации тест-панели для предсказания внешних признаков на основе анализа ДНК, проводимых компанией Parseq Lab (http://www.parseq.pro/), требуется получение сведений о собственной оценке внешности. Для получения этих сведений требуется информированное согласие добровольцев, участвующих в этом исследовании. В соответствии с Вашим желанием, Вам предлагается ответить на вопросы анкеты. Ваши ответы в дальнейшем будут использоваться для верификации тест-панели. Отмечая данный пункт, Вы подтверждаете, что даете свое согласие на использование данных, указанных вами в анкете, добровольно, обладая достаточной информацией, и что у Вас была возможность задать все вопросы, которые могли у Вас возникнуть относительно этого исследования. Все личные данные, касающиеся Вас или Ваших родственников, являются конфиденциальными, и не могут быть переданы другим лицам иначе, как с Вашего ясно выраженного согласия. Данные опросов будут храниться и обрабатываться в анонимном виде и будут доступны ограниченному кругу лиц. Вы можете отозвать свое согласие в любой момент без дополнительных объяснений. // It is required to get data on self-esteemed phenotype in accordance to research on Human Phenotypic Traits Identification Panel verification carried out by Parseq Lab Company (http://www.parseq.pro/). Volunteers' informed consent on personal data processing is to be obtained. Consistent with your agreement you are asked to reply the following questionnaire. Your replies are going to be processed further for verification of the panel. By marking this point you knowingly and voluntarily agree on processing of the information given in the questionnaire. You also agree that you have received sufficient information and that you have had an opportunity to ask all the questions on the research you might be interested in. All personal data that concerns you or your relatives is confidential, it is not to be transferred to others unless you agree on it. Your replies will be stored and processed anonymously with restricted access. You can withdraw your consent anytime without any additional comments.
+    Отметьте только один овал.
+        Я даю свое согласие на обработку персональных данных. / Yes, I agree on my personal data processing. 
+
+
+    Идентификационный номер / ID Number *
+
+
+    Общая информация / General information
+
+    Пол / Gender *
+    Отметьте только один овал.
+        Мужской / Male
+        Женский / Female 
+
+    Возраст / Age *
+    Укажите число полных лет на момент проведения исследования // Please specify number of complete years at investigation time
+
+    Этническая принадлежность / Ethnic origins *
+    Если среди перечисленных национальностей нет той, которая соответствует вашей, впишите, пожалуйста, в свободную строку наиболее подходящий вариант из списка национальностей по переписи населения, доступного по ссылке: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm // If no one of nationalities from the list matches your nationality, please type one of the nationalities from the following list available by link: http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm
+    Отметьте только один овал.
+        Русская / Russian
+        Татарка / Tatar
+        Украинка / Ukranian
+        Башкирка / Bashkir
+        Чувашка / Chuvash
+        Чеченка / Chechen
+        Армянка / Armenian
+        Аварка / Avar
+        Казашка / Kazakh
+        Другое: 
+
+
+
+    Характеристика собственной внешности / Phenotypical self-assesement.
+    Ответы на вопросы этого блока могут использоваться для непосредственной проверки результатов работы алгоритма предсказания внешности. Необходимо указать свои естественные внешние черты: естественный цвет глаз без линз, естественный цвет волос без окрашивания, а также типичный оттенок цвета кожи.
+
+    Replies to this cluster of questions aim to be a reference for verification of the phenotype prediction algorithm. You should specify your natural phenotypic traits. Eye color stands for natural eye color without lenses, hair color is defined for not dyed hair, skin color is your ordinary skin color.
+
+
+    Цвет глаз: варианты цветов радужной оболочки / Eye colour: Iris hue options
+    Используйте эту подсказку для определения своего цвета глаз вне связи с прочими чертами внешности. Use this prompt to define your skin color paying no attention to other appearance traits. (Photo credit Walsh et al., 2011)
+    (picture?)
+
+
+    Цвет глаз: основной оттенок / Eye color: basic hue *
+    В ответе на вопрос укажите, пожалуйста, наиболее близкий к вашему основному оттенку цвет глаз. Если у вас смешанный цвет глаз -- укажите, пожалуйста, все оттенки (например, серый и голубой, если вы считаете, что у вас серо-голубые глаза), а также пункт "У меня смешанный цвет глаз". *Гетерохромия -- это разница в окраске радужных оболочек глаз. // Please, specify the closest color to your basic eye hue. If you have a mixed eye color, tick all relevant options (for example, gray and blue for mixed gray-blue eye colour) and "I have mixed eye color" option. *Heterochromia is a difference in coloration of the irises.
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown
+        У меня смешанный цвет глаз / I have mixed eye color
+        У меня гетерохромия / I have heterochromia
+        Красный (альбинизм) / Red (albino phenotype) 
+
+    Цвет глаз: насыщенность / Eye color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз. Please, specify the saturation of your eye color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    (picture: self-report/images/pigmented_ring.png)
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Наблюдаются ли у Вас пигментные кольца, отличные от основного цвета, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your eyes?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Если вы ответили "Да" на предыдущий вопрос, укажите, пожалуйста, оттенок, наиболее близкий к цвету пигментного кольца (если Вы считаете, что цвет смешанный, отметьте оттенки, его образующие). // If you have pigmented rings mentioned above, please specify the closest color to the basic pigmented ring hue (you can select more than one item in case of mixed pigmented ring color)
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown 
+
+
+    Цвет волос / Hair color
+    Варианты цвета волос / Hair color options
+    (picture?)
+
+    Цвет волос: основной оттенок / Hair color: basic hue *
+    Выберите свой цвет волос (в соответствии с иллюстрацией) / Pick your hair color (according to the graphic prompt)
+    Отметьте только один овал.
+        Блондин / Blonde
+        Русые / Fair
+        Рыжие / Red
+        Каштановые / Auburn
+        Чёрные / Black 
+
+    Цвет волос: насыщенность / Hair color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка волос. Please, specify the saturation of your hair color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+    Цвет волос: седина / Hair color: graying/whitening
+    Отмечаете ли вы появление седых волос, заметное невооружённым глазом? // Have you mentioned visible hair graying/whitening?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Структура волос / Hair structure
+    (picture: self-report/images/hair_type.png)
+
+    Структура волос / Hair structure
+    Оцените, пожалуйста, Ваш тип волос в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your head hair based on picture above?
+    Отметьте только один овал.
+        Прямые / Straight
+        Слегка волнистые / Slightly wavy
+        Волнистые / Wavy
+        Вьющиеся / Big curls
+        Курчавые / Small curls
+        С очень мелкими завитками / Kinky 
+
+    Структура волос / Hair structure
+    Как вы можете оценить текстуру Ваших волос? // How would you classify the natural texture of your head hair?
+    Отметьте только один овал.
+        Мягкие / Fine
+        Средние / Medium
+        Жёсткие / Coarse 
+
+    Структура волос / Hair structure
+    Как вы можете оценить толщину Ваших волос? // How would you classify the thickness of your head hair?
+    Отметьте только один овал.
+        Тонкие / Thin
+        Средние / Medium
+        Толстые / Thick 
+
+    Облысение / Hair loss
+    Шкала классификации типов и стадий облысения / Norwood Hamilton Scale for hair loss stages
+    (picture: self-report/images/baldness_Norwood_Hamilton_Scale.png)
+
+    Облысение / Hair loss
+    Укажите, пожалуйста, класс из приведённой выше классификации, наиболее близкий к Вашему (число 1 соответствует нормальному фенотипу) // Please, specify class from the Norwood Hamilton Scale mentioned above most close to your own (1 is for normal phenotype)
+
+    Облысение / Hair loss
+    Если вы указали класс выше первого при ответе на предыдущий вопрос, отметьте, пожалуйста, тип наблюдающегося у Вас облысения (номер от 1 до 5 из соответствующей строки приведённой выше классификации) // If you have mentioned class above the first in the previous question, please specify your hair loss type as a row number (from 1 to 5) from Norwood Hamilton Scale noted above
+
+
+
+    Цвет кожи: варианты оттенков / Skin colour: tone options
+    Используйте эту подсказку для определения своего цвета кожи вне связи с прочими чертами внешности. Use this prompt to define your skin color paying no attention to other appearance traits. (Photo credit Humanae project)
+    (picture ?)
+
+    Цвет кожи: оттенок / Skin color: hue *
+    Отметьте только один овал.
+        Розовая / Pink
+        Бежевая / Beige
+        Оливковая / Olive
+        Смуглая / Dusky
+        Черная / Black
+        Альбинос / Albino 
+
+    Цвет кожи: насыщенность / Skin color: saturation *
+    Отметьте только один овал.
+        Бледная / Fair
+        Средняя / Medium
+        Темная / Dark 
+
+    Есть ли у вас веснушки? / Do you have any freckles?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+
+    Группа крови / Blood type *
+    Отметьте только один овал.
+        I / 0
+        II / A
+        III / B
+        IV / AB
+        Не знаю / Don't know 
+
+    Определяли ли у вас когда-нибудь разные группы крови? Have you ever had multiple blood type result? *
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Перечислите все группы крови, которые у вас когда-либо определяли / List all the blood types you were identified with
+    Ответ на этот вопрос требуется только в том случае, если у вас определяли разные группы крови. Answer to this question if you had ever had multiple blood type test results.
+    Отметьте все подходящие варианты.
+        I / 0
+        II / A
+        III / B
+        IV / AB 
+
+    Резус-фактор / Rh *
+    Отметьте только один овал.
+        Положительный / Rh +
+        Отрицательный / Rh -
+        Не знаю / Unknown 
+
+
+
+
+
+    Характеристика внешности матери/ Mother's phenotype assesement
+    Ответы на вопросы этого блока могут использоваться для контроля результатов работы алгоритма предсказания внешности. Необходимо указать естественные фенотипические черты вашей матери. Нужно указать естественный цвет глаз без линз, естественный цвет волос без окрашивания, а также типичный оттенок цвета кожи.
+
+    Replies to this cluster of questions aim to be an additional control for verification of the phenotype prediction algorithm.  You should specify your mother's natural phenotypic traits. Eye color stands for natural eye color without lenses, hair color is defined for not dyed hair, skin color is your ordinary skin color.
+    
+
+    Цвет глаз: варианты цветов радужной оболочки / Eye colour: Iris hue options
+    Используйте эту подсказку для определения цвета глаз Вашей биологической матери вне связи с прочими чертами внешности // Use this prompt to define your biological mother's eye color paying no attention to other appearance traits. (Photo credit Walsh et al., 2011)
+    (picture ?)
+    
+    Цвет глаз: основной оттенок / Eye color: basic hue *
+    В ответе на вопрос укажите, пожалуйста, цвет глаз, наиболее близкий к цвету глаз Вашей матери. Если у неё смешанный цвет глаз -- укажите, пожалуйста, все оттенки (например, серый и голубой, если вы считаете, что у Вашей матери серо-голубые глаза), а также пункт "Смешанный цвет глаз". *Гетерохромия -- это разница в окраске радужных оболочек глаз. // Please, specify the closest color to your mother's basic eye hue. If she has a mixed eye color, tick all relevant options (for example, gray and blue for mixed gray blue eye color) and "Mixed eye color" option. *Heterochromia is a difference in coloration of the irises.
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown
+        Смешанный цвет глаз / Mixed eye color
+        Гетерохромия / Heterochromia
+        Красный (альбинизм) / Red (albino phenotype) 
+
+    Цвет глаз: насыщенность / Eye color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз вашей матери // Please, specify the saturation of your mother's eye color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    (picture self-report/images/pigmented_ring.png)
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Наблюдаются ли у Вашей матери пигментные кольца, отличные от основного цвета глаз, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your mother's eyes?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Если вы ответили "Да" на предыдущий вопрос, укажите, пожалуйста, оттенок, наиболее близкий к цвету пигментного кольца (если Вы считаете, что цвет смешанный, отметьте оттенки, его образующие). // If your mother has pigmented rings mentioned above, please specify the closest color to the basic pigmented ring hue (you can select more than one item in case of mixed pigmented ring color)
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown 
+
+
+    Цвет волос / Hair color
+    Варианты цвета волос / Hair color options
+    (picture ?)
+
+    Цвет волос: основной оттенок / Hair color: basic hue *
+    Укажите цвет волос Вашей матери (в соответствии с иллюстрацией) / Pick your mother's hair color (according to the graphic prompt)
+    Отметьте только один овал.
+        Блондин / Blonde
+        Русые / Fair
+        Рыжие / Red
+        Каштановые / Auburn
+        Чёрные / Black 
+
+    Цвет волос: насыщенность / Hair color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка волос. Please, specify the saturation of your mother's hair color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+    Структура волос / Hair structure
+    (picture: self-report/images/hair_type.png)
+
+    Структура волос / Hair structure
+    Оцените, пожалуйста, тип волос Вашей матери в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your mother's head hair based on picture above?
+    Отметьте только один овал.
+        Прямые / Straight
+        Слегка волнистые / Slightly wavy
+        Волнистые / Wavy
+        Вьющиеся / Big curls
+        Курчавые / Small curls
+        С очень мелкими завитками / Kinky 
+
+    Структура волос / Hair structure
+    Как вы можете оценить текстуру волос Вашей матери? // How would you classify the natural texture of your mother's head hair?
+    Отметьте только один овал.
+        Мягкие / Fine
+        Средние / Medium
+        Жёсткие / Coarse 
+
+    Структура волос / Hair structure
+    Как вы можете оценить толщину волос Вашей матери? // How would you classify the thickness of your mother's head hair?
+    Отметьте только один овал.
+        Тонкие / Thin
+        Средние / Medium
+        Толстые / Thick 
+
+    Облысение / Hair loss
+    Наблюдаются ли у Вашей матери симптомы облысения? // Has your mother ever mentioned hair loss symptoms?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+
+    Цвет кожи: варианты оттенков / Skin colour: tone options
+    Используйте эту подсказку для определения цвета кожи Вашей матери вне связи с прочими чертами внешности // Use this prompt to define your mother's skin color paying no attention to other appearance traits. (Photo credit Humanae project)
+    (picture ?)
+
+    Цвет кожи: оттенок / Skin color: hue *
+    Отметьте только один овал.
+        Розовая / Pink
+        Бежевая / Beige
+        Оливковая / Olive
+        Смуглая / Dusky
+        Черная / Black
+        Альбинос / Albino 
+
+    Цвет кожи: насыщенность / Skin color: saturation *
+    Отметьте только один овал.
+        Бледная / Fair
+        Средняя / Medium
+        Темная / Dark 
+
+    Есть ли у вашей матери веснушки? / Does your mother have any freckles?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Группа крови / Blood type *
+    Отметьте только один овал.
+        I / 0
+        II / A
+        III / B
+        IV / AB
+        Не знаю / Don't know 
+
+    Резус-фактор / Rh *
+    Отметьте только один овал.
+        Положительный / Rh +
+        Отрицательный / Rh -
+        Не знаю / Unknown 
+
+
+    Этническая принадлежность вашей матери / Ethnic origins of your mother
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русская / Russian
+        Татарка / Tatar
+        Украинка / Ukranian
+        Башкирка / Bashkir
+        Чувашка / Chuvash
+        Чеченка / Chechen
+        Армянка / Armenian
+        Аварка / Avar
+        Казашка / Kazakh
+        Другое: 
+
+
+    Этническая принадлежность ваших родственников по матери/ Ethnic origins of your maternal grandparents
+    Укажите, пожалуйста, этническую принадлежность ваших бабушек и дедушек. Please, specify ethnic origins of your grandparents.
+
+    Этническая принадлежность вашей бабушки по матери / Ethnic origins of your maternal grandmother
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русская / Russian
+        Татарка / Tatar
+        Украинка / Ukranian
+        Башкирка / Bashkir
+        Чувашка / Chuvash
+        Чеченка / Chechen
+        Армянка / Armenian
+        Аварка / Avar
+        Казашка / Kazakh
+        Другое: 
+
+    Этническая принадлежность вашего дедушки по матери / Ethnic origins of your maternal grandfather
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русский / Russian
+        Татарин / Tatar
+        Украинец / Ukranian
+        Башкир / Bashkir
+        Чуваш / Chuvash
+        Чеченец / Chechen
+        Армянин / Armenian
+        Аварец / Avar
+        Казах / Kazakh
+        Другое: 
+
+
+
+
+
+    Характеристика внешности отца / Father's phenotype assesement
+    Ответы на вопросы этого блока могут использоваться для контроля результатов работы алгоритма предсказания внешности. Необходимо указать естественные фенотипические черты вашего отца. Нужно указать естественный цвет глаз без линз, естественный цвет волос без окрашивания, а также типичный оттенок цвета кожи.
+
+    Replies to this cluster of questions aim to be an additional control for verification of the phenotype prediction algorithm.   You should specify your mother's natural phenotypic traits. Eye color stands for natural eye color without lenses, hair color is defined for not dyed hair, skin color is your ordinary skin color.
+    
+
+    Цвет глаз: варианты цветов радужной оболочки / Eye colour: Iris hue options
+    Используйте эту подсказку для определения цвета глаз Вашего биологического отца вне связи с прочими чертами внешности // Use this prompt to define your biological father's eye color paying no attention to other appearance traits. (Photo credit Walsh et al., 2011)
+    (picture ?)
+
+    Цвет глаз: основной оттенок / Eye color: basic hue *
+    В ответе на вопрос укажите, пожалуйста, цвет, наиболее близкий к оттенку глаз вашего отца. Если у него смешанный цвет глаз -- укажите, пожалуйста, все оттенки (например, серый и голубой, если вы считаете, что у него серо-голубые глаза), а также пункт "Смешанный цвет глаз". *Гетерохромия -- это разница в окраске радужных оболочек глаз. // Please, specify the closest color to your father's basic eye hue. If he has a mixed eye color, tick all relevant options (for example, gray and blue for mixed gray blue eye color) and "Mixed eye color" option. *Heterochromia is a difference in coloration of the irises.
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown
+        Смешанный цвет глаз / Mixed eye color
+        Гетерохромия / Heterochromia
+        Красный (альбинизм) / Red (albino phenotype) 
+
+    Цвет глаз: насыщенность / Eye color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка глаз Вашего отца // Please, specify the saturation of your father's eye color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    (picture self-report/images/pigmented_ring.png)
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Наблюдаются ли у Вашего отца пигментные кольца, отличные от основного цвета глаз, сходные с приведённым на изображении выше (отмечено стрелкой)? // Are there any pigmented rings like presented above (marked with arrow) in your father's eyes?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Цвет глаз: особенности пигментации / Eye colour: pigmented ring
+    Если вы ответили "Да" на предыдущий вопрос, укажите, пожалуйста, оттенок, наиболее близкий к цвету пигментного кольца (если Вы считаете, что цвет смешанный, отметьте оттенки, его образующие). // If your father have pigmented rings mentioned above, please specify the closest color to the basic pigmented ring hue (you can select more than one item in case of mixed pigmented ring color)
+    Отметьте все подходящие варианты.
+        Серый / Gray
+        Голубой / Blue
+        Зеленый / Green
+        Ореховый / Hazel
+        Карий / Brown 
+
+
+    Цвет волос / Hair color
+    Варианты цвета волос / Hair color options
+    (picture ?)
+
+    Цвет волос: основной оттенок / Hair color: basic hue *
+    Укажите цвет волос вашего отца (в соответствии с иллюстрацией) / Pick your father's hair color (according to the graphic prompt)
+    Отметьте только один овал.
+        Блондин / Blonde
+        Русые / Fair
+        Рыжие / Red
+        Каштановые / Auburn
+        Чёрные / Black 
+
+    Цвет волос: насыщенность / Hair color: saturation *
+    В ответе на вопрос укажите, пожалуйста, насыщенность оттенка волос. Please, specify the saturation of your father's hair color.
+    Отметьте только один овал.
+        Светлый / Light
+        Средний / Medium
+        Тёмный / Dark 
+
+
+    Структура волос / Hair structure
+    (picture: self-report/images/hair_type.png)
+
+    Структура волос / Hair structure
+    Оцените, пожалуйста, тип волос Вашего отца в соответствии с иллюстрацией, приведённой выше // How would you classify the natural type of your father's head hair based on picture above?
+    Отметьте только один овал.
+        Прямые / Straight
+        Слегка волнистые / Slightly wavy
+        Волнистые / Wavy
+        Вьющиеся / Big curls
+        Курчавые / Small curls
+        С очень мелкими завитками / Kinky 
+
+    Структура волос / Hair structure
+    Как вы можете оценить текстуру волос вашего отца? // How would you classify the natural texture of your father's head hair?
+    Отметьте только один овал.
+        Мягкие / Fine
+        Средние / Medium
+        Жёсткие / Coarse 
+
+    Структура волос / Hair structure
+    Как вы можете оценить толщину волос Вашего отца? // How would you classify the thickness of your father's head hair?
+    Отметьте только один овал.
+        Тонкие / Thin
+        Средние / Medium
+        Толстые / Thick 
+
+
+    Облысение / Hair loss
+    Наблюдаются ли у Вашего отца симптомы облысения? // Has your father ever mentioned hair loss symptoms?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Облысение / Hair loss
+    Наблюдаются ли у Вашего деда по отцу симптомы облысения? // Has your paternal grandfather ever mentioned hair loss symptoms?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Цвет кожи: варианты оттенков / Skin colour: tone options
+    Используйте эту подсказку для определения цвета кожи вашего отца вне связи с прочими чертами внешности. Use this prompt to define your father's skin color paying no attention to other appearance traits. (Photo credit Humanae project)
+    (picture ?)
+    Цвет кожи: оттенок / Skin color: hue *
+    Отметьте только один овал.
+        Розовая / Pink
+        Бежевая / Beige
+        Оливковая / Olive
+        Смуглая / Dusky
+        Черная / Black
+        Альбинос / Albino 
+
+    Цвет кожи: насыщенность / Skin color: saturation *
+    Отметьте только один овал.
+        Бледная / Fair
+        Средняя / Medium
+        Темная / Dark 
+
+    Есть ли у вашего отца веснушки? / Does your father have any freckles?
+    Отметьте только один овал.
+        Да / Yes
+        Нет / No 
+
+    Группа крови / Blood type *
+    Отметьте только один овал.
+        I / 0
+        II / A
+        III / B
+        IV / AB
+        Не знаю / Don't know 
+
+    Резус-фактор / Rh *
+    Отметьте только один овал.
+        Положительный / Rh +
+        Отрицательный / Rh -
+        Не знаю / Unknown 
+
+
+    Этническая принадлежность вашего отца / Ethnic origins of your father
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русский / Russian
+        Татарин / Tatar
+        Украинец / Ukranian
+        Башкир / Bashkir
+        Чуваш / Chuvash
+        Чеченец / Chechen
+        Армянин / Armenian
+        Аварец / Avar
+        Казах / Kazakh
+        Другое: 
+
+
+    Этническая принадлежность ваших родственников по отцу / Ethnic origins of your paternal grandparents
+    Укажите, пожалуйста, этническую принадлежность ваших бабушек и дедушек. Please, specify ethnic origins of your grandparents.
+
+    Этническая принадлежность вашей бабушки по отцу / Ethnic origins of your paternal grandmother
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русская / Russian
+        Татарка / Tatar
+        Украинка / Ukranian
+        Башкирка / Bashkir
+        Чувашка / Chuvash
+        Чеченка / Chechen
+        Армянка / Armenian
+        Аварка / Avar
+        Казашка / Kazakh
+        Другое: 
+
+    Этническая принадлежность вашего дедушки по отцу / Ethnic origins of your paternal grandfather
+    Если среди перечисленных национальностей нет той, которая соответствует национальности вашего родственника, впишите в свободную строку национальность из списка национальностей по переписи населения, доступно по ссылке // If one of the nationalities matches the nationality of your relative, type one of the nationalities from the list, link is attached (http://www.gks.ru/free_doc/new_site/perepis2010/croc/perepis_itogi1612.htm)
+    Отметьте только один овал.
+        Русский / Russian
+        Татарин / Tatar
+        Украинец / Ukranian
+        Башкир / Bashkir
+        Чуваш / Chuvash
+        Чеченец / Chechen
+        Армянин / Armenian
+        Аварец / Avar
+        Казах / Kazakh
+        Другое: 
+
+
+
+    "Cпасибо за Ваше участие в исследовании! / Thank you for your participation!"
