@@ -21,18 +21,31 @@ def check_arg(args=None):
             results.vcf,
             results.phen)
 
+
+def get_rs(mode, path_to_rs_list):
+    for file in os.listdir(os.path.abspath(p)):
+        if file.startswith(mode):
+            os.chdir(path_to_rs_list)
+            f = open(file, 'r')
+            rs = [line.split('\n') for line in f.readlines()]
+            del rs[len(rs) - 1]
+            rsnp = []
+            for i in rs:
+                rsnp.append(i[0])
+            del rsnp[len(rsnp) - 1]
+
+            return rsnp
+
 if __name__ == '__main__':
     m, v, p = check_arg(sys.argv[1:])
     print('mode =', m)
     print('vcf =', v)
     print('phen =', p)
 
-    for file in os.listdir(os.path.abspath(p)):
-        if file.startswith(m):
-            os.chdir(p)
-            f = open(file, 'r')
-            rs = [line.split('\n') for line in f.readlines()]
-            del rs[len(rs)-1]
-            print(type(rs))
-        else:
-            print('wrong phenotyping data path')
+
+    snp = get_rs(m, p)
+    if snp == None:
+        print('Something whent wrong when we tried to get to rs.')
+    else:
+        print('You are predicting pigmentation of', m)
+        print('Your rs list includes %d elements' % len(snp))
