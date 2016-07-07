@@ -76,8 +76,38 @@ if __name__ == '__main__':
                             for i in snp:
                                 result = re.match(i, s)
                                 if result is not None:
-                                    print(string[3],string[4])
-                                    bs[file[:6],i] = string
+                                    if string[6] == 'PASS':
+                                        ref = string[3]
+                                        if len(string[4]) > 1:
+                                            alt = str.split(string[4], sep=',')
+                                            af = str.split(string[9], sep=':')
+                                            names = str.split(string[8], sep=':')
+                                            ind = names.index("AF")
+                                            freq = str.split(af[ind], sep=',')
+                                            for f in freq:
+                                                if f != 0:
+                                                    if f == 1:
+                                                        ind_f = freq.index(f)
+                                                        bs[file[:6], i] = alt[ind_f], alt[ind_f]
+                                                    else:
+                                                        ind_f = freq.index(f)
+                                                        bs[file[:6], i] = ref, alt[ind_f]
+                                                else:
+                                                    bs[file[:6], i] = ref, ref
+                                        else:
+                                            alt = string[4]
+                                            af = str.split(string[9], sep=':')
+                                            names = str.split(string[8], sep=':')
+                                            ind = names.index("AF")
+                                            freq = af[ind]
+                                            if freq == 0:
+                                                bs[file[:6], i] = ref, ref
+                                            elif freq == 1:
+                                                bs[file[:6], i] = alt, alt
+                                            else:
+                                                bs[file[:6], i] = ref, alt
+                                    else:
+                                        pass
                                 else:
                                     pass
         os.chdir(path)
@@ -85,3 +115,4 @@ if __name__ == '__main__':
 
 
     print(len(bs))
+    print(bs.popitem())
