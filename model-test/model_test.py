@@ -84,16 +84,14 @@ if __name__ == '__main__':
                                             names = str.split(string[8], sep=':')
                                             ind = names.index("AF")
                                             freq = str.split(af[ind], sep=',')
-                                            for f in freq:
-                                                if f != 0:
-                                                    if f == 1:
-                                                        ind_f = freq.index(f)
-                                                        bs[file[:6], i] = alt[ind_f], alt[ind_f]
-                                                    else:
-                                                        ind_f = freq.index(f)
-                                                        bs[file[:6], i] = ref, alt[ind_f]
-                                                else:
-                                                    bs[file[:6], i] = ref, ref
+                                            if freq[1:] == freq[:-1]:
+                                                bs[file[:6], i] = ref, ref
+                                            elif 1 in freq:
+                                                ind_f = freq.index(1)
+                                                bs[file[:6], i] = alt[ind_f], alt[ind_f]
+                                            else:
+                                                ind_f = freq.index(f != 0 for f in freq)
+                                                bs[file[:6], i] = ref, alt[ind_f]
                                         else:
                                             alt = string[4]
                                             af = str.split(string[9], sep=':')
