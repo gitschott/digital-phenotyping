@@ -58,9 +58,8 @@ if __name__ == '__main__':
         print('You are predicting pigmentation of', m)
         print('Your rs list includes %d elements' % len(snp))
 
+    bs = {}
 
-    keys = []
-    lom = []
     c = 0
     for file in os.listdir(os.path.abspath(v)):
         path = os.getcwd()
@@ -75,23 +74,14 @@ if __name__ == '__main__':
                     for s in string:
                         if s.startswith('rs'):
                             for i in snp:
-                                keys.append(file)
                                 result = re.match(i, s)
                                 if result is not None:
-                                    lom.append(string)
+                                    print(string[3],string[4])
+                                    bs[file[:6],i] = string
                                 else:
-                                    lom.append(0)
+                                    pass
         os.chdir(path)
         c += 1
 
-    bs = {}
-    for i in range(len(keys)):
-        if lom[i] != 0:
-            bs[keys[i]] = lom[i]
-        else:
-            pass
 
-    print(bs)
-    print(len(keys))
-    print(len(lom))
-    print(snp)
+    print(len(bs))

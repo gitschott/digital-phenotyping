@@ -1,22 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#Import Library
-#Import other necessary libraries like pandas, numpy
-from sklearn import linear_model
-import numpy as np
-#Load Train and Test datasets
-#Identify feature and response variable(s) and values must be numeric and numpy arrays
-x_train=input_variables_values_training_datasets
-y_train=target_variables_values_training_datasets
-x_test=input_variables_values_test_datasets
-# Create linear regression object
-linear = linear_model.LinearRegression()
-# Train the model using the training sets and check score
-linear.fit(x_train, y_train)
-linear.score(x_train, y_train)
-#Equation coefficient and Intercept
-print('Coefficient: \n', linear.coef_)
-print('Intercept: \n', linear.intercept_)
-#Predict Output
-predicted= linear.predict(x_test)
+import os
+import csv
+
+
+# Read all the parameters
+
+
+current = os.path.dirname(os.path.realpath(__file__))
+
+snp_val = {}
+with open(os.path.join(current, 'parameters_iris_rs.csv')) as csvfile:
+    rs_param = csv.reader(csvfile, delimiter=';')
+    headers = next(rs_param)
+    print(type(rs_param))
+    for row in rs_param:
+        snp_val[row[1]] = row[2],row[2]
+
+print(snp_val)
+
+# Detect minor alleles values
+
+# Put values into model
+
+# Estimate
+
+# Predict
+
+# Check prediction
