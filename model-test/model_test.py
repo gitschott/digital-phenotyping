@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import argparse
 import sys
 import os
@@ -41,70 +44,6 @@ def get_rs(mode, path_to_rs_list):
 
             return rsnp
 
-
-# Generate the Bad Character Skip List
-def generate_bad_char_shift(term):
-    skipList = {}
-    for i in range(0, len(term) - 1):
-        skipList[term[i]] = len(term) - i - 1
-    return skipList
-
-
-# Generate the Good Suffix Skip List
-def findSuffixPosition(badchar, suffix, full_term):
-    for offset in range(1, len(full_term) + 1)[::-1]:
-        flag = True
-        for suffix_index in range(0, len(suffix)):
-            term_index = offset - len(suffix) - 1 + suffix_index
-            if term_index < 0 or suffix[suffix_index] == full_term[term_index]:
-                pass
-            else:
-                flag = False
-        term_index = offset - len(suffix) - 1
-        if flag and (term_index <= 0 or full_term[term_index - 1] != badchar):
-            return len(full_term) - offset + 1
-
-
-def generateSuffixShift(key):
-    skipList = {}
-    buffer = ""
-    for i in range(0, len(key)):
-        skipList[len(buffer)] = findSuffixPosition(key[len(key) - 1 - i], buffer, key)
-        buffer = key[len(key) - 1 - i] + buffer
-    return skipList
-
-
-# Actual Search Algorithm
-def BMSearch(haystack, needle):
-    goodSuffix = generateSuffixShift(needle)
-    badChar = generate_bad_char_shift(needle)
-    i = 0
-    while i < len(haystack) - len(needle) + 1:
-        j = len(needle)
-        while j > 0 and needle[j - 1] == haystack[i + j - 1]:
-            j -= 1
-        if j > 0:
-            badCharShift = badChar.get(haystack[i + j - 1], len(needle))
-            goodSuffixShift = goodSuffix[len(needle) - j]
-            if badCharShift > goodSuffixShift:
-                i += badCharShift
-            else:
-                i += goodSuffixShift
-        else:
-            return i
-    return -1
-
-    while k < n:
-        j = m - 1
-        i = k
-        while j >= 0 and text[i] == pattern[j]:
-            j -= 1
-            i -= 1
-        if j == -1:
-            return i + 1
-        k += skip[ord(text[k])]
-    return -1
-
 if __name__ == '__main__':
     m, v, p = check_arg(sys.argv[1:])
     print('mode =', m)
@@ -119,20 +58,40 @@ if __name__ == '__main__':
         print('You are predicting pigmentation of', m)
         print('Your rs list includes %d elements' % len(snp))
 
-    bs = {}
+
+    keys = []
+    lom = []
     c = 0
     for file in os.listdir(os.path.abspath(v)):
         path = os.getcwd()
         os.chdir(v)
         vicief = open(file, 'r', encoding='cp1252')
         for q, line in enumerate(vicief):
-            for i in snp:
-                print(line)
-                print(i)
-                bs["{0}".format(i)] = BMSearch(line, i)
+            if line.startswith('#'):
+                pass
+            else:
+                if line.startswith('chr'):
+                    string = str.split(line, sep='\t')
+                    for s in string:
+                        if s.startswith('rs'):
+                            for i in snp:
+                                keys.append(file)
+                                result = re.match(i, s)
+                                if result is not None:
+                                    lom.append(string)
+                                else:
+                                    lom.append(0)
         os.chdir(path)
         c += 1
 
+    bs = {}
+    for i in range(len(keys)):
+        if lom[i] != 0:
+            bs[keys[i]] = lom[i]
+        else:
+            pass
+
     print(bs)
-    print(c)
+    print(len(keys))
+    print(len(lom))
     print(snp)
