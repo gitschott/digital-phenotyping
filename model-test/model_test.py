@@ -5,9 +5,9 @@ import argparse
 import sys
 import os
 import re
-import mmap
+import csv
 
-
+# Print all the arguments given to the program
 def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
@@ -18,7 +18,7 @@ def check_arg(args=None):
                         help='genotyping data path',
                         required='True')
     parser.add_argument('-p', '--phen',
-                        help='phenotyping data path',
+                        help='phenotyping and mode parameters data path',
                         required='True')
 
     results = parser.parse_args(args)
@@ -27,55 +27,50 @@ def check_arg(args=None):
             results.phen)
 
 
+# Get the rs needed for the analysis
 def get_rs(mode, path_to_rs_list):
-    for file in os.listdir(os.path.abspath(p)):
+    for file in os.listdir(os.path.abspath(path_to_rs_list)):
+        # select eye / hair / skin -marks.txt
         if file.startswith(mode):
             path = os.getcwd()
             os.chdir(path_to_rs_list)
             f = open(file, 'r')
             rs = [line.split('\n') for line in f.readlines()]
+            # remove the comment
             del rs[len(rs) - 1]
             rsnp = []
+            # make rs list
             for i in rs:
-
                 rsnp.append(i[0])
+            # remove the blank
             del rsnp[len(rsnp) - 1]
             os.chdir(path)
 
             return rsnp
 
-if __name__ == '__main__':
-    m, v, p = check_arg(sys.argv[1:])
-    print('mode =', m)
-    print('vcf =', v)
-    print('phen =', p)
 
-    snp = get_rs(m, p)
-
-    if snp is None:
-        print('Something whent wrong when we tried to get to rs.')
-    else:
-        print('You are predicting pigmentation of', m)
-        print('Your rs list includes %d elements' % len(snp))
-
+# Grep the snps needed for the analysis from the vcf file
+def get_snp(vcf, snp):
     bs = {}
-
-    c = 0
-    for file in os.listdir(os.path.abspath(v)):
+    for file in os.listdir(os.path.abspath(vcf)):
         path = os.getcwd()
-        os.chdir(v)
+        os.chdir(vcf)
         vicief = open(file, 'r', encoding='cp1252')
         for q, line in enumerate(vicief):
+            # exclude comment lines
             if line.startswith('#'):
                 pass
             else:
+                # analyse only actual informative lines
                 if line.startswith('chr'):
                     string = str.split(line, sep='\t')
                     for s in string:
+                        # select rs of interest
                         if s.startswith('rs'):
                             for i in snp:
                                 result = re.match(i, s)
                                 if result is not None:
+                                    # quality filter
                                     if string[6] == 'PASS':
                                         ref = string[3]
                                         if len(string[4]) > 1:
@@ -85,17 +80,16 @@ if __name__ == '__main__':
                                             ind = names.index("AF")
                                             freq = str.split(af[ind], sep=',')
                                             if freq[1:] == freq[:-1]:
-                                                bs[file[:6], i] = ref, ref, 0
+                                                # key in the dict takes first 6 symbols of a file that is id
+                                                bs[file[:6], i] = ref, 0
                                             elif 1 in freq:
                                                 ind_f = freq.index(1)
-                                                bs[file[:6], i] = alt[ind_f], alt[ind_f], 2
+                                                bs[file[:6], i] = alt[ind_f], 2
                                             else:
                                                 filter(lambda a: a != 0, freq)
-                                                print(freq, alt)
                                                 f = max(freq)
                                                 ind_f = freq.index(f)
-                                                print(f, alt[ind_f])
-                                                bs[file[:6], i] = ref, alt[ind_f], 1
+                                                bs[file[:6], i] = alt[ind_f], 1
                                         else:
                                             alt = string[4]
                                             af = str.split(string[9], sep=':')
@@ -103,18 +97,85 @@ if __name__ == '__main__':
                                             ind = names.index("AF")
                                             freq = af[ind]
                                             if freq == 0:
-                                                bs[file[:6], i] = ref, ref, 0
+                                                bs[file[:6], i] = ref, 0
                                             elif freq == 1:
-                                                bs[file[:6], i] = alt, alt, 2
+                                                bs[file[:6], i] = alt, 2
                                             else:
-                                                bs[file[:6], i] = ref, alt, 1
+                                                bs[file[:6], i] = alt, 1
                                     else:
                                         pass
                                 else:
                                     pass
         os.chdir(path)
-        c += 1
+
+    return bs
 
 
-    print(len(bs))
-    print(bs)
+# Grep the parameters for a model, parameters is a csv file
+def param(path_to_param):
+    snp_val = {}
+    path = os.getcwd()
+    os.chdir(path_to_param)
+    with open('parameters_iris_rs.csv') as csvfile:
+        rs_param = csv.reader(csvfile, delimiter=';')
+        headers = next(rs_param)
+        for row in rs_param:
+            snp_val[row[1]] = row[2:5]
+            print(row)
+    os.chdir(path)
+    return headers, snp_val
+
+
+if __name__ == '__main__':
+    m, v, p = check_arg(sys.argv[1:])
+    print('mode =', m)
+    print('vcf =', v)
+    print('phen =', p)
+
+    snip = get_rs(m, p)
+
+    if snip is None:
+        print('Something whent wrong when we tried to get to rs.')
+    else:
+        print('You are predicting pigmentation of', m)
+        print('Your rs list includes %d elements' % len(snip))
+
+    # selection of snps in a way required for a model
+    bs_snp = get_snp(v, snip)
+    print('You are now analysing %d cases.' % len(bs_snp))
+
+    # Read all the parameters
+    header, values = param(p)
+
+    analyze = {}
+    for v in values:
+        for k in bs_snp.keys():
+            result = re.match(v, k[1])
+            if result is not None:
+                analyze[k] = bs_snp[k]
+
+    samples = []
+    for a in analyze:
+        sample = a[0]
+        samples.append(sample)
+    samples = list(set(samples))
+
+    coefs = {}
+    for a in analyze:
+        for s in samples:
+            result = re.match(a[0], s)
+            if result is not None:
+                for v in values:
+                    result = re.match(a[1], v)
+                    if result is not None:
+                        minor = (analyze[a])[0]
+                        m_freq = (analyze[a])[1]
+                        minor_mod = (values[v])[0]
+                        beta1 = (values[v])[1]
+                        beta2 = (values[v])[2]
+                        if minor == minor_mod:
+                            coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
+                        else:
+                            print('Minor value other than in the model', a)
+
+    print(len(coefs))

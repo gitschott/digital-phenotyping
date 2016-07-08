@@ -24,25 +24,7 @@ def dict_compare(d1, d2, d2_keys):
 # Read all the parameters
 
 
-current = os.path.dirname(os.path.realpath(__file__))
 
-snp_val = {}
-exp_data = {}
-with open(os.path.join(current, 'parameters_iris_rs.csv')) as csvfile:
-    rs_param = csv.reader(csvfile, delimiter=';')
-    headers = next(rs_param)
-    for row in rs_param:
-        print(headers)
-        print(row)
-        snp_val[row[1]] = row[2],row[2]
-        exp_data['BS-004',row[1]] = row[2],'C'
-
-exp_keys = dict_simplify(exp_data)
-
-modified, same = dict_compare(snp_val, exp_data, exp_keys)
-
-print('modified :', modified)
-print('same :', same)
 
 
 # Detect minor alleles values
