@@ -85,13 +85,17 @@ if __name__ == '__main__':
                                             ind = names.index("AF")
                                             freq = str.split(af[ind], sep=',')
                                             if freq[1:] == freq[:-1]:
-                                                bs[file[:6], i] = ref, ref
+                                                bs[file[:6], i] = ref, ref, 0
                                             elif 1 in freq:
                                                 ind_f = freq.index(1)
-                                                bs[file[:6], i] = alt[ind_f], alt[ind_f]
+                                                bs[file[:6], i] = alt[ind_f], alt[ind_f], 2
                                             else:
-                                                ind_f = freq.index(f != 0 for f in freq)
-                                                bs[file[:6], i] = ref, alt[ind_f]
+                                                filter(lambda a: a != 0, freq)
+                                                print(freq, alt)
+                                                f = max(freq)
+                                                ind_f = freq.index(f)
+                                                print(f, alt[ind_f])
+                                                bs[file[:6], i] = ref, alt[ind_f], 1
                                         else:
                                             alt = string[4]
                                             af = str.split(string[9], sep=':')
@@ -99,11 +103,11 @@ if __name__ == '__main__':
                                             ind = names.index("AF")
                                             freq = af[ind]
                                             if freq == 0:
-                                                bs[file[:6], i] = ref, ref
+                                                bs[file[:6], i] = ref, ref, 0
                                             elif freq == 1:
-                                                bs[file[:6], i] = alt, alt
+                                                bs[file[:6], i] = alt, alt, 2
                                             else:
-                                                bs[file[:6], i] = ref, alt
+                                                bs[file[:6], i] = ref, alt, 1
                                     else:
                                         pass
                                 else:
@@ -113,4 +117,4 @@ if __name__ == '__main__':
 
 
     print(len(bs))
-    print(bs.popitem())
+    print(bs)
