@@ -173,9 +173,34 @@ if __name__ == '__main__':
                         minor_mod = (values[v])[0]
                         beta1 = (values[v])[1]
                         beta2 = (values[v])[2]
+                        coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
-                            coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
+                            print('Expected value for ', v, minor)
+                        #     coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
                         else:
-                            print('Minor value other than in the model', a)
+                            print('Unexpected value for ', v, minor)
+                        #     print('Minor value other than in the model', a)
+    coef_list = []
+    for key, value in iter(coefs):
+        temp = [key, value, coefs[key,value]]
+        coef_list.append(temp)
 
-    print(len(coefs))
+    print(coef_list[0])
+
+    res = []
+    b1 = 0
+    b2 = 0
+    for c in coef_list:
+        if c[0] in c:
+            be1, be2 = c[2]
+            print(c, be1, be2)
+            b1 += be1
+            b2 += be2
+            total = [c[0], c[1], be1, be2]
+        res.append(total)
+        b1 = 0
+        b2 = 0
+
+    for a in analyze:
+        if a[0] == 'BS-020':
+            print(a, analyze[a])
