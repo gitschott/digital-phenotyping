@@ -6,6 +6,8 @@ import sys
 import os
 import re
 import csv
+import numpy as np
+import pandas as pd
 
 # Print all the arguments given to the program
 def check_arg(args=None):
@@ -81,15 +83,15 @@ def get_snp(vcf, snp):
                                             freq = str.split(af[ind], sep=',')
                                             if freq[1:] == freq[:-1]:
                                                 # key in the dict takes first 6 symbols of a file that is id
-                                                bs[file[:6], i] = ref, 0
+                                                bs[file[:6], i] = ref, float(0)
                                             elif 1 in freq:
                                                 ind_f = freq.index(1)
-                                                bs[file[:6], i] = alt[ind_f], 2
+                                                bs[file[:6], i] = alt[ind_f], float(2)
                                             else:
                                                 filter(lambda a: a != 0, freq)
                                                 f = max(freq)
                                                 ind_f = freq.index(f)
-                                                bs[file[:6], i] = alt[ind_f], 1
+                                                bs[file[:6], i] = alt[ind_f], float(1)
                                         else:
                                             alt = string[4]
                                             af = str.split(string[9], sep=':')
@@ -97,11 +99,11 @@ def get_snp(vcf, snp):
                                             ind = names.index("AF")
                                             freq = af[ind]
                                             if freq == 0:
-                                                bs[file[:6], i] = ref, 0
+                                                bs[file[:6], i] = ref, float(0)
                                             elif freq == 1:
-                                                bs[file[:6], i] = alt, 2
+                                                bs[file[:6], i] = alt, float(2)
                                             else:
-                                                bs[file[:6], i] = alt, 1
+                                                bs[file[:6], i] = alt, float(1)
                                     else:
                                         pass
                                 else:
@@ -126,6 +128,54 @@ def param(path_to_param):
     return headers, snp_val
 
 
+def grep_snip(parameters_for_snp, sample_dictionary):
+    analyze = {}
+    for v in parameters_for_snp:
+        for k in sample_dictionary.keys():
+            result = re.match(v, k[1])
+            if result is not None:
+                analyze[k] = sample_dictionary[k]
+
+    samples = []
+    for a in analyze:
+        sample = a[0]
+        samples.append(sample)
+    samples = list(set(samples))
+
+    return samples, analyze
+
+
+def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
+    coefs = {}
+    for a in dict_of_analyzed:
+        for s in samples:
+            result = re.match(a[0], s)
+            if result is not None:
+                for v in parameters_for_snp:
+                    result = re.match(a[1], v)
+                    if result is not None:
+                        minor = (dict_of_analyzed[a])[0]
+                        m_freq = (dict_of_analyzed[a])[1]
+                        minor_mod = (parameters_for_snp[v])[0]
+                        beta1 = (parameters_for_snp[v])[1]
+                        beta2 = (parameters_for_snp[v])[2]
+                        coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                        if minor == minor_mod:
+                            print('Expected value for ', v, minor)
+                        # coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
+                        else:
+                            print('Unexpected value for ', v, minor)
+                            #     print('Minor value other than in the model', a)
+    coef_list = []
+    for key, value in iter(coefs):
+        beta = coefs[key, value]
+        temp = [key, value, beta[0], beta[1]]
+        coef_list.append(temp)
+    df = pd.DataFrame(coef_list)
+
+    return df
+
+
 if __name__ == '__main__':
     m, v, p = check_arg(sys.argv[1:])
     print('mode =', m)
@@ -147,60 +197,13 @@ if __name__ == '__main__':
     # Read all the parameters
     header, values = param(p)
 
-    analyze = {}
-    for v in values:
-        for k in bs_snp.keys():
-            result = re.match(v, k[1])
-            if result is not None:
-                analyze[k] = bs_snp[k]
+    samples, analysis = grep_snip(values, bs_snp)
 
-    samples = []
-    for a in analyze:
-        sample = a[0]
-        samples.append(sample)
-    samples = list(set(samples))
+    snp_df = snp_estim(samples, analysis, values)
 
-    coefs = {}
-    for a in analyze:
-        for s in samples:
-            result = re.match(a[0], s)
-            if result is not None:
-                for v in values:
-                    result = re.match(a[1], v)
-                    if result is not None:
-                        minor = (analyze[a])[0]
-                        m_freq = (analyze[a])[1]
-                        minor_mod = (values[v])[0]
-                        beta1 = (values[v])[1]
-                        beta2 = (values[v])[2]
-                        coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
-                        if minor == minor_mod:
-                            print('Expected value for ', v, minor)
-                        #     coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
-                        else:
-                            print('Unexpected value for ', v, minor)
-                        #     print('Minor value other than in the model', a)
-    coef_list = []
-    for key, value in iter(coefs):
-        temp = [key, value, coefs[key,value]]
-        coef_list.append(temp)
+    print(samples)
 
-    print(coef_list[0])
+    print(snp_df)
 
-    res = []
-    b1 = 0
-    b2 = 0
-    for c in coef_list:
-        if c[0] in c:
-            be1, be2 = c[2]
-            print(c, be1, be2)
-            b1 += be1
-            b2 += be2
-            total = [c[0], c[1], be1, be2]
-        res.append(total)
-        b1 = 0
-        b2 = 0
-
-    for a in analyze:
-        if a[0] == 'BS-020':
-            print(a, analyze[a])
+    for s in snp_df[0]:
+        print(snp_df.index)
