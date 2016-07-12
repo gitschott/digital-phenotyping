@@ -173,8 +173,14 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
                             print('Expected value for ', v, minor)
                             coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
                         else:
-                            print('Unexpected value for ', v, minor)
-                            #     print('Minor value other than in the model', a)
+                            nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
+                            if nbases[minor] == nbases[minor_mod]:
+                                print('Unexpected yet analyzed value for ', v, minor, minor_mod)
+                                coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                            else:
+                                print('Unexpected value for ', v, minor, minor_mod)
+
+
     coef_list = []
     for key, value in iter(coefs):
         beta = coefs[key, value]
@@ -214,6 +220,7 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
+    print(bs_snp)
 
     # Read all the parameters
     beta, alpha = param(p)
@@ -230,5 +237,9 @@ if __name__ == '__main__':
         pint = row[2]/(1+row[1]+row[2])
         pbrown = 1 - pblue - pint
         colors.append([row[0], pblue, pint, pbrown])
-        print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
-        print(pblue, pint, pbrown)
+        # print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
+        # print(pblue, pint, pbrown)
+        probability = [pblue, pint, pbrown]
+        col = ['blue','intermed', 'brown']
+        ind = probability.index(max(probability))
+        print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
