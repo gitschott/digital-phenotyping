@@ -8,6 +8,7 @@ import re
 import csv
 import numpy as np
 import pandas as pd
+import math
 
 # Print all the arguments given to the program
 def check_arg(args=None):
@@ -123,9 +124,15 @@ def param(path_to_param):
         headers = next(rs_param)
         for row in rs_param:
             snp_val[row[1]] = row[2:5]
-            print(row)
+    alpha = []
+    with open('parameters_iris_alpha.csv') as csvfile:
+        rs_param = csv.reader(csvfile, delimiter=';')
+        headers = next(rs_param)
+        headers = next(rs_param)
+        for row in rs_param:
+            alpha.append(row)
     os.chdir(path)
-    return headers, snp_val
+    return snp_val, alpha
 
 
 def grep_snip(parameters_for_snp, sample_dictionary):
@@ -172,8 +179,19 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
         temp = [key, value, beta[0], beta[1]]
         coef_list.append(temp)
     df = pd.DataFrame(coef_list)
+    df = df.groupby(0)[[2, 3]].sum()
 
     return df
+
+
+def get_prob():
+    prob = []
+    for index, row in sums.iterrows():
+        alp = alpha[0]
+        beta1 = math.exp(float(row[2]) + float(alp[0]))
+        beta2 = math.exp(float(row[3]) + float(alp[1]))
+        proba = [index, beta1, beta2]
+        prob.append(proba)
 
 
 if __name__ == '__main__':
@@ -195,15 +213,11 @@ if __name__ == '__main__':
     print('You are now analysing %d cases.' % len(bs_snp))
 
     # Read all the parameters
-    header, values = param(p)
+    values, alpha = param(p)
 
     samples, analysis = grep_snip(values, bs_snp)
+    sums = snp_estim(samples, analysis, values)
 
-    snp_df = snp_estim(samples, analysis, values)
 
-    print(samples)
 
-    print(snp_df)
-
-    for s in snp_df[0]:
-        print(snp_df.index)
+    for
