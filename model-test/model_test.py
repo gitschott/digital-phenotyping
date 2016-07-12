@@ -11,6 +11,8 @@ import pandas as pd
 import math
 
 # Print all the arguments given to the program
+
+
 def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
@@ -166,10 +168,10 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
                         minor_mod = (parameters_for_snp[v])[0]
                         beta1 = (parameters_for_snp[v])[1]
                         beta2 = (parameters_for_snp[v])[2]
-                        coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                        # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
                             print('Expected value for ', v, minor)
-                        # coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
+                            coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
                         else:
                             print('Unexpected value for ', v, minor)
                             #     print('Minor value other than in the model', a)
@@ -184,14 +186,15 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
     return df
 
 
-def get_prob():
-    prob = []
-    for index, row in sums.iterrows():
-        alp = alpha[0]
+def get_prob(df_sums, alpha_val_model):
+    prob = pd.DataFrame()
+    for index, row in df_sums.iterrows():
+        alp = alpha_val_model[0]
         beta1 = math.exp(float(row[2]) + float(alp[0]))
         beta2 = math.exp(float(row[3]) + float(alp[1]))
-        proba = [index, beta1, beta2]
-        prob.append(proba)
+        prob = prob.append([[index, beta1, beta2]])
+
+    return prob
 
 
 if __name__ == '__main__':
@@ -213,11 +216,19 @@ if __name__ == '__main__':
     print('You are now analysing %d cases.' % len(bs_snp))
 
     # Read all the parameters
-    values, alpha = param(p)
+    beta, alpha = param(p)
 
-    samples, analysis = grep_snip(values, bs_snp)
-    sums = snp_estim(samples, analysis, values)
+    samples, analysis = grep_snip(beta, bs_snp)
+    sums = snp_estim(samples, analysis, beta)
+    prob = get_prob(sums, alpha)
 
+# Counting three probs
 
-
-    for
+    colors = pd.DataFrame()
+    for index, row in prob.iterrows():
+        pblue = row[1]/(1+row[1]+row[2])
+        pint = row[2]/(1+row[1]+row[2])
+        pbrown = 1 - pblue - pint
+        colors.append([row[0], pblue, pint, pbrown])
+        print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
+        print(pblue, pint, pbrown)
