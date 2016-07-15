@@ -229,23 +229,21 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
                     if result is not None:
                         minor, m_freq = dict_of_analyzed[a]
                         minor_mod, beta1, beta2, beta3 = parameters_for_snp[v]
+                        mf = float(m_freq)
+                        print(beta1, beta1[0])
+                        b1 = float(beta1)
+                        b2 = float(beta2)
+                        b3 = float(beta3)
                         # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
                             print('Expected value for ', v, minor)
-                            print(float(m_freq))
-                            print(float(beta1))
-                            print(int(beta2))
-                            print(int(beta3))
-                            coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2), float(m_freq) * float(beta3)]
+
+                            coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                         else:
                             nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
                             if nbases[minor] == nbases[minor_mod]:
                                 print('Unexpected yet analyzed value for ', v, minor, minor_mod)
-                                print(float(m_freq))
-                                print(float(beta1))
-                                print(int(beta2))
-                                print(int(beta3))
-                                coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2), float(m_freq) * float(beta3)]
+                                coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
 
@@ -317,10 +315,13 @@ if __name__ == '__main__':
         sums = snp_estim(samples, analysis, beta)
     elif m == 'hair':
         sums = snp_estim_h4(samples, analysis, beta)
-    # prob = get_prob(sums, alpha)
+    else:
+        print("It is not possible yet")
+        
+    prob = get_prob(sums, alpha)
 
 # # # Counting three probs
-#     probs = eyecolor_probs(prob)
+    probs = eyecolor_probs(prob)
 #
 #     ## Compare the results
 
