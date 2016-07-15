@@ -87,14 +87,22 @@ def get_snp(vcf, snp):
                                             if freq[1:] == freq[:-1]:
                                                 # key in the dict takes first 6 symbols of a file that is id
                                                 bs[file[:6], i] = ref, float(0)
-                                            elif 1 in freq:
-                                                ind_f = freq.index(1)
-                                                bs[file[:6], i] = alt[ind_f], float(2)
                                             else:
-                                                filter(lambda a: a != 0, freq)
-                                                f = max(freq)
-                                                ind_f = freq.index(f)
-                                                bs[file[:6], i] = alt[ind_f], float(1)
+                                                for f in freq:
+                                                    num = float(f)
+                                                    if num == 0:
+                                                        pass
+                                                    else:
+                                                        if num == 1:
+                                                            num = str(int(num))
+                                                            ind_f = freq.index(num)
+                                                            bs[file[:6], i] = alt[ind_f], float(2)
+                                                        elif num > 0:
+                                                             f = max(freq)
+                                                             ind_f = freq.index(f)
+                                                             bs[file[:6], i] = alt[ind_f], float(1)
+                                                        else:
+                                                            print("WRONG", num)
                                         else:
                                             alt = string[4]
                                             af = str.split(string[9], sep=':')
@@ -171,7 +179,7 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
                         # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
                             print('Expected value for ', v, minor)
-                            coefs[s,v] = [float(m_freq)*float(beta1), float(m_freq)*float(beta2)]
+                            coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         else:
                             nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
                             if nbases[minor] == nbases[minor_mod]:
@@ -202,6 +210,22 @@ def get_prob(df_sums, alpha_val_model):
 
     return prob
 
+def eyecolor_probs(prob_df):
+    colors = pd.DataFrame()
+    for index, row in prob_df.iterrows():
+        pblue = row[1] / (1 + row[1] + row[2])
+        pint = row[2] / (1 + row[1] + row[2])
+        pbrown = 1 - pblue - pint
+        colors.append([row[0], pblue, pint, pbrown])
+        # print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
+        # print(pblue, pint, pbrown)
+        probability = [pblue, pint, pbrown]
+        col = ['blue', 'intermed', 'brown']
+        ind = probability.index(max(probability))
+        print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
+
+    return colors
+
 
 if __name__ == '__main__':
     m, v, p = check_arg(sys.argv[1:])
@@ -220,7 +244,6 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
-    print(bs_snp)
 
     # Read all the parameters
     beta, alpha = param(p)
@@ -229,17 +252,9 @@ if __name__ == '__main__':
     sums = snp_estim(samples, analysis, beta)
     prob = get_prob(sums, alpha)
 
-# Counting three probs
+# # Counting three probs
+    probs = eyecolor_probs(prob)
 
-    colors = pd.DataFrame()
-    for index, row in prob.iterrows():
-        pblue = row[1]/(1+row[1]+row[2])
-        pint = row[2]/(1+row[1]+row[2])
-        pbrown = 1 - pblue - pint
-        colors.append([row[0], pblue, pint, pbrown])
-        # print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
-        # print(pblue, pint, pbrown)
-        probability = [pblue, pint, pbrown]
-        col = ['blue','intermed', 'brown']
-        ind = probability.index(max(probability))
-        print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
+    ## Compare the results
+    
+
