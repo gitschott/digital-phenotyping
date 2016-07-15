@@ -10,9 +10,8 @@ import numpy as np
 import pandas as pd
 import math
 
+
 # Print all the arguments given to the program
-
-
 def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
@@ -32,7 +31,7 @@ def check_arg(args=None):
             results.phen)
 
 
-# Get the rs needed for the analysis
+# Get the list rs relevant for particular mode of the analysis
 def get_rs(mode, path_to_rs_list):
     for file in os.listdir(os.path.abspath(path_to_rs_list)):
         # select eye / hair / skin -marks.txt
@@ -54,7 +53,7 @@ def get_rs(mode, path_to_rs_list):
             return rsnp
 
 
-# Grep the snps needed for the analysis from the vcf file
+# Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
     for file in os.listdir(os.path.abspath(vcf)):
@@ -125,23 +124,43 @@ def get_snp(vcf, snp):
 
 
 # Grep the parameters for a model, parameters is a csv file
-def param(path_to_param):
+def param(path_to_param, mode):
     snp_val = {}
     path = os.getcwd()
     os.chdir(path_to_param)
-    with open('parameters_iris_rs.csv') as csvfile:
-        rs_param = csv.reader(csvfile, delimiter=';')
-        headers = next(rs_param)
-        for row in rs_param:
-            snp_val[row[1]] = row[2:5]
+    if mode == 'eye':
+        with open('parameters_iris_rs.csv') as csvfile:
+            rs_param = csv.reader(csvfile, delimiter=';')
+            headers = next(rs_param)
+            for row in rs_param:
+                snp_val[row[1]] = row[2:5]
+    elif mode == 'hair':
+        with open('parameters_hair4_rs.csv') as csvfile:
+            rs_param = csv.reader(csvfile, delimiter=';')
+            headers = next(rs_param)
+            for row in rs_param:
+                snp_val[row[1]] = row[2:6]
+    else:
+        print('Nothing to analyze')
     alpha = []
-    with open('parameters_iris_alpha.csv') as csvfile:
-        rs_param = csv.reader(csvfile, delimiter=';')
-        headers = next(rs_param)
-        headers = next(rs_param)
-        for row in rs_param:
-            alpha.append(row)
-    os.chdir(path)
+    if mode == 'eye':
+        with open('parameters_iris_alpha.csv') as csvfile:
+            rs_param = csv.reader(csvfile, delimiter=';')
+            headers = next(rs_param)
+            headers = next(rs_param)
+            for row in rs_param:
+                alpha.append(row)
+        os.chdir(path)
+    elif mode == 'hair':
+        with open('parameters_hair4_alpha.csv') as csvfile:
+            rs_param = csv.reader(csvfile, delimiter=';')
+            headers = next(rs_param)
+            headers = next(rs_param)
+            for row in rs_param:
+                alpha.append(row)
+        os.chdir(path)
+    else:
+        print('Nothing to analyze')
     return snp_val, alpha
 
 
@@ -199,6 +218,48 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
 
     return df
 
+def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
+    coefs = {}
+    for a in dict_of_analyzed:
+        for s in samples:
+            result = re.match(a[0], s)
+            if result is not None:
+                for v in parameters_for_snp:
+                    result = re.match(a[1], v)
+                    if result is not None:
+                        minor, m_freq = dict_of_analyzed[a]
+                        minor_mod, beta1, beta2, beta3 = parameters_for_snp[v]
+                        # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                        if minor == minor_mod:
+                            print('Expected value for ', v, minor)
+                            print(float(m_freq))
+                            print(float(beta1))
+                            print(int(beta2))
+                            print(int(beta3))
+                            coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2), float(m_freq) * float(beta3)]
+                        else:
+                            nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
+                            if nbases[minor] == nbases[minor_mod]:
+                                print('Unexpected yet analyzed value for ', v, minor, minor_mod)
+                                print(float(m_freq))
+                                print(float(beta1))
+                                print(int(beta2))
+                                print(int(beta3))
+                                coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2), float(m_freq) * float(beta3)]
+                            else:
+                                print('Unexpected value for ', v, minor, minor_mod)
+
+
+    coef_list = []
+    for key, value in iter(coefs):
+        beta = coefs[key, value]
+        temp = [key, value, beta[0], beta[1], beta[2]]
+        coef_list.append(temp)
+    df = pd.DataFrame(coef_list)
+    df = df.groupby(0)[[2, 3]].sum()
+
+    return df
+
 
 def get_prob(df_sums, alpha_val_model):
     prob = pd.DataFrame()
@@ -246,15 +307,21 @@ if __name__ == '__main__':
     print('You are now analysing %d cases.' % len(bs_snp))
 
     # Read all the parameters
-    beta, alpha = param(p)
-
+    beta, alpha = param(p, m)
     samples, analysis = grep_snip(beta, bs_snp)
-    sums = snp_estim(samples, analysis, beta)
-    prob = get_prob(sums, alpha)
+    print(samples)
+    print(analysis)
+    print(beta)
 
-# # Counting three probs
-    probs = eyecolor_probs(prob)
+    if m == 'eye':
+        sums = snp_estim(samples, analysis, beta)
+    elif m == 'hair':
+        sums = snp_estim_h4(samples, analysis, beta)
+    # prob = get_prob(sums, alpha)
 
-    ## Compare the results
-    
+# # # Counting three probs
+#     probs = eyecolor_probs(prob)
+#
+#     ## Compare the results
+
 
