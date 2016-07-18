@@ -285,7 +285,8 @@ def eyecolor_probs(prob_df):
         probability = [pblue, pint, pbrown]
         col = ['blue', 'intermed', 'brown']
         ind = probability.index(max(probability))
-        print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
+        if col[ind] == 'blue':
+            print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
 
     return colors
 
@@ -309,28 +310,27 @@ if __name__ == '__main__':
     print('You are now analysing %d cases.' % len(bs_snp))
 
     # Read all the parameters
-    if m is 'eye':
+    if m == 'eye':
         beta, alpha = param(p, m)
-    elif m is 'hair':
+    elif m == 'hair':
         beta_eye, alpha_eye = param(p, m)
         beta_hair, alpha_hair = param(p, m)
+    else:
+        print("It is not possible yet")
 
-
-    if m is 'eye':
+    if m == 'eye':
         samples, analysis = grep_snip(beta, bs_snp)
-    elif m is 'hair':
+    elif m == 'hair':
         samples_eye, analysis = grep_snip(beta_eye, bs_snp)
         samples_hair, analysis = grep_snip(beta_hair, bs_snp)
+    else:
+        print("It is not possible yet")
 
-    print(samples)
-    print(analysis)
-    print(beta)
-
-    if m is 'eye':
+    if m == 'eye':
         sums = snp_estim_eye(samples, analysis, beta)
-    elif m is 'hair':
+    elif m == 'hair':
         sums_eye = snp_estim_eye(samples_eye, analysis, beta)
-        sums = snp_estim_h4(samples_hair, analysis, beta)
+        sums_hair = snp_estim_h4(samples_hair, analysis, beta)
     else:
         print("It is not possible yet")
 
