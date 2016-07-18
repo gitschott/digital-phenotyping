@@ -9,6 +9,7 @@ import csv
 import numpy as np
 import pandas as pd
 import math
+import ast
 
 
 # Print all the arguments given to the program
@@ -181,7 +182,7 @@ def grep_snip(parameters_for_snp, sample_dictionary):
     return samples, analyze
 
 
-def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
+def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
     coefs = {}
     for a in dict_of_analyzed:
         for s in samples:
@@ -192,18 +193,21 @@ def snp_estim(samples, dict_of_analyzed, parameters_for_snp):
                     if result is not None:
                         minor = (dict_of_analyzed[a])[0]
                         m_freq = (dict_of_analyzed[a])[1]
+                        mf = float(m_freq)
                         minor_mod = (parameters_for_snp[v])[0]
                         beta1 = (parameters_for_snp[v])[1]
                         beta2 = (parameters_for_snp[v])[2]
+                        b1 = float(beta1)
+                        b2 = float(beta2)
                         # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
                             print('Expected value for ', v, minor)
-                            coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                            coefs[s, v] = [mf * b1, mf * b2]
                         else:
                             nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
                             if nbases[minor] == nbases[minor_mod]:
                                 print('Unexpected yet analyzed value for ', v, minor, minor_mod)
-                                coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
+                                coefs[s, v] = [mf * b1, mf * b2]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
 
@@ -305,19 +309,31 @@ if __name__ == '__main__':
     print('You are now analysing %d cases.' % len(bs_snp))
 
     # Read all the parameters
-    beta, alpha = param(p, m)
-    samples, analysis = grep_snip(beta, bs_snp)
+    if m is 'eye':
+        beta, alpha = param(p, m)
+    elif m is 'hair':
+        beta_eye, alpha_eye = param(p, m)
+        beta_hair, alpha_hair = param(p, m)
+
+
+    if m is 'eye':
+        samples, analysis = grep_snip(beta, bs_snp)
+    elif m is 'hair':
+        samples_eye, analysis = grep_snip(beta_eye, bs_snp)
+        samples_hair, analysis = grep_snip(beta_hair, bs_snp)
+
     print(samples)
     print(analysis)
     print(beta)
 
-    if m == 'eye':
-        sums = snp_estim(samples, analysis, beta)
-    elif m == 'hair':
-        sums = snp_estim_h4(samples, analysis, beta)
+    if m is 'eye':
+        sums = snp_estim_eye(samples, analysis, beta)
+    elif m is 'hair':
+        sums_eye = snp_estim_eye(samples_eye, analysis, beta)
+        sums = snp_estim_h4(samples_hair, analysis, beta)
     else:
         print("It is not possible yet")
-        
+
     prob = get_prob(sums, alpha)
 
 # # # Counting three probs
