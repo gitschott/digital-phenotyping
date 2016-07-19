@@ -285,6 +285,7 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
                                 coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
+                                mf = 0
                                 coefs[s, v] = [mf * b1, mf * b2]
 
     coef_list = []
@@ -310,18 +311,22 @@ def get_prob(df_sums, alpha_val_model):
 
 
 def eyecolor_probs(prob_df):
-    colors = pd.DataFrame()
+    col = ['blue', 'intermed', 'brown']
+    colors = {}
     for index, row in prob_df.iterrows():
         pblue = row[1] / (1 + row[1] + row[2])
         pint = row[2] / (1 + row[1] + row[2])
         pbrown = 1 - pblue - pint
-        colors.append([row[0], pblue, pint, pbrown])
+        line = [row[0], pblue, pint, pbrown]
+
         # print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
         # print(pblue, pint, pbrown)
         probability = [pblue, pint, pbrown]
-        col = ['blue', 'intermed', 'brown']
-        print('The prediction for eye color is :', row[0])
-        print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
+        colors[row[0]] = probability
+        # print('The prediction for eye color is :', row[0])
+        # print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
+
+    colors = pd.DataFrame(colors)
 
     return colors
 
@@ -374,5 +379,6 @@ if __name__ == '__main__':
 
 # # # Counting three probs
     probs = eyecolor_probs(prob)
-#
-#     ## Compare the results'''
+
+### Check the results
+    pro
