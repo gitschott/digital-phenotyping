@@ -56,6 +56,7 @@ def get_rs(mode, path_to_rs_list):
 
 def parse_vcf(vcf):
     strings = []
+    fl = []
     for file in os.listdir(os.path.abspath(vcf)):
         path = os.getcwd()
         os.chdir(vcf)
@@ -68,18 +69,14 @@ def parse_vcf(vcf):
                 # analyse only actual informative lines
                 if line.startswith('chr'):
                     string = str.split(line, sep='\t')
-                    print(string)
-                    for s in string:
-                        # select rs of interest
-                        so = s[0]
-                        if so.startswith('rs'):
-                            fl = [file, line]
-                            strings.append(fl)
+                    fl.append(file)
+                    strings.append(string)
         os.chdir(path)
 
-    return strings
+    return strings, fl
 
 def mult_all(string, file, i):
+    ref = string[3]
     alt = str.split(string[4], sep=',')
     af = str.split(string[9], sep=':')
     names = str.split(string[8], sep=':')
@@ -88,7 +85,7 @@ def mult_all(string, file, i):
     if freq[1:] == freq[:-1]:
         # key in the dict takes first 6 symbols of a file that is id
         label = (file[:6], i)
-        value = [alt, float(0)]
+        value = [ref, float(0)]
     else:
         for f in freq:
             num = float(f)
@@ -104,7 +101,7 @@ def mult_all(string, file, i):
                     f = max(freq)
                     ind_f = freq.index(f)
                     label = (file[:6], i)
-                    value = [ref, alt[ind_f], float(1)]
+                    value = [alt[ind_f], float(1)]
                 else:
                     print("WRONG", num)
 
@@ -112,6 +109,7 @@ def mult_all(string, file, i):
 
 
 def one_all(string, file, i):
+    ref = string[3]
     alt = string[4]
     af = str.split(string[9], sep=':')
     names = str.split(string[8], sep=':')
@@ -122,10 +120,10 @@ def one_all(string, file, i):
         value = [alt, float(0)]
     elif freq == 1:
         label = (file[:6], i)
-        value = [ref, alt, float(2)]
+        value = [alt, float(2)]
     else:
         label = (file[:6], i)
-        value = [ref, alt, float(1)]
+        value = [alt, float(1)]
 
     return label, value
 
@@ -133,27 +131,27 @@ def one_all(string, file, i):
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
-    str = parse_vcf(vcf)
+    str, filelist = parse_vcf(vcf)
     print(len(str))
-    for string in str:
+    for c, string in enumerate(str):
+        for s in string:
         # select rs of interest
-        if string.startswith('rs'):
-            for i in snp:
-                result = re.match(i, string)
-                if result is not None:
-                    # quality filter
-                    if string[6] == 'PASS':
-                        ref = string[3]
-                        if len(string[4]) > 1:
-                            lab, val = mult_all(string, file, i)
-                            bs[lab] = val
+            if s.startswith('rs'):
+                for i in snp:
+                    result = re.match(i, s)
+                    if result is not None:
+                        # quality filter
+                        if string[6] == 'PASS':
+                            if len(string[4]) > 1:
+                                lab, val = mult_all(string, filelist[c], i)
+                                bs[lab] = val
+                            else:
+                                lab, val = one_all(string, filelist[c], i)
+                                bs[lab] = val
                         else:
-                            lab, val = one_all(string, file, i)
-                            bs[lab] = val
+                            pass
                     else:
                         pass
-                else:
-                    pass
 
     return bs
 
@@ -219,6 +217,7 @@ def grep_snip(parameters_for_snp, sample_dictionary):
 def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
     coefs = {}
     for a in dict_of_analyzed:
+        print(a)
         for s in samples:
             result = re.match(a[0], s)
             if result is not None:
@@ -238,12 +237,14 @@ def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
                             print('Expected value for ', v, minor)
                             coefs[s, v] = [mf * b1, mf * b2]
                         else:
+                            print(minor, minor_mod)
                             nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
                             if nbases[minor] == nbases[minor_mod]:
                                 print('Expected value for ', v, minor, minor_mod)
                                 coefs[s, v] = [mf * b1, mf * b2]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
+                                coefs[s, v] = [mf * b1, mf * b2]
 
     coef_list = []
     for key, value in iter(coefs):
@@ -284,6 +285,7 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
                                 coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
+                                coefs[s, v] = [mf * b1, mf * b2]
 
     coef_list = []
     for key, value in iter(coefs):
@@ -318,9 +320,8 @@ def eyecolor_probs(prob_df):
         # print(pblue, pint, pbrown)
         probability = [pblue, pint, pbrown]
         col = ['blue', 'intermed', 'brown']
-        ind = probability.index(max(probability))
-        if col[ind] == 'blue':
-            print('The prediction for eye color is :', row[0], 'eyes are', col[ind])
+        print('The prediction for eye color is :', row[0])
+        print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
 
     return colors
 
@@ -342,12 +343,8 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
-    bs_snp = pd.DataFrame(bs_snp)
-    bs_snp = bs_snp.sort(ascending=True)
-    with pd.option_context('display.max_rows', 3, 'display.max_columns', 385):
-        print(bs_snp)
+    print(bs_snp)
 
-'''
     # Read all the parameters
     if m == 'eye':
         beta, alpha = param(p, m)
