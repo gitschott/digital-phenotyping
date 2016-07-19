@@ -54,9 +54,8 @@ def get_rs(mode, path_to_rs_list):
             return rsnp
 
 
-# Grep the particular snps relevant for the analysis (from vcf-containing folder)
-def get_snp(vcf, snp):
-    bs = {}
+def parse_vcf(vcf):
+    strings = []
     for file in os.listdir(os.path.abspath(vcf)):
         path = os.getcwd()
         os.chdir(vcf)
@@ -69,57 +68,92 @@ def get_snp(vcf, snp):
                 # analyse only actual informative lines
                 if line.startswith('chr'):
                     string = str.split(line, sep='\t')
+                    print(string)
                     for s in string:
                         # select rs of interest
-                        if s.startswith('rs'):
-                            for i in snp:
-                                result = re.match(i, s)
-                                if result is not None:
-                                    # quality filter
-                                    if string[6] == 'PASS':
-                                        ref = string[3]
-                                        if len(string[4]) > 1:
-                                            alt = str.split(string[4], sep=',')
-                                            af = str.split(string[9], sep=':')
-                                            names = str.split(string[8], sep=':')
-                                            ind = names.index("AF")
-                                            freq = str.split(af[ind], sep=',')
-                                            if freq[1:] == freq[:-1]:
-                                                # key in the dict takes first 6 symbols of a file that is id
-                                                bs[file[:6], i] = ref, float(0)
-                                            else:
-                                                for f in freq:
-                                                    num = float(f)
-                                                    if num == 0:
-                                                        pass
-                                                    else:
-                                                        if num == 1:
-                                                            num = str(int(num))
-                                                            ind_f = freq.index(num)
-                                                            bs[file[:6], i] = alt[ind_f], float(2)
-                                                        elif num > 0:
-                                                             f = max(freq)
-                                                             ind_f = freq.index(f)
-                                                             bs[file[:6], i] = alt[ind_f], float(1)
-                                                        else:
-                                                            print("WRONG", num)
-                                        else:
-                                            alt = string[4]
-                                            af = str.split(string[9], sep=':')
-                                            names = str.split(string[8], sep=':')
-                                            ind = names.index("AF")
-                                            freq = af[ind]
-                                            if freq == 0:
-                                                bs[file[:6], i] = ref, float(0)
-                                            elif freq == 1:
-                                                bs[file[:6], i] = alt, float(2)
-                                            else:
-                                                bs[file[:6], i] = alt, float(1)
-                                    else:
-                                        pass
-                                else:
-                                    pass
+                        so = s[0]
+                        if so.startswith('rs'):
+                            fl = [file, line]
+                            strings.append(fl)
         os.chdir(path)
+
+    return strings
+
+def mult_all(string, file, i):
+    alt = str.split(string[4], sep=',')
+    af = str.split(string[9], sep=':')
+    names = str.split(string[8], sep=':')
+    ind = names.index("AF")
+    freq = str.split(af[ind], sep=',')
+    if freq[1:] == freq[:-1]:
+        # key in the dict takes first 6 symbols of a file that is id
+        label = (file[:6], i)
+        value = [alt, float(0)]
+    else:
+        for f in freq:
+            num = float(f)
+            if num == 0:
+                pass
+            else:
+                if num == 1:
+                    num = str(int(num))
+                    ind_f = freq.index(num)
+                    label = (file[:6], i)
+                    value = [alt[ind_f], float(2)]
+                elif num > 0:
+                    f = max(freq)
+                    ind_f = freq.index(f)
+                    label = (file[:6], i)
+                    value = [ref, alt[ind_f], float(1)]
+                else:
+                    print("WRONG", num)
+
+    return label, value
+
+
+def one_all(string, file, i):
+    alt = string[4]
+    af = str.split(string[9], sep=':')
+    names = str.split(string[8], sep=':')
+    ind = names.index("AF")
+    freq = af[ind]
+    if freq == 0:
+        label = (file[:6], i)
+        value = [alt, float(0)]
+    elif freq == 1:
+        label = (file[:6], i)
+        value = [ref, alt, float(2)]
+    else:
+        label = (file[:6], i)
+        value = [ref, alt, float(1)]
+
+    return label, value
+
+
+# Grep the particular snps relevant for the analysis (from vcf-containing folder)
+def get_snp(vcf, snp):
+    bs = {}
+    str = parse_vcf(vcf)
+    print(len(str))
+    for string in str:
+        # select rs of interest
+        if string.startswith('rs'):
+            for i in snp:
+                result = re.match(i, string)
+                if result is not None:
+                    # quality filter
+                    if string[6] == 'PASS':
+                        ref = string[3]
+                        if len(string[4]) > 1:
+                            lab, val = mult_all(string, file, i)
+                            bs[lab] = val
+                        else:
+                            lab, val = one_all(string, file, i)
+                            bs[lab] = val
+                    else:
+                        pass
+                else:
+                    pass
 
     return bs
 
@@ -204,13 +238,12 @@ def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
                             print('Expected value for ', v, minor)
                             coefs[s, v] = [mf * b1, mf * b2]
                         else:
-                            nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
+                            nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
                             if nbases[minor] == nbases[minor_mod]:
-                                print('Unexpected yet analyzed value for ', v, minor, minor_mod)
+                                print('Expected value for ', v, minor, minor_mod)
                                 coefs[s, v] = [mf * b1, mf * b2]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
-
 
     coef_list = []
     for key, value in iter(coefs):
@@ -221,6 +254,7 @@ def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
     df = df.groupby(0)[[2, 3]].sum()
 
     return df
+
 
 def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
     coefs = {}
@@ -244,13 +278,12 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
 
                             coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                         else:
-                            nbases = {'A':'R', 'G':'R', 'T':'Y', 'C':'Y'}
+                            nbases = {'A': 'R', 'G': 'R', 'T': 'Y', 'C': 'Y'}
                             if nbases[minor] == nbases[minor_mod]:
                                 print('Unexpected yet analyzed value for ', v, minor, minor_mod)
                                 coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                             else:
                                 print('Unexpected value for ', v, minor, minor_mod)
-
 
     coef_list = []
     for key, value in iter(coefs):
@@ -272,6 +305,7 @@ def get_prob(df_sums, alpha_val_model):
         prob = prob.append([[index, beta1, beta2]])
 
     return prob
+
 
 def eyecolor_probs(prob_df):
     colors = pd.DataFrame()
@@ -308,7 +342,12 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
+    bs_snp = pd.DataFrame(bs_snp)
+    bs_snp = bs_snp.sort(ascending=True)
+    with pd.option_context('display.max_rows', 3, 'display.max_columns', 385):
+        print(bs_snp)
 
+'''
     # Read all the parameters
     if m == 'eye':
         beta, alpha = param(p, m)
@@ -339,6 +378,4 @@ if __name__ == '__main__':
 # # # Counting three probs
     probs = eyecolor_probs(prob)
 #
-#     ## Compare the results
-
-
+#     ## Compare the results'''
