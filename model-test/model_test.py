@@ -132,7 +132,6 @@ def one_all(string, file, i):
 def get_snp(vcf, snp):
     bs = {}
     str, filelist = parse_vcf(vcf)
-    print(len(str))
     for c, string in enumerate(str):
         for s in string:
         # select rs of interest
@@ -217,7 +216,6 @@ def grep_snip(parameters_for_snp, sample_dictionary):
 def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
     coefs = {}
     for a in dict_of_analyzed:
-        print(a)
         for s in samples:
             result = re.match(a[0], s)
             if result is not None:
@@ -234,16 +232,13 @@ def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
                         b2 = float(beta2)
                         # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
-                            print('Expected value for ', v, minor)
                             coefs[s, v] = [mf * b1, mf * b2]
                         else:
-                            print(minor, minor_mod)
                             nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
                             if nbases[minor] == nbases[minor_mod]:
-                                print('Expected value for ', v, minor, minor_mod)
                                 coefs[s, v] = [mf * b1, mf * b2]
                             else:
-                                print('Unexpected value for ', v, minor, minor_mod)
+                                mf = 0
                                 coefs[s, v] = [mf * b1, mf * b2]
 
     coef_list = []
@@ -269,22 +264,17 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
                         minor, m_freq = dict_of_analyzed[a]
                         minor_mod, beta1, beta2, beta3 = parameters_for_snp[v]
                         mf = float(m_freq)
-                        print(beta1, beta1[0])
                         b1 = float(beta1)
                         b2 = float(beta2)
                         b3 = float(beta3)
                         # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
                         if minor == minor_mod:
-                            print('Expected value for ', v, minor)
-
                             coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                         else:
-                            nbases = {'A': 'R', 'G': 'R', 'T': 'Y', 'C': 'Y'}
+                            nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
                             if nbases[minor] == nbases[minor_mod]:
-                                print('Unexpected yet analyzed value for ', v, minor, minor_mod)
                                 coefs[s, v] = [mf * b1, mf * b2, mf * b3]
                             else:
-                                print('Unexpected value for ', v, minor, minor_mod)
                                 mf = 0
                                 coefs[s, v] = [mf * b1, mf * b2]
 
@@ -348,7 +338,6 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
-    print(bs_snp)
 
     # Read all the parameters
     if m == 'eye':
@@ -379,6 +368,4 @@ if __name__ == '__main__':
 
 # # # Counting three probs
     probs = eyecolor_probs(prob)
-
-### Check the results
-    pro
+    print(probs)
