@@ -57,9 +57,9 @@ def get_rs(mode, path_to_rs_list):
 def parse_vcf(vcf):
     strings = []
     fl = []
+    path = os.getcwd()
+    os.chdir(vcf)
     for file in os.listdir(os.path.abspath(vcf)):
-        path = os.getcwd()
-        os.chdir(vcf)
         vicief = open(file, 'r', encoding='cp1252')
         for q, line in enumerate(vicief):
             # exclude comment lines
@@ -71,7 +71,7 @@ def parse_vcf(vcf):
                     string = str.split(line, sep='\t')
                     fl.append(file)
                     strings.append(string)
-        os.chdir(path)
+    os.chdir(path)
 
     return strings, fl
 
@@ -358,6 +358,7 @@ if __name__ == '__main__':
 
     if m == 'eye':
         sums = snp_estim_eye(samples, analysis, beta)
+        print(sums)
     elif m == 'hair':
         sums_eye = snp_estim_eye(samples_eye, analysis, beta)
         sums_hair = snp_estim_h4(samples_hair, analysis, beta)
