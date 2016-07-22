@@ -25,11 +25,13 @@ def check_arg(args=None):
     parser.add_argument('-p', '--phen',
                         help='phenotyping and mode parameters data path',
                         required='True')
-
-    results = parser.parse_args(args)
-    return (results.mode,
-            results.vcf,
-            results.phen)
+    try:
+        results = parser.parse_args()
+        return (results.mode,
+                results.vcf,
+                results.phen)
+    except SystemExit:
+        print("do something else")
 
 
 # Get the list rs relevant for particular mode of the analysis
@@ -39,7 +41,7 @@ def get_rs(mode, path_to_rs_list):
         if file.startswith(mode):
             path = os.getcwd()
             os.chdir(path_to_rs_list)
-            f = open(file, 'r')
+            f = open(file, 'r', encoding='cp1252')
             rs = [line.split('\n') for line in f.readlines()]
             # remove the comment
             del rs[len(rs) - 1]

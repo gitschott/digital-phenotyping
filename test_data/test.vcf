@@ -1,0 +1,160 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=NOCALL,Description="Generic filter. Filtering details stored in FR info tag.">
+##FORMAT=<ID=AF,Number=A,Type=Float,Description="Allele frequency based on Flow Evaluator observation counts">
+##FORMAT=<ID=AO,Number=A,Type=Integer,Description="Alternate allele observation count">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=FAO,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observation count">
+##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Flow Evaluator Read Depth">
+##FORMAT=<ID=FRO,Number=1,Type=Integer,Description="Flow Evaluator Reference allele observation count">
+##FORMAT=<ID=FSAF,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observations on the forward strand">
+##FORMAT=<ID=FSAR,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observations on the reverse strand">
+##FORMAT=<ID=FSRF,Number=1,Type=Integer,Description="Flow Evaluator reference observations on the forward strand">
+##FORMAT=<ID=FSRR,Number=1,Type=Integer,Description="Flow Evaluator reference observations on the reverse strand">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality, the Phred-scaled marginal (or unconditional) probability of the called genotype">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=RO,Number=1,Type=Integer,Description="Reference allele observation count">
+##FORMAT=<ID=SAF,Number=A,Type=Integer,Description="Alternate allele observations on the forward strand">
+##FORMAT=<ID=SAR,Number=A,Type=Integer,Description="Alternate allele observations on the reverse strand">
+##FORMAT=<ID=SRF,Number=1,Type=Integer,Description="Number of reference observations on the forward strand">
+##FORMAT=<ID=SRR,Number=1,Type=Integer,Description="Number of reference observations on the reverse strand">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele frequency based on Flow Evaluator observation counts">
+##INFO=<ID=AO,Number=A,Type=Integer,Description="Alternate allele observations">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">
+##INFO=<ID=FAO,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observations">
+##INFO=<ID=FDP,Number=1,Type=Integer,Description="Flow Evaluator read depth at the locus">
+##INFO=<ID=FR,Number=.,Type=String,Description="Reason why the variant was filtered.">
+##INFO=<ID=FRO,Number=1,Type=Integer,Description="Flow Evaluator Reference allele observations">
+##INFO=<ID=FSAF,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observations on the forward strand">
+##INFO=<ID=FSAR,Number=A,Type=Integer,Description="Flow Evaluator Alternate allele observations on the reverse strand">
+##INFO=<ID=FSRF,Number=1,Type=Integer,Description="Flow Evaluator Reference observations on the forward strand">
+##INFO=<ID=FSRR,Number=1,Type=Integer,Description="Flow Evaluator Reference observations on the reverse strand">
+##INFO=<ID=FWDB,Number=A,Type=Float,Description="Forward strand bias in prediction.">
+##INFO=<ID=FXX,Number=1,Type=Float,Description="Flow Evaluator failed read ratio">
+##INFO=<ID=HRUN,Number=A,Type=Integer,Description="Run length: the number of consecutive repeats of the alternate allele in the reference genome">
+##INFO=<ID=HS,Number=0,Type=Flag,Description="Indicate it is at a hot spot">
+##INFO=<ID=LEN,Number=A,Type=Integer,Description="allele length">
+##INFO=<ID=MLLD,Number=A,Type=Float,Description="Mean log-likelihood delta per read.">
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=PB,Number=A,Type=Float,Description="Bias of relative variant position in reference reads versus variant reads. Equals Mann-Whitney U rho statistic P(Y>X)+0.5P(Y=X)">
+##INFO=<ID=PBP,Number=A,Type=Float,Description="Pval of relative variant position in reference reads versus variant reads.  Related to GATK ReadPosRankSumTest">
+##INFO=<ID=QD,Number=1,Type=Float,Description="QualityByDepth as 4*QUAL/FDP (analogous to GATK)">
+##INFO=<ID=RBI,Number=A,Type=Float,Description="Distance of bias parameters from zero.">
+##INFO=<ID=REFB,Number=A,Type=Float,Description="Reference Hypothesis bias in prediction.">
+##INFO=<ID=REVB,Number=A,Type=Float,Description="Reverse strand bias in prediction.">
+##INFO=<ID=RO,Number=1,Type=Integer,Description="Reference allele observations">
+##INFO=<ID=SAF,Number=A,Type=Integer,Description="Alternate allele observations on the forward strand">
+##INFO=<ID=SAR,Number=A,Type=Integer,Description="Alternate allele observations on the reverse strand">
+##INFO=<ID=SRF,Number=1,Type=Integer,Description="Number of reference observations on the forward strand">
+##INFO=<ID=SRR,Number=1,Type=Integer,Description="Number of reference observations on the reverse strand">
+##INFO=<ID=SSEN,Number=A,Type=Float,Description="Strand-specific-error prediction on negative strand.">
+##INFO=<ID=SSEP,Number=A,Type=Float,Description="Strand-specific-error prediction on positive strand.">
+##INFO=<ID=SSSB,Number=A,Type=Float,Description="Strand-specific strand bias for allele.">
+##INFO=<ID=STB,Number=A,Type=Float,Description="Strand bias in variant relative to reference.">
+##INFO=<ID=STBP,Number=A,Type=Float,Description="Pval of Strand bias in variant relative to reference.">
+##INFO=<ID=TYPE,Number=A,Type=String,Description="The type of allele, either snp, mnp, ins, del, or complex.">
+##INFO=<ID=VARB,Number=A,Type=Float,Description="Variant Hypothesis bias in prediction.">
+##LeftAlignVariants="analysis_type=LeftAlignVariants bypassFlowAlign=true kmer_len=19 min_var_count=5 short_suffix_match=5 min_indel_size=4 max_hp_length=8 min_var_freq=0.15 min_var_score=10.0 relative_strand_bias=0.8 output_mnv=0 sse_hp_size=0 sse_report_file= target_size=1.0 pref_kmer_max=3 pref_kmer_min=0 pref_delta_max=2 pref_delta_min=0 suff_kmer_max=3 suff_kmer_min=0 suff_delta_max=2 suff_delta_min=0 motif_min_ppv=0.2 generate_flow_position=0 analyze_missmatches=0 sse_rate=0.07 input_file=[] read_buffer_size=null phone_home=STANDARD gatk_key=null read_filter=[] intervals=null excludeIntervals=null interval_set_rule=UNION interval_merging=ALL reference_sequence=/mnt/reference/hg19_aln.fasta rodBind=[] nonDeterministicRandomSeed=false downsampling_type=BY_SAMPLE downsample_to_fraction=null downsample_to_coverage=1000 baq=OFF baqGapOpenPenalty=40.0 performanceLog=null useOriginalQualities=false BQSR=null defaultBaseQualities=-1 validation_strictness=SILENT unsafe=null num_threads=1 combined_sample_name= num_cpu_threads=null num_io_threads=null num_bam_file_handles=null read_group_black_list=null pedigree=[] pedigreeString=[] pedigreeValidationType=STRICT allow_intervals_with_unindexed_bam=false logging_level=INFO log_to_file=null help=false variant=(RodBinding name=variant source=/mnt/tsvc-output/small_variants.sorted.vcf) out=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub NO_HEADER=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub sites_only=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub filter_mismatching_base_and_quals=false"
+##basecallerVersion="4.2-18/6b3fd1b"
+##contig=<ID=chr1,length=249250621,assembly=hg19>
+##contig=<ID=chr10,length=135534747,assembly=hg19>
+##contig=<ID=chr11,length=135006516,assembly=hg19>
+##contig=<ID=chr11_GL000202_random,length=40103,assembly=hg19>
+##contig=<ID=chr12,length=133851895,assembly=hg19>
+##contig=<ID=chr13,length=115169878,assembly=hg19>
+##contig=<ID=chr14,length=107349540,assembly=hg19>
+##contig=<ID=chr15,length=102531392,assembly=hg19>
+##contig=<ID=chr16,length=90354753,assembly=hg19>
+##contig=<ID=chr17,length=81195210,assembly=hg19>
+##contig=<ID=chr17_GL000203_random,length=37498,assembly=hg19>
+##contig=<ID=chr17_GL000204_random,length=81310,assembly=hg19>
+##contig=<ID=chr17_GL000205_random,length=174588,assembly=hg19>
+##contig=<ID=chr17_GL000206_random,length=41001,assembly=hg19>
+##contig=<ID=chr18,length=78077248,assembly=hg19>
+##contig=<ID=chr18_GL000207_random,length=4262,assembly=hg19>
+##contig=<ID=chr19,length=59128983,assembly=hg19>
+##contig=<ID=chr19_GL000208_random,length=92689,assembly=hg19>
+##contig=<ID=chr19_GL000209_random,length=159169,assembly=hg19>
+##contig=<ID=chr1_GL000191_random,length=106433,assembly=hg19>
+##contig=<ID=chr1_GL000192_random,length=547496,assembly=hg19>
+##contig=<ID=chr2,length=243199373,assembly=hg19>
+##contig=<ID=chr20,length=63025520,assembly=hg19>
+##contig=<ID=chr21,length=48129895,assembly=hg19>
+##contig=<ID=chr21_GL000210_random,length=27682,assembly=hg19>
+##contig=<ID=chr22,length=51304566,assembly=hg19>
+##contig=<ID=chr3,length=198022430,assembly=hg19>
+##contig=<ID=chr4,length=191154276,assembly=hg19>
+##contig=<ID=chr4_GL000193_random,length=189789,assembly=hg19>
+##contig=<ID=chr4_GL000194_random,length=191469,assembly=hg19>
+##contig=<ID=chr5,length=180915260,assembly=hg19>
+##contig=<ID=chr6,length=171115067,assembly=hg19>
+##contig=<ID=chr7,length=159138663,assembly=hg19>
+##contig=<ID=chr7_GL000195_random,length=182896,assembly=hg19>
+##contig=<ID=chr8,length=146364022,assembly=hg19>
+##contig=<ID=chr8_GL000196_random,length=38914,assembly=hg19>
+##contig=<ID=chr8_GL000197_random,length=37175,assembly=hg19>
+##contig=<ID=chr9,length=141213431,assembly=hg19>
+##contig=<ID=chr9_GL000198_random,length=90085,assembly=hg19>
+##contig=<ID=chr9_GL000199_random,length=169874,assembly=hg19>
+##contig=<ID=chr9_GL000200_random,length=187035,assembly=hg19>
+##contig=<ID=chr9_GL000201_random,length=36148,assembly=hg19>
+##contig=<ID=chrEBV,length=171823,assembly=hg19>
+##contig=<ID=chrM,length=16569,assembly=hg19>
+##contig=<ID=chrUn_GL000211,length=166566,assembly=hg19>
+##contig=<ID=chrUn_GL000212,length=186858,assembly=hg19>
+##contig=<ID=chrUn_GL000213,length=164239,assembly=hg19>
+##contig=<ID=chrUn_GL000214,length=137718,assembly=hg19>
+##contig=<ID=chrUn_GL000215,length=172545,assembly=hg19>
+##contig=<ID=chrUn_GL000216,length=172294,assembly=hg19>
+##contig=<ID=chrUn_GL000217,length=172149,assembly=hg19>
+##contig=<ID=chrUn_GL000218,length=161147,assembly=hg19>
+##contig=<ID=chrUn_GL000219,length=179198,assembly=hg19>
+##contig=<ID=chrUn_GL000220,length=161802,assembly=hg19>
+##contig=<ID=chrUn_GL000221,length=155397,assembly=hg19>
+##contig=<ID=chrUn_GL000222,length=186861,assembly=hg19>
+##contig=<ID=chrUn_GL000223,length=180455,assembly=hg19>
+##contig=<ID=chrUn_GL000224,length=179693,assembly=hg19>
+##contig=<ID=chrUn_GL000225,length=211173,assembly=hg19>
+##contig=<ID=chrUn_GL000226,length=15008,assembly=hg19>
+##contig=<ID=chrUn_GL000227,length=128374,assembly=hg19>
+##contig=<ID=chrUn_GL000228,length=129120,assembly=hg19>
+##contig=<ID=chrUn_GL000229,length=19913,assembly=hg19>
+##contig=<ID=chrUn_GL000230,length=43691,assembly=hg19>
+##contig=<ID=chrUn_GL000231,length=27386,assembly=hg19>
+##contig=<ID=chrUn_GL000232,length=40652,assembly=hg19>
+##contig=<ID=chrUn_GL000233,length=45941,assembly=hg19>
+##contig=<ID=chrUn_GL000234,length=40531,assembly=hg19>
+##contig=<ID=chrUn_GL000235,length=34474,assembly=hg19>
+##contig=<ID=chrUn_GL000236,length=41934,assembly=hg19>
+##contig=<ID=chrUn_GL000237,length=45867,assembly=hg19>
+##contig=<ID=chrUn_GL000238,length=39939,assembly=hg19>
+##contig=<ID=chrUn_GL000239,length=33824,assembly=hg19>
+##contig=<ID=chrUn_GL000240,length=41933,assembly=hg19>
+##contig=<ID=chrUn_GL000241,length=42152,assembly=hg19>
+##contig=<ID=chrUn_GL000242,length=43523,assembly=hg19>
+##contig=<ID=chrUn_GL000243,length=43341,assembly=hg19>
+##contig=<ID=chrUn_GL000244,length=39929,assembly=hg19>
+##contig=<ID=chrUn_GL000245,length=36651,assembly=hg19>
+##contig=<ID=chrUn_GL000246,length=38154,assembly=hg19>
+##contig=<ID=chrUn_GL000247,length=36422,assembly=hg19>
+##contig=<ID=chrUn_GL000248,length=39786,assembly=hg19>
+##contig=<ID=chrUn_GL000249,length=38502,assembly=hg19>
+##contig=<ID=chrX,length=155270560,assembly=hg19>
+##contig=<ID=chrY,length=59373566,assembly=hg19>
+##fileDate=20160704
+##fileUTCtime=2016-07-04T17:20:51
+##parametersDetails="germline_low_stringency, TS version: 4.4"
+##parametersName="Generic - PGM - Germ Line - Low Stringency"
+##phasing=none
+##reference=/mnt/reference/hg19_aln.fasta
+##reference=file:///mnt/reference/hg19_aln.fasta
+##source="tvc 4.4-3 (b4969eb-2479794) - Torrent Variant Caller"
+##tmapVersion="4.2.18 (6b3fd1b) (201408050144)"
+##INFO=<ID=OID,Number=.,Type=String,Description="List of original Hotspot IDs">
+##INFO=<ID=OPOS,Number=.,Type=Integer,Description="List of original allele positions">
+##INFO=<ID=OREF,Number=.,Type=String,Description="List of original reference bases">
+##INFO=<ID=OALT,Number=.,Type=String,Description="List of original variant bases">
+##INFO=<ID=OMAPALT,Number=.,Type=String,Description="Maps OID,OPOS,OREF,OALT entries to specific ALT alleles">
+##deamination_metric=0.128591615638
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	HP-1
+chr5	33985857	rs6867641;rs6867641;rs6867641	T	A,C,G	659.28	PASS	AF=0,0,0;AO=0,1,0;DP=1471;FAO=0,0,0;FDP=1470;FR=.,REALIGNEDx0.01291;FRO=1470;FSAF=0,0,0;FSAR=0,0,0;FSRF=802;FSRR=668;FWDB=-0.0328621,-0.0979912,-0.0366488;FXX=0.00135869;HRUN=1,1,1;HS;LEN=1,1,1;MLLD=295.99,92.4138,112.378;QD=1.79396;RBI=0.0328856,0.0990347,0.0407483;REFB=-2.56444e-06,-5.66972e-05,-2.38632e-05;REVB=-0.00124371,-0.0143383,-0.0178126;RO=1467;SAF=0,1,0;SAR=0,0,0;SRF=802;SRR=665;SSEN=0,0,0;SSEP=0,0,0;SSSB=0,0.0133506,0;STB=0.5,0.5,0.5;STBP=1,1,1;TYPE=snp,snp,snp;VARB=0,0,0;OID=rs6867641,rs6867641,rs6867641;OPOS=33985857,33985857,33985857;OREF=T,T,T;OALT=A,C,G;OMAPALT=A,C,G	GT:GQ:DP:FDP:RO:FRO:AO:FAO:AF:SAR:SAF:SRF:SRR:FSAR:FSAF:FSRF:FSRR	0/0:99:1471:1470:1467:1470:0,1,0:0,0,0:0,0,0:0,0,0:0,1,0:802:665:0,0,0:0,0,0:802:668
+chr7	18890000	rs756853;rs756853;rs756853	G	A,C,T	3368.51	PASS	AF=0.521327,0,0;AO=769,0,1;DP=1478;FAO=770,0,0;FDP=1477;FR=.,REALIGNEDx0.5236;FRO=707;FSAF=405,0,0;FSAR=365,0,0;FSRF=347;FSRR=360;FWDB=-0.0253494,-0.0361379,-0.0524978;FXX=0.00202701;HRUN=1,1,1;HS;LEN=1,1,1;MLLD=344.237,99.9132,76.2571;QD=9.12256;RBI=0.0304883,0.0525321,0.0658507;REFB=-0.0134517,0.0113744,0.018087;REVB=0.0169394,0.038127,0.039753;RO=705;SAF=405,0,0;SAR=364,0,1;SRF=347;SRR=358;SSEN=0,0,0;SSEP=0,0,0;SSSB=0.0303228,0,-0.0290067;STB=0.516849,0.5,0.5;STBP=0.204,1,1;TYPE=snp,snp,snp;VARB=0.0125481,0,0;OID=rs756853,rs756853,rs756853;OPOS=18890000,18890000,18890000;OREF=G,G,G;OALT=A,C,T;OMAPALT=A,C,T	GT:GQ:DP:FDP:RO:FRO:AO:FAO:AF:SAR:SAF:SRF:SRR:FSAR:FSAF:FSRF:FSRR	0/1:99:1478:1477:705:707:769,0,1:770,0,0:0.521327,0,0:364,0,1:405,0,0:347:358:365,0,0:405,0,0:347:360
