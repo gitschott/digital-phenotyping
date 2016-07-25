@@ -89,7 +89,6 @@ def get_snp(vcf, snp):
     bs = {}
     vicief = parse_vcf(vcf)
     for c, string in enumerate(vicief):
-        print(string)
         for i in snp:
             s = string[2]
             result = re.match(i, s)
@@ -97,7 +96,6 @@ def get_snp(vcf, snp):
             # quality filter
                 if string[1] == 'PASS':
                     lab = (string[0], s)
-                    print(string)
                     gt1, gt2 = str.split(string[5], sep='/')
                     if gt1 == gt2:
                         gt = gt1,
@@ -159,12 +157,14 @@ def param(path_to_param, mode):
 
 def grep_snip(parameters_for_snp, sample_dictionary):
     analyze = {}
+    #selection of relevant rs
     for v in parameters_for_snp:
         for k in sample_dictionary.keys():
             result = re.match(v, k[1])
             if result is not None:
                 analyze[k] = sample_dictionary[k]
 
+    #selection of sample names
     samples = []
     for a in analyze:
         sample = a[0]
@@ -177,31 +177,18 @@ def grep_snip(parameters_for_snp, sample_dictionary):
 def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
     coefs = {}
     for a in dict_of_analyzed:
-        for s in samples:
-            result = re.match(a[0], s)
+        rs = str.split(a[1], sep=";")
+        for v in parameters_for_snp:
+            result = re.match(rs[0], v)
             if result is not None:
-                for v in parameters_for_snp:
-                    result = re.match(a[1], v)
-                    if result is not None:
-                        minor = (dict_of_analyzed[a])[0]
-                        m_freq = (dict_of_analyzed[a])[1]
-                        mf = float(m_freq)
-                        minor_mod = (parameters_for_snp[v])[0]
-                        beta1 = (parameters_for_snp[v])[1]
-                        beta2 = (parameters_for_snp[v])[2]
-                        b1 = float(beta1)
-                        b2 = float(beta2)
-                        # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
-                        if minor == minor_mod:
-                            coefs[s, v] = [mf * b1, mf * b2]
-                        else:
-                            nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
-                            if nbases[minor] == nbases[minor_mod]:
-                                coefs[s, v] = [mf * b1, mf * b2]
-                            else:
-                                mf = 0
-                                coefs[s, v] = [mf * b1, mf * b2]
+                mf = dict_of_analyzed[a]
+                beta1 = (parameters_for_snp[v])[1]
+                beta2 = (parameters_for_snp[v])[2]
+                b1 = float(beta1)
+                b2 = float(beta2)
+                coefs[a[0], v] = [mf * b1, mf * b2]
 
+    print(coefs)
     coef_list = []
     for key, value in iter(coefs):
         beta = coefs[key, value]
