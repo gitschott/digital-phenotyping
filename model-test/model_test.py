@@ -22,25 +22,25 @@ def check_arg(args=None):
     parser.add_argument('-v', '--vcf',
                         help='genotyping data path',
                         required='True')
-    parser.add_argument('-p', '--phen',
-                        help='phenotyping and mode parameters data path',
-                        required='True')
+    parser.add_argument('-p', '--param',
+                        help='parameters data path, (default: self-report/ directory in repo)',
+                        default='self-report/')
     try:
         results = parser.parse_args()
         return (results.mode,
                 results.vcf,
-                results.phen)
+                results.param)
     except SystemExit:
         print("do something else")
 
 
 # Get the list rs relevant for particular mode of the analysis
-def get_rs(mode, path_to_rs_list):
-    for file in os.listdir(os.path.abspath(path_to_rs_list)):
+def get_rs(mode, path_to_param):
+    for file in os.listdir(os.path.abspath('self-report/')):
         # select eye / hair / skin -marks.txt
         if file.startswith(mode):
             path = os.getcwd()
-            os.chdir(path_to_rs_list)
+            os.chdir('self-report/')
             f = open(file, 'r', encoding='cp1252')
             rs = [line.split('\n') for line in f.readlines()]
             # remove the comment
@@ -51,9 +51,9 @@ def get_rs(mode, path_to_rs_list):
                 rsnp.append(i[0])
             # remove the blank
             del rsnp[len(rsnp) - 1]
-            os.chdir(path)
+    os.chdir(path)
 
-            return rsnp
+    return rsnp
 
 
 def parse_vcf(vcf):
@@ -61,7 +61,7 @@ def parse_vcf(vcf):
     fl = []
     path = os.getcwd()
     os.chdir(vcf)
-    for file in os.listdir(os.path.abspath(vcf)):
+    for file in os.listdir(vcf):
         vicief = open(file, 'r', encoding='cp1252')
         for q, line in enumerate(vicief):
             # exclude comment lines
@@ -71,88 +71,47 @@ def parse_vcf(vcf):
                 # analyse only actual informative lines
                 if line.startswith('chr'):
                     string = str.split(line, sep='\t')
-                    fl.append(file)
-                    strings.append(string)
+                    filt = string[6]
+                    rs = string[2]
+                    ref = string[3]
+                    alt = string[4]
+                    gt = str.split(string[9], sep=':')
+                    gt = gt[0]
+                    lst = [file, filt, rs, ref, alt, gt]
+                    strings.append(lst)
     os.chdir(path)
 
-    return strings, fl
-
-def mult_all(string, file, i):
-    ref = string[3]
-    alt = str.split(string[4], sep=',')
-    af = str.split(string[9], sep=':')
-    names = str.split(string[8], sep=':')
-    ind = names.index("AF")
-    freq = str.split(af[ind], sep=',')
-    if freq[1:] == freq[:-1]:
-        # key in the dict takes first 6 symbols of a file that is id
-        label = (file[:6], i)
-        value = [ref, float(0)]
-    else:
-        for f in freq:
-            num = float(f)
-            if num == 0:
-                pass
-            else:
-                if num == 1:
-                    num = str(int(num))
-                    ind_f = freq.index(num)
-                    label = (file[:6], i)
-                    value = [alt[ind_f], float(2)]
-                elif num > 0:
-                    f = max(freq)
-                    ind_f = freq.index(f)
-                    label = (file[:6], i)
-                    value = [alt[ind_f], float(1)]
-                else:
-                    print("WRONG", num)
-
-    return label, value
-
-
-def one_all(string, file, i):
-    ref = string[3]
-    alt = string[4]
-    af = str.split(string[9], sep=':')
-    names = str.split(string[8], sep=':')
-    ind = names.index("AF")
-    freq = af[ind]
-    if freq == 0:
-        label = (file[:6], i)
-        value = [alt, float(0)]
-    elif freq == 1:
-        label = (file[:6], i)
-        value = [alt, float(2)]
-    else:
-        label = (file[:6], i)
-        value = [alt, float(1)]
-
-    return label, value
+    return strings
 
 
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
-    str, filelist = parse_vcf(vcf)
-    for c, string in enumerate(str):
-        for s in string:
-        # select rs of interest
-            if s.startswith('rs'):
-                for i in snp:
-                    result = re.match(i, s)
-                    if result is not None:
-                        # quality filter
-                        if string[6] == 'PASS':
-                            if len(string[4]) > 1:
-                                lab, val = mult_all(string, filelist[c], i)
-                                bs[lab] = val
-                            else:
-                                lab, val = one_all(string, filelist[c], i)
-                                bs[lab] = val
+    vicief = parse_vcf(vcf)
+    for c, string in enumerate(vicief):
+        print(string)
+        for i in snp:
+            s = string[2]
+            result = re.match(i, s)
+            if result is not None:
+            # quality filter
+                if string[1] == 'PASS':
+                    lab = (string[0], s)
+                    print(string)
+                    gt1, gt2 = str.split(string[5], sep='/')
+                    if gt1 == gt2:
+                        gt = gt1,
+                        if gt == 0:
+                            val = float(0)
                         else:
-                            pass
+                            val = float(2)
                     else:
-                        pass
+                        val = float(1)
+                    bs[lab] = val
+                else:
+                    pass
+            else:
+                pass
 
     return bs
 
@@ -327,7 +286,7 @@ if __name__ == '__main__':
     m, v, p = check_arg(sys.argv[1:])
     print('mode =', m)
     print('vcf =', v)
-    print('phen =', p)
+    print('param =', p)
 
     snip = get_rs(m, p)
 
@@ -340,6 +299,7 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
+    print(bs_snp)
 
     # Read all the parameters
     if m == 'eye':
