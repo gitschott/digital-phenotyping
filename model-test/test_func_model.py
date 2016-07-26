@@ -1,5 +1,7 @@
 import unittest
 import model_test
+import pandas as pd
+from pandas.util.testing import assert_frame_equal
 
 
 class MT_TestCase(unittest.TestCase):
@@ -15,15 +17,16 @@ class MT_TestCase(unittest.TestCase):
         bs = {('test','rs6867641'): 0}
         self.assertTrue(model_test.get_snp(vcf, snp), bs)
 
-    # def test_param(self):
-    #     self.assertTrue(model_test.param('/Users/apple/digital-phenotyping/self-report/', 'eye'))
-    #
-    # def test_grep_snip(self):
-    #     beta, alpha = model_test.param ()
-    #     self.assertTrue(grep_snip(parameters_for_snp, sample_dictionary))
-    #
-    # def test_snp_estim_eye(self):
-    #     self.assertTrue(estim_eye(samples, dict_of_analyzed, parameters_for_snp))
+    def test_snp_estim_eye(self):
+        bs = {('BS-test.vcf', 'rs12203592;rs12203592;rs12203592'): 2.0, ('BS-test.vcf', 'rs12896399;rs12896399;rs12896399'): 1.0,\
+              ('BS-test.vcf', 'rs16891982;rs16891982;rs16891982'): 2.0, ('BS-test.vcf', 'rs1800407;rs1800407;rs1800407'): 2.0,\
+              ('BS-test.vcf', 'rs12913832;rs12913832;rs12913832'): 1.0, ('BS-test.vcf', 'rs1393350;rs1393350;rs1393350'): 2.0}
+        beta = {'rs16891982': ['C', '-1.53', '-0.74'], 'rs12913832': ['T', '-4.87', '-1.99'],\
+                'rs1800407': ['A', '1.15', '1.05'], 'rs12203592': ['T', '0.60', '0.69'],\
+                'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
+        res = {'BS-test.vcf': [0.80, 2.45]}
+        df = pd.DataFrame(res)
+        assert_frame_equal(model_test.snp_estim_eye(bs, beta), df)
     #
     # def test_snp_estim_h4(self):
     #     self.assertTrue(snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp))

@@ -155,26 +155,7 @@ def param(path_to_param, mode):
     return snp_val, alpha
 
 
-def grep_snip(parameters_for_snp, sample_dictionary):
-    analyze = {}
-    #selection of relevant rs
-    for v in parameters_for_snp:
-        for k in sample_dictionary.keys():
-            result = re.match(v, k[1])
-            if result is not None:
-                analyze[k] = sample_dictionary[k]
-
-    #selection of sample names
-    samples = []
-    for a in analyze:
-        sample = a[0]
-        samples.append(sample)
-    samples = list(set(samples))
-
-    return samples, analyze
-
-
-def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
+def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
     coefs = {}
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
@@ -187,8 +168,6 @@ def snp_estim_eye(samples, dict_of_analyzed, parameters_for_snp):
                 b1 = float(beta1)
                 b2 = float(beta2)
                 coefs[a[0], v] = [mf * b1, mf * b2]
-
-    print(coefs)
     coef_list = []
     for key, value in iter(coefs):
         beta = coefs[key, value]
@@ -276,7 +255,6 @@ if __name__ == '__main__':
     print('param =', p)
 
     snip = get_rs(m, p)
-    print(snip)
 
     if snip is None:
         print('Something whent wrong when we tried to get to rs.')
@@ -287,7 +265,6 @@ if __name__ == '__main__':
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
     print('You are now analysing %d cases.' % len(bs_snp))
-    print(bs_snp)
 
     # Read all the parameters
     if m == 'eye':
@@ -299,24 +276,14 @@ if __name__ == '__main__':
         print("It is not possible yet")
 
     if m == 'eye':
-        samples, analysis = grep_snip(beta, bs_snp)
-    elif m == 'hair':
-        samples_eye, analysis = grep_snip(beta_eye, bs_snp)
-        samples_hair, analysis = grep_snip(beta_hair, bs_snp)
-    else:
-        print("It is not possible yet")
-
-    if m == 'eye':
-        sums = snp_estim_eye(samples, analysis, beta)
-        print(sums)
+        sums = snp_estim_eye(bs_snp, beta)
     elif m == 'hair':
         sums_eye = snp_estim_eye(samples_eye, analysis, beta)
         sums_hair = snp_estim_h4(samples_hair, analysis, beta)
     else:
         print("It is not possible yet")
-
+    print(sums)
     prob = get_prob(sums, alpha)
 
 # # # Counting three probs
     probs = eyecolor_probs(prob)
-    print(probs)
