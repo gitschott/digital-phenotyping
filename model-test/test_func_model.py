@@ -6,19 +6,15 @@ class MT_TestCase(unittest.TestCase):
     """Tests for phenotypic modelling 'model_test.py'"""
 
     def test_get_rs(self):
-        rs_test = ['rs12913832', 'rs1800407', 'rs12896399', 'rs16891982', 'rs1393350', 'rs12203592']
-        self.assertTrue(model_test.get_rs('eye'), rs_test)
+        rs_test = ['rs12203592']
+        self.assertTrue(model_test.get_rs('iris', '/Users/apple/digital-phenotyping/test_data'), rs_test)
 
-    # def test_mult_all(self):
-    #     self.assertTrue(model_test.mult_all(string, file, i))
-    #
-    # def test_one_all(self):
-    #     self.assertTrue(model_test.one_all(string, file, i))
-    #
-    # def test_get_snp(self):
-    #     snp = model_test.get_rs('eye', '/Users/apple/digital-phenotyping/self-report/')
-    #     self.assertTrue(model_test.get_snp('/Users/apple/digital-phenotyping/vcf-fold-test/', 'eye'))
-    #
+    def test_get_snp(self):
+        vcf = '/Users/apple/digital-phenotyping/test_data'
+        snp = ['rs6867641']
+        bs = {('test','rs6867641'): 0}
+        self.assertTrue(model_test.get_snp(vcf, snp), bs)
+
     # def test_param(self):
     #     self.assertTrue(model_test.param('/Users/apple/digital-phenotyping/self-report/', 'eye'))
     #

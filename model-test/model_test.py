@@ -51,9 +51,9 @@ def get_rs(mode, path_to_param):
                 rsnp.append(i[0])
             # remove the blank
             del rsnp[len(rsnp) - 1]
-    os.chdir(path)
+            os.chdir(path)
 
-    return rsnp
+            return rsnp
 
 
 def parse_vcf(vcf):
@@ -87,8 +87,8 @@ def parse_vcf(vcf):
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
-    vicief = parse_vcf(vcf)
-    for c, string in enumerate(vicief):
+    data = parse_vcf(vcf)
+    for c, string in enumerate(data):
         for i in snp:
             s = string[2]
             result = re.match(i, s)
@@ -261,8 +261,8 @@ def eyecolor_probs(prob_df):
         # print(pblue, pint, pbrown)
         probability = [pblue, pint, pbrown]
         colors[row[0]] = probability
-        # print('The prediction for eye color is :', row[0])
-        # print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
+        print('The prediction for eye color is :', row[0])
+        print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
 
     colors = pd.DataFrame(colors)
 
@@ -276,6 +276,7 @@ if __name__ == '__main__':
     print('param =', p)
 
     snip = get_rs(m, p)
+    print(snip)
 
     if snip is None:
         print('Something whent wrong when we tried to get to rs.')

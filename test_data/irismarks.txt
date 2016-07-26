@@ -1,8 +1,3 @@
-rs12913832
-rs1800407
-rs12896399
-rs16891982
-rs1393350
 rs12203592
 
 # iris pigmentstion markers for irisplex model
