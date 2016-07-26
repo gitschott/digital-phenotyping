@@ -24,9 +24,7 @@ class MT_TestCase(unittest.TestCase):
                 'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
         res = [0.80, 2.45]
         self.assertTrue(model_test.snp_estim_eye(bs, beta), res)
-    #
-    # def test_snp_estim_h4(self):
-    #     self.assertTrue(snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp))
+        
     #
     # def test_eyecolor_probs(self):
     #     self.assertTrue(eyecolor_probs(prob_df))
