@@ -10,7 +10,7 @@ class MT_TestCase(unittest.TestCase):
         self.assertTrue(model_test.get_rs('iris', '/Users/apple/digital-phenotyping/test_data'), rs_test)
 
     def test_get_snp(self):
-        vcf = '/Users/apple/digital-phenotyping/test_data'
+        vcf = '/Users/apple/digital-phenotyping/test_data/test/'
         snp = ['rs6867641']
         bs = {('test','rs6867641'): 0}
         self.assertTrue(model_test.get_snp(vcf, snp), bs)
