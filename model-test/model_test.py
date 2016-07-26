@@ -56,29 +56,27 @@ def get_rs(mode, path_to_param):
             return rsnp
 
 
-def parse_vcf(vcf):
+def parse_vcf(file):
     strings = []
     fl = []
     path = os.getcwd()
-    os.chdir(vcf)
-    for file in os.listdir(vcf):
-        vicief = open(file, 'r', encoding='cp1252')
-        for q, line in enumerate(vicief):
-            # exclude comment lines
-            if line.startswith('#'):
-                pass
-            else:
-                # analyse only actual informative lines
-                if line.startswith('chr'):
-                    string = str.split(line, sep='\t')
-                    filt = string[6]
-                    rs = string[2]
-                    ref = string[3]
-                    alt = string[4]
-                    gt = str.split(string[9], sep=':')
-                    gt = gt[0]
-                    lst = [file, filt, rs, ref, alt, gt]
-                    strings.append(lst)
+    vicief = open(file, 'r', encoding='cp1252')
+    for q, line in enumerate(vicief):
+        # exclude comment lines
+        if line.startswith('#'):
+            pass
+        else:
+            # analyse only actual informative lines
+            if line.startswith('chr'):
+                string = str.split(line, sep='\t')
+                filt = string[6]
+                rs = string[2]
+                ref = string[3]
+                alt = string[4]
+                gt = str.split(string[9], sep=':')
+                gt = gt[0]
+                lst = [file, filt, rs, ref, alt, gt]
+                strings.append(lst)
     os.chdir(path)
 
     return strings
@@ -160,23 +158,26 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
         for v in parameters_for_snp:
+            # match proper parameters
             result = re.match(rs[0], v)
             if result is not None:
+                # implement the model
                 mf = dict_of_analyzed[a]
                 beta1 = (parameters_for_snp[v])[1]
                 beta2 = (parameters_for_snp[v])[2]
                 b1 = float(beta1)
                 b2 = float(beta2)
                 coefs[a[0], v] = [mf * b1, mf * b2]
-    coef_list = []
+    bi1 = 0
+    bi2 = 0
     for key, value in iter(coefs):
-        beta = coefs[key, value]
-        temp = [key, value, beta[0], beta[1]]
-        coef_list.append(temp)
-    df = pd.DataFrame(coef_list)
-    df = df.groupby(0)[[2, 3]].sum()
+        b1 = coefs[key, value]
+        bi1 += b1[0]
+        bi2 += b1[1]
 
-    return df
+    coef_list = [key, value, beta1, beta2]
+
+    return coef_list
 
 
 def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
@@ -216,32 +217,24 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
     return df
 
 
-def get_prob(df_sums, alpha_val_model):
-    prob = pd.DataFrame()
-    for index, row in df_sums.iterrows():
-        alp = alpha_val_model[0]
-        beta1 = math.exp(float(row[2]) + float(alp[0]))
-        beta2 = math.exp(float(row[3]) + float(alp[1]))
-        prob = prob.append([[index, beta1, beta2]])
+def get_prob(list_w_sums, alpha_val_model):
+    alp = alpha_val_model[0]
+    beta1 = math.exp(float(list_w_sums[2]) + float(alp[0]))
+    beta2 = math.exp(float(list_w_sums[3]) + float(alp[1]))
+    prob = [beta1, beta2]
 
     return prob
 
 
-def eyecolor_probs(prob_df):
+def eyecolor_probs(prob_list):
     col = ['blue', 'intermed', 'brown']
     colors = {}
-    for index, row in prob_df.iterrows():
-        pblue = row[1] / (1 + row[1] + row[2])
-        pint = row[2] / (1 + row[1] + row[2])
-        pbrown = 1 - pblue - pint
-        line = [row[0], pblue, pint, pbrown]
+    pblue = prob[0] / (1 + prob[0] + prob[1])
+    pint = prob[1] / (1 + prob[0] + prob[1])
+    pbrown = 1 - pblue - pint
 
-        # print('Probabilities of getting blue / intermediate / brown eyecolor for sample', row[0])
-        # print(pblue, pint, pbrown)
-        probability = [pblue, pint, pbrown]
-        colors[row[0]] = probability
-        print('The prediction for eye color is :', row[0])
-        print('Eyes are: ', col[0], probability[0], col[1], probability[1], col[2], probability[2])
+    probability = [pblue, pint, pbrown]
+    print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
 
     colors = pd.DataFrame(colors)
 
@@ -264,7 +257,7 @@ if __name__ == '__main__':
 
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
-    print('You are now analysing %d cases.' % len(bs_snp))
+    print('You are now analysing %d SNPs.' % len(bs_snp))
 
     # Read all the parameters
     if m == 'eye':
@@ -282,7 +275,7 @@ if __name__ == '__main__':
         sums_hair = snp_estim_h4(samples_hair, analysis, beta)
     else:
         print("It is not possible yet")
-    print(sums)
+
     prob = get_prob(sums, alpha)
 
 # # # Counting three probs
