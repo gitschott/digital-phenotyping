@@ -175,7 +175,7 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
         bi1 += b1[0]
         bi2 += b1[1]
 
-    coef_list = [key, value, beta1, beta2]
+    coef_list = [beta1, beta2]
 
     return coef_list
 
@@ -275,6 +275,8 @@ if __name__ == '__main__':
         sums_hair = snp_estim_h4(samples_hair, analysis, beta)
     else:
         print("It is not possible yet")
+
+    print(sums)
 
     prob = get_prob(sums, alpha)
 
