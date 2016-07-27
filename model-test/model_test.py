@@ -12,6 +12,7 @@ import math
 import ast
 
 
+
 # Print all the arguments given to the program
 def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')

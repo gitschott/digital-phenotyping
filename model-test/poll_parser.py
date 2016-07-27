@@ -54,28 +54,6 @@ def _nation(value):
     return natio
 
 
-def _eyecolorpred(eyehue_str_list, eye_saturation):
-    print(eyehue_str_list, eye_saturation)
-    iris = {' Gray': 2, ' Blue': 1, ' Green': 3,
-            ' Hazel': 4, ' Brown': 5, ' I have mixed eye color': 6,
-            ' I have heterochromia': 7, ' Red (albino phenotype)': 8}
-    eyehue = iris[eyehue_str_list]
-    if eyehue < 2:
-        prediction = 'Blue'
-    elif eyehue > 6:
-        prediction = 'Unknown. This is a special case. It is not tested here.'
-    elif eyehue == 5:
-        prediction = 'Brown'
-    elif eyehue == 4:
-        if eye_saturation == ' Dark':
-            prediction = 'Brown'
-        else:
-            prediction = 'Intermediate'
-    else:
-        prediction = 'Intermediate'
-    return prediction
-
-
 def most_common(lst):
     return max(set(lst), key=lst.count)
 
@@ -90,20 +68,14 @@ def _eyecolor(list):
         colors = colors[0]
         eyehue = str.split(colors, sep='/')
         eyehue = eyehue[1]
-        predicted = _eyecolorpred(eyehue, eyesat)
     else:
         eyehues = []
         eyehue = 'mixed'
         for c in colors:
-            print(c)
             hue = (str.split(c, sep='/')[1])
             eyehues.append(hue)
-            pred = []
-            for e in eyehues:
-                pred.append(_eyecolorpred(e, eyesat))
-                predicted = most_common(pred)
 
-    eye = [eyehue, eyesat, predicted]
+    eye = [eyehue, eyesat]
     return eye
 
 
@@ -112,7 +84,6 @@ def parse(file):
     path = os.getcwd()
     answers = open(file, 'r', encoding='utf-8')
     for q, line in enumerate(answers):
-        print(line)
         if q == 0:
             header = str.split(line, sep='"')
         else:
@@ -126,8 +97,8 @@ def parse(file):
                 age = vals[2]
                 nat = _nation(vals[3])
                 eyes = vals[4:7]
-                eycol, eysat, eypred = _eyecolor(eyes)
-                vals = [name, sex, age, nat, eycol, eysat, eypred]
+                eycol, eysat = _eyecolor(eyes)
+                vals = [name, sex, age, nat, eycol, eysat]
                 strings.append(vals)
         os.chdir(path)
         tab = np.array(strings)
@@ -140,12 +111,13 @@ def story(array, name):
         if result is not None:
             print('The data provided on:', name, 'is the following.', name, 'is a', i[1], i[2], 'years old that belongs to', i[3])
             if i[4] == 'mixed':
-                print(name, 'eye color is', i[4], 'This eye color might be predicted as', i[6])
+                print(name, 'eye color is', i[4])
             else:
-                print(name, 'eye color is', i[5], i[4], 'This eye color might be predicted as', i[6])
+                print(name, 'eye color is', i[5], i[4])
 
 
 if __name__ == '__main__':
     file, s = impo()
     head, pli, name = parse(file)
-    p = story(pli, s)
+    stop = story(pli, s)
+    print(pli)
