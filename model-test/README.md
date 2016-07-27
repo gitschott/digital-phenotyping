@@ -8,7 +8,13 @@
 >
 >## Usage
 > The code is to be started from the root repository "digital_phenotyping/" in the following way:
-> model-test/model_test.py requires 2 arguments:
+>
+> 
+>     predict eye pigmentation(" model-test/model_test.py -m eye -v complete_path_to_the_vcf_file.vcf | $markdown_script");
+> It requires 2 arguments:
+>
 > -m or --mode is a mode of analysis -- you need to select the phenotypical trait analyzed (eye / hair or skin pigmentation are available, in this version -- eye only). 
+>
 > -v or --vcf is a complete path to the vcf file sample
+>
 > *TO BE ADDED* -c or --check option -- that compares model output with self-report -- complete path to the questionnaire of phenotypic traits.
