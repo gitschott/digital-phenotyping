@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import unittest
 import model_test
 
@@ -24,10 +27,12 @@ class MT_TestCase(unittest.TestCase):
                 'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
         res = [0.80, 2.45]
         self.assertTrue(model_test.snp_estim_eye(bs, beta), res)
-        
-    #
-    # def test_eyecolor_probs(self):
-    #     self.assertTrue(eyecolor_probs(prob_df))
+
+    def test_get_prob(self):
+        self.assertTrue(model_test.get_prob(list_w_sums, alpha_val_model))
+
+    def test_eyecolor_probs(self):
+        self.assertTrue(eyecolor_probs(prob_df))
 
 
 

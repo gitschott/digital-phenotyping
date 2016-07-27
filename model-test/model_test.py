@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -172,6 +172,7 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
     bi2 = 0
     for key, value in iter(coefs):
         b1 = coefs[key, value]
+        print(b1[0],b1[1])
         bi1 += b1[0]
         bi2 += b1[1]
 
@@ -219,8 +220,8 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
 
 def get_prob(list_w_sums, alpha_val_model):
     alp = alpha_val_model[0]
-    beta1 = math.exp(float(list_w_sums[2]) + float(alp[0]))
-    beta2 = math.exp(float(list_w_sums[3]) + float(alp[1]))
+    beta1 = math.exp(float(list_w_sums[0]) + float(alp[0]))
+    beta2 = math.exp(float(list_w_sums[1]) + float(alp[1]))
     prob = [beta1, beta2]
 
     return prob
