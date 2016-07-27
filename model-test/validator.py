@@ -4,6 +4,7 @@
 import poll_parser
 import model_test
 import argparse
+import os
 
 
 def argu(args=None):
@@ -57,7 +58,15 @@ def _eyecolorpred(eyehue_str_list, eye_saturation):
 
 if __name__ == '__main__':
     m, v, p, c, s = argu()
-    probs = model_test.executable(m, v, p)
+    probs = []
+    for vc in os.listdir(v):
+        if vc.endswith('vcf'):
+            filetowork = os.path.join(v, vc)
+            prob = model_test.executable(m, filetowork, p)
+            vc = vc[:6]
+            res = [vc, prob]
+            probs.append(res)
+
     table = poll_parser.whole_poll(c, s)
 
     print(probs)

@@ -234,10 +234,11 @@ def eyecolor_probs(prob_list):
     pbrown = 1 - pblue - pint
     colors = {col[0]: pblue, col[1]: pint, col[2]: pbrown}
     probability = [pblue, pint, pbrown]
-    print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
 
     return colors
 
+def verbose_pred_eyes(probability):
+    print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
 
 def executable(m, v, p):
     print('mode =', m)
