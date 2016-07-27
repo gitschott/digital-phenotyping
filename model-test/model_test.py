@@ -56,7 +56,7 @@ def get_rs(mode, path_to_param):
             return rsnp
 
 
-def parse_vcf(file):
+def __parse_vcf(file):
     strings = []
     fl = []
     path = os.getcwd()
@@ -85,7 +85,7 @@ def parse_vcf(file):
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
-    data = parse_vcf(vcf)
+    data = __parse_vcf(vcf)
     for c, string in enumerate(data):
         for i in snp:
             s = string[2]
