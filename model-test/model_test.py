@@ -27,7 +27,6 @@ def check_arg(args=None):
                         help='parameters data path, (default: self-report/ directory in repo)',
                         default='self-report/')
     results = parser.parse_args()
-    print(len(results))
     if results is None:
         print("You need to specify mode of analysis and a path\
          to the vcf file. For detailed information please refer to README")
@@ -174,7 +173,6 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
     bi2 = 0
     for key, value in iter(coefs):
         b1 = coefs[key, value]
-        print(b1[0],b1[1])
         bi1 += b1[0]
         bi2 += b1[1]
 
@@ -231,25 +229,20 @@ def get_prob(list_w_sums, alpha_val_model):
 
 def eyecolor_probs(prob_list):
     col = ['blue', 'intermed', 'brown']
-    colors = {}
-    pblue = prob[0] / (1 + prob[0] + prob[1])
-    pint = prob[1] / (1 + prob[0] + prob[1])
+    pblue = prob_list[0] / (1 + prob_list[0] + prob_list[1])
+    pint = prob_list[1] / (1 + prob_list[0] + prob_list[1])
     pbrown = 1 - pblue - pint
-
+    colors = {col[0]: pblue, col[1]: pint, col[2]: pbrown}
     probability = [pblue, pint, pbrown]
     print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
-
-    colors = pd.DataFrame(colors)
 
     return colors
 
 
-if __name__ == '__main__':
-    m, v, p = check_arg()
+def executable(m, v, p):
     print('mode =', m)
     print('vcf =', v)
     print('param =', p)
-
     snip = get_rs(m, p)
 
     if snip is None:
@@ -279,9 +272,14 @@ if __name__ == '__main__':
     else:
         print("It is not possible yet")
 
-    print(sums)
-
     prob = get_prob(sums, alpha)
 
-# # # Counting three probs
+    # # # Counting three probs
     probs = eyecolor_probs(prob)
+
+    return probs
+
+
+if __name__ == '__main__':
+    m, v, p = check_arg()
+    probabilities = executable(m, v, p)

@@ -21,6 +21,9 @@ def argu(args=None):
     parser.add_argument('-c', '--checklist',
                         help='full path to the tab-delimited phenotypic questionnaire',
                         required='True')
+    parser.add_argument('-s', '--sample',
+                        help="sample of interest",
+                        required='True')
     results = parser.parse_args()
     if results is None:
         print("You need to specify mode of analysis and a path\
@@ -28,7 +31,8 @@ def argu(args=None):
     return (results.mode,
             results.vcf,
             results.param,
-            results.checklist)
+            results.checklist,
+            results.sample)
 
 
 def _eyecolorpred(eyehue_str_list, eye_saturation):
@@ -52,6 +56,9 @@ def _eyecolorpred(eyehue_str_list, eye_saturation):
     return prediction
 
 if __name__ == '__main__':
-    m, v, p, c = argu()
-    probs = model_test.main(m, v)
-    story = poll_parser.parse(c)
+    m, v, p, c, s = argu()
+    probs = model_test.executable(m, v, p)
+    table = poll_parser.whole_poll(c, s)
+
+    print(probs)
+    print(table)

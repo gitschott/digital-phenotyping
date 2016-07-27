@@ -111,13 +111,22 @@ def story(array, name):
         if result is not None:
             print('The data provided on:', name, 'is the following.', name, 'is a', i[1], i[2], 'years old that belongs to', i[3])
             if i[4] == 'mixed':
+                res = [name, 'eye color is', i[4]]
                 print(name, 'eye color is', i[4])
             else:
+                res = [name, 'eye color is', i[5], i[4]]
                 print(name, 'eye color is', i[5], i[4])
+
+            return
+
+
+def whole_poll(file, s):
+    head, pli, name = parse(file)
+    stop = story(pli, s)
+
+    return pli
 
 
 if __name__ == '__main__':
     file, s = impo()
-    head, pli, name = parse(file)
-    stop = story(pli, s)
-    print(pli)
+    table = whole_poll(file, s)
