@@ -25,13 +25,14 @@ def check_arg(args=None):
     parser.add_argument('-p', '--param',
                         help='parameters data path, (default: self-report/ directory in repo)',
                         default='self-report/')
-    try:
-        results = parser.parse_args()
-        return (results.mode,
-                results.vcf,
-                results.param)
-    except SystemExit:
-        print("do something else")
+    results = parser.parse_args()
+    print(len(results))
+    if results is None:
+        print("You need to specify mode of analysis and a path\
+         to the vcf file. For detailed information please refer to README")
+    return (results.mode,
+            results.vcf,
+            results.param)
 
 
 # Get the list rs relevant for particular mode of the analysis
@@ -56,7 +57,7 @@ def get_rs(mode, path_to_param):
             return rsnp
 
 
-def __parse_vcf(file):
+def _parse_vcf(file):
     strings = []
     fl = []
     path = os.getcwd()
@@ -85,7 +86,7 @@ def __parse_vcf(file):
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
-    data = __parse_vcf(vcf)
+    data = _parse_vcf(vcf)
     for c, string in enumerate(data):
         for i in snp:
             s = string[2]
@@ -243,7 +244,7 @@ def eyecolor_probs(prob_list):
 
 
 if __name__ == '__main__':
-    m, v, p = check_arg(sys.argv[1:])
+    m, v, p = check_arg()
     print('mode =', m)
     print('vcf =', v)
     print('param =', p)
