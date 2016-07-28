@@ -24,7 +24,7 @@ def argu(args=None):
                         required='True')
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
-                        required='True')
+                        default='all')
     results = parser.parse_args()
     if results is None:
         print("You need to specify mode of analysis and a path\
@@ -35,6 +35,9 @@ def argu(args=None):
             results.checklist,
             results.sample)
 
+
+def irisplex_interpreter(poll_parsed_list):
+    # greps sample label and eyecolor, modifies it into predicted hue
 
 def _eyecolorpred(eyehue_str_list, eye_saturation):
     iris = {' Gray': 2, ' Blue': 1, ' Green': 3,

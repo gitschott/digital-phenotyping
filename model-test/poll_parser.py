@@ -14,7 +14,7 @@ def impo(args=None):
                         required='True')
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
-                        required='True')
+                        default='all')
     try:
         results = parser.parse_args()
         return (results.poll, results.sample)
@@ -68,6 +68,8 @@ def _eyecolor(list):
         colors = colors[0]
         eyehue = str.split(colors, sep='/')
         eyehue = eyehue[1]
+        if eyehue == ' I have mixed eye color':
+            eyehue = 'mixed'
     else:
         eyehues = []
         eyehue = 'mixed'
@@ -105,19 +107,29 @@ def parse(file):
 
     return header, tab, name
 
-def story(array, name):
-    for i in array:
-        result = re.match(i[0], name)
-        if result is not None:
-            print('The data provided on:', name, 'is the following.', name, 'is a', i[1], i[2], 'years old that belongs to', i[3])
-            if i[4] == 'mixed':
-                res = [name, 'eye color is', i[4]]
-                print(name, 'eye color is', i[4])
-            else:
-                res = [name, 'eye color is', i[5], i[4]]
-                print(name, 'eye color is', i[5], i[4])
 
-            return
+def _verbose_res(line):
+    print('The data provided on:', line[0], 'is the following.', line[0], 'is a', line[1], line[2],
+          'years old that belongs to', line[3])
+    if line[4] == 'mixed':
+        print(line[0], 'eye color is', line[4])
+    else:
+        print(line[0], 'eye color is', line[5], line[4])
+
+
+def story(array, name):
+    result = []
+    if name != 'all':
+        for i in array:
+            result = re.match(i[0], name)
+            if result is not None:
+                _verbose_res(i)
+                result.append(i)
+    else:
+        for i in array:
+            _verbose_res(i)
+            result.append(i)
+    return result
 
 
 def whole_poll(file, s):

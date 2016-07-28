@@ -57,6 +57,15 @@ def get_rs(mode, path_to_param):
             return rsnp
 
 
+def labelling(str_filename):
+    # makes an adequate label out of filename
+    file = str_filename[::-1]
+    new = file[:10]
+    file = new[::-1]
+    file = file[:6]
+    return file
+
+
 def _parse_vcf(file):
     strings = []
     fl = []
@@ -69,6 +78,7 @@ def _parse_vcf(file):
         else:
             # analyse only actual informative lines
             if line.startswith('chr'):
+                file = labelling(file)
                 string = str.split(line, sep='\t')
                 filt = string[6]
                 rs = string[2]
@@ -79,7 +89,6 @@ def _parse_vcf(file):
                 lst = [file, filt, rs, ref, alt, gt]
                 strings.append(lst)
     os.chdir(path)
-
     return strings
 
 
@@ -155,6 +164,8 @@ def param(path_to_param, mode):
 
 
 def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
+    print(dict_of_analyzed)
+    print(parameters_for_snp)
     coefs = {}
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
@@ -169,6 +180,7 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
                 b1 = float(beta1)
                 b2 = float(beta2)
                 coefs[a[0], v] = [mf * b1, mf * b2]
+    print(coefs)
     bi1 = 0
     bi2 = 0
     for key, value in iter(coefs):
@@ -241,9 +253,6 @@ def verbose_pred_eyes(probability):
     print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
 
 def executable(m, v, p):
-    print('mode =', m)
-    print('vcf =', v)
-    print('param =', p)
     snip = get_rs(m, p)
 
     if snip is None:
@@ -283,4 +292,7 @@ def executable(m, v, p):
 
 if __name__ == '__main__':
     m, v, p = check_arg()
+    print('mode =', m)
+    print('vcf =', v)
+    print('param =', p)
     probabilities = executable(m, v, p)
