@@ -135,4 +135,4 @@ if __name__ == '__main__':
     pred_mod = irisplex_interpreter_model(probs)
 
     total, yes, no, mistake = compariser(pred_mod, pred)
-    print(float(no/total))
+    print('Model is correct in ', float(yes/total)*100, 'per cent cases')

@@ -243,8 +243,6 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
 
 
 def get_prob(list_w_sums, alpha_val_model):
-    print(list_w_sums)
-    print(alpha_val_model)
     alp = alpha_val_model[0]
     beta1 = math.exp(float(list_w_sums[0]) + float(alp[0]))
     beta2 = math.exp(float(list_w_sums[1]) + float(alp[1]))

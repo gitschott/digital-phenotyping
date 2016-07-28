@@ -12,8 +12,17 @@ class MT_TestCase(unittest.TestCase):
         rs_test = ['rs12203592']
         self.assertTrue(model_test.get_rs('iris', '/Users/apple/digital-phenotyping/test_data'), rs_test)
 
+    def test__parse_vcf(self):
+        vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
+        strings = [['BS-tst', 'PASS', 'rs6867641;rs6867641;rs6867641', ],
+                   ['BS-tst', 'PASS', 'rs756853;rs756853;rs756853',]]
+        self.assertTrue(model_test._parse_vcf(vcf), strings)
+
+    def test__value_setter(self):
+
+
     def test_get_snp(self):
-        vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-test.vcf'
+        vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
         snp = ['rs6867641']
         bs = {('test','rs6867641'): 0}
         self.assertTrue(model_test.get_snp(vcf, snp), bs)
@@ -27,13 +36,6 @@ class MT_TestCase(unittest.TestCase):
                 'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
         res = [0.80, 2.45]
         self.assertTrue(model_test.snp_estim_eye(bs, beta), res)
-
-    def test_get_prob(self):
-        self.assertTrue(model_test.get_prob(list_w_sums, alpha_val_model))
-
-    def test_eyecolor_probs(self):
-        self.assertTrue(eyecolor_probs(prob_df))
-
 
 
 if __name__ == '__main__':
