@@ -182,8 +182,7 @@ def param(path_to_param, mode):
     return snp_val, alpha
 
 
-def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
-    # print(parameters_for_snp)
+def eye_estim(dict_of_analyzed, parameters_for_snp):
     beone = []
     betwo = []
     for a in dict_of_analyzed:
@@ -201,45 +200,37 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
     coefs = [round(sum(beone), 4), round(sum(betwo), 4)]
-
     return coefs
 
 
-def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
-    coefs = {}
+def hair_estim(dict_of_analyzed, parameters_for_snp):
+    beone = []
+    betwo = []
+    betre = []
     for a in dict_of_analyzed:
-        for s in samples:
-            result = re.match(a[0], s)
+        rs = str.split(a[1], sep=";")
+        for v in parameters_for_snp:
+            # match proper parameters
+            result = re.match(rs[0], v)
             if result is not None:
-                for v in parameters_for_snp:
-                    result = re.match(a[1], v)
-                    if result is not None:
-                        minor, m_freq = dict_of_analyzed[a]
-                        minor_mod, beta1, beta2, beta3 = parameters_for_snp[v]
-                        mf = float(m_freq)
-                        b1 = float(beta1)
-                        b2 = float(beta2)
-                        b3 = float(beta3)
-                        # coefs[s, v] = [float(m_freq) * float(beta1), float(m_freq) * float(beta2)]
-                        if minor == minor_mod:
-                            coefs[s, v] = [mf * b1, mf * b2, mf * b3]
-                        else:
-                            nbases = {'A': 'C1', 'T': 'C1', 'G': 'C2', 'C': 'C2'}
-                            if nbases[minor] == nbases[minor_mod]:
-                                coefs[s, v] = [mf * b1, mf * b2, mf * b3]
-                            else:
-                                mf = 0
-                                coefs[s, v] = [mf * b1, mf * b2]
+                # implement the model
+                mf = dict_of_analyzed[a]
+                beta1 = float((parameters_for_snp[v])[1])
+                beta2 = float((parameters_for_snp[v])[2])
+                beta3 = float((parameters_for_snp[v])[3]))
+                beone.append(mf * b1)
+                betwo.append(mf * b2)
+                betre.append(mf * b3)
+    coefs = [round(sum(beone), 4), round(sum(betwo), 4), round(sum(betre), 4)]
+    return coefs
 
-    coef_list = []
-    for key, value in iter(coefs):
-        beta = coefs[key, value]
-        temp = [key, value, beta[0], beta[1], beta[2]]
-        coef_list.append(temp)
-    df = pd.DataFrame(coef_list)
-    df = df.groupby(0)[[2, 3]].sum()
+def snp_estim(dict_of_analyzed, parameters_for_snp, mode):
+    if mode == 'eye':
+        coefs = eye_estim(dict_of_analyzed, parameters_for_snp)
+    elif mode == 'hair':
+        coefs = hair_estim(dict_of_analyzed, parameters_for_snp)
 
-    return df
+    return coefs
 
 
 def get_prob(list_w_sums, alpha_val_model):
@@ -280,21 +271,8 @@ def executable(m, v, p, s):
         print('You are now analysing %d SNPs.' % len(bs_snp))
 
     # Read all the parameters
-    if m == 'eye':
-        beta, alpha = param(p, m)
-    elif m == 'hair':
-        beta_eye, alpha_eye = param(p, m)
-        beta_hair, alpha_hair = param(p, m)
-    else:
-        print("It is not possible yet")
-
-    if m == 'eye':
-        sums = snp_estim_eye(bs_snp, beta)
-    elif m == 'hair':
-        sums_eye = snp_estim_eye(samples_eye, analysis, beta)
-        sums_hair = snp_estim_h4(samples_hair, analysis, beta)
-    else:
-        print("It is not possible yet")
+    beta, alpha = param(p, m)
+    sums = snp_estim(bs_snp, beta, m)
 
     prob = get_prob(sums, alpha)
 
