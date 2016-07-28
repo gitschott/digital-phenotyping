@@ -105,15 +105,17 @@ def compariser(dct_pred, dct_selfrep):
     correct = 0
     wrong = 0
     count = 0
+    mistake = []
     for i in dct_selfrep:
         count +=1
         if dct_selfrep[i] == dct_pred[i]:
             correct +=1
         else:
             wrong +=1
+            mistake.append(dct_selfrep[i])
             print('It was predicted that', i, 'has eyes coloured', dct_pred[i],
                   'But', i, 'is known for having eyes of', dct_selfrep[i], 'color.')
-    return count, correct, wrong
+    return count, correct, wrong, mistake
 
 
 if __name__ == '__main__':
@@ -132,4 +134,5 @@ if __name__ == '__main__':
     pred = irisplex_interpreter_poll(iris_color)
     pred_mod = irisplex_interpreter_model(probs)
 
-    total, yes, no = compariser(pred_mod, pred)
+    total, yes, no, mistake = compariser(pred_mod, pred)
+    print(float(no/total))

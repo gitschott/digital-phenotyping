@@ -96,6 +96,29 @@ def _parse_vcf(file):
     return strings
 
 
+def _value_setter(string):
+    ref = string[3]
+    gent = str.split(string[5], sep='/')
+    alt = str.split(string[4], sep=',')
+    nucl = {'A': 's1', 'T': 's1', 'G': 's2', 'C': 's2'}
+    if gent[0] == gent[1]:
+        index = int(gent[0]) - 1
+        letter = alt[index]
+        if nucl[ref] == nucl[letter]:
+            val = float(0)
+        else:
+            val = float(2)
+    else:
+        index = int(gent != 0) - 1
+        letter = alt[index]
+        if nucl[ref] == nucl[letter]:
+            val = float(0)
+        else:
+            val = float(1)
+
+    return val
+
+
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
     bs = {}
@@ -108,15 +131,7 @@ def get_snp(vcf, snp):
             # quality filter
                 if string[1] == 'PASS':
                     lab = (string[0], s)
-                    gt1, gt2 = str.split(string[5], sep='/')
-                    if gt1 == gt2:
-                        gt = gt1,
-                        if gt == 0:
-                            val = float(0)
-                        else:
-                            val = float(2)
-                    else:
-                        val = float(1)
+                    val = _value_setter(string)
                     bs[lab] = val
                 else:
                     pass
@@ -168,7 +183,7 @@ def param(path_to_param, mode):
 
 
 def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
-    coefs = {}
+    # print(parameters_for_snp)
     beone = []
     betwo = []
     for a in dict_of_analyzed:
@@ -183,10 +198,9 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
                 beta2 = (parameters_for_snp[v])[2]
                 b1 = float(beta1)
                 b2 = float(beta2)
-                coefs[a[0], v] = [mf * b1, mf * b2]
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
-    coefs = [sum(beone), sum(betwo)]
+    coefs = [round(sum(beone), 4), round(sum(betwo), 4)]
 
     return coefs
 
@@ -229,6 +243,8 @@ def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):
 
 
 def get_prob(list_w_sums, alpha_val_model):
+    print(list_w_sums)
+    print(alpha_val_model)
     alp = alpha_val_model[0]
     beta1 = math.exp(float(list_w_sums[0]) + float(alp[0]))
     beta2 = math.exp(float(list_w_sums[1]) + float(alp[1]))
