@@ -168,9 +168,9 @@ def param(path_to_param, mode):
 
 
 def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
-    # print(dict_of_analyzed)
-    # print(parameters_for_snp)
     coefs = {}
+    beone = []
+    betwo = []
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
         for v in parameters_for_snp:
@@ -184,17 +184,11 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
                 b1 = float(beta1)
                 b2 = float(beta2)
                 coefs[a[0], v] = [mf * b1, mf * b2]
-    # print(coefs)
-    bi1 = 0
-    bi2 = 0
-    for key, value in iter(coefs):
-        b1 = coefs[key, value]
-        bi1 += b1[0]
-        bi2 += b1[1]
+                beone.append(mf * b1)
+                betwo.append(mf * b2)
+    coefs = [sum(beone), sum(betwo)]
 
-    coef_list = [beta1, beta2]
-
-    return coef_list
+    return coefs
 
 
 def snp_estim_h4(samples, dict_of_analyzed, parameters_for_snp):

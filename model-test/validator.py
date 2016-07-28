@@ -57,12 +57,11 @@ def _pred_count(int, sat):
 
 def irisplex_interpreter_poll(poll_parsed_list):
     # greps sample label and eyecolor, modifies it into predicted hue
-    predict = []
+    predict = {}
     for p in poll_parsed_list:
         lab = p[0]
         hue = p[1]
         sat = p[2]
-        print(hue)
         iris = {' Gray': 2, ' Blue': 1, ' Green': 3,
                 ' Hazel': 4, ' Brown': 5, ' I have mixed eye color': 6,
                 ' I have heterochromia': 7, ' Red (albino phenotype)': 8}
@@ -74,24 +73,48 @@ def irisplex_interpreter_poll(poll_parsed_list):
                 pred = 'Intermediate'
         else:
             pred = _pred_count(iris[hue], sat)
-        predict.append([lab, pred])
+        predict[lab] = pred
     return predict
 
 
 def prob_dict_parser(dict_with_probs):
-    print(keys.dict_with_probs)
     pblu = dict_with_probs['blue']
     pint = dict_with_probs['intermed']
     pbro = dict_with_probs['brown']
     if (pblu > pint > pbro) or (pblu > pbro > pint):
-        pred = 'blue'
+        if pblu < 0.9:
+            pred = 'Intermediate'
+        else:
+            pred = 'Blue'
+    elif (pbro > pint > pblu) or (pbro > pblu > pint):
+        pred = 'Brown'
+    else:
+        pred = 'Intermediate'
+    return pred
 
 def irisplex_interpreter_model(model_out):
+    predictions = {}
     for i in model_out:
         lab = i[0]
         vals = i[1]
+        res = prob_dict_parser(vals)
+        predictions[lab] = res
+    return predictions
 
-# def verbose_interpreter
+def compariser(dct_pred, dct_selfrep):
+    correct = 0
+    wrong = 0
+    count = 0
+    for i in dct_selfrep:
+        count +=1
+        if dct_selfrep[i] == dct_pred[i]:
+            correct +=1
+        else:
+            wrong +=1
+            print('It was predicted that', i, 'has eyes coloured', dct_pred[i],
+                  'But', i, 'is known for having eyes of', dct_selfrep[i], 'color.')
+    return count, correct, wrong
+
 
 if __name__ == '__main__':
     m, v, p, c, s = argu()
@@ -107,5 +130,6 @@ if __name__ == '__main__':
     table, iris_color = poll_parser.whole_poll(c, s)
 
     pred = irisplex_interpreter_poll(iris_color)
-    print(probs)
-    
+    pred_mod = irisplex_interpreter_model(probs)
+
+    total, yes, no = compariser(pred_mod, pred)
