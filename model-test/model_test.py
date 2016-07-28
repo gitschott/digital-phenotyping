@@ -26,13 +26,17 @@ def check_arg(args=None):
     parser.add_argument('-p', '--param',
                         help='parameters data path, (default: self-report/ directory in repo)',
                         default='self-report/')
+    parser.add_argument('-s', '--silent',
+                        help='on / off -- print the output or not',
+                        default='off')
     results = parser.parse_args()
     if results is None:
         print("You need to specify mode of analysis and a path\
          to the vcf file. For detailed information please refer to README")
     return (results.mode,
             results.vcf,
-            results.param)
+            results.param,
+            results.silent)
 
 
 # Get the list rs relevant for particular mode of the analysis
@@ -164,8 +168,8 @@ def param(path_to_param, mode):
 
 
 def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
-    print(dict_of_analyzed)
-    print(parameters_for_snp)
+    # print(dict_of_analyzed)
+    # print(parameters_for_snp)
     coefs = {}
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
@@ -180,7 +184,7 @@ def snp_estim_eye(dict_of_analyzed, parameters_for_snp):
                 b1 = float(beta1)
                 b2 = float(beta2)
                 coefs[a[0], v] = [mf * b1, mf * b2]
-    print(coefs)
+    # print(coefs)
     bi1 = 0
     bi2 = 0
     for key, value in iter(coefs):
@@ -250,20 +254,22 @@ def eyecolor_probs(prob_list):
     return colors
 
 def verbose_pred_eyes(probability):
-    print('Eyes are: ', 'blue', probability[0], 'intermediate', probability[1], 'brown', probability[2])
+    print('Eyes are: ', 'blue', probability['blue'], 'intermediate', probability['intermed'], 'brown', probability['brown'])
 
-def executable(m, v, p):
+def executable(m, v, p, s):
     snip = get_rs(m, p)
 
-    if snip is None:
-        print('Something whent wrong when we tried to get to rs.')
-    else:
-        print('You are predicting pigmentation of', m)
-        print('Your rs list includes %d elements' % len(snip))
+    if s == 'on':
+        if snip is None:
+            print('Something whent wrong when we tried to get to rs.')
+        else:
+            print('You are predicting pigmentation of', m)
+            print('Your rs list includes %d elements' % len(snip))
 
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
-    print('You are now analysing %d SNPs.' % len(bs_snp))
+    if s == 'on':
+        print('You are now analysing %d SNPs.' % len(bs_snp))
 
     # Read all the parameters
     if m == 'eye':
@@ -291,8 +297,13 @@ def executable(m, v, p):
 
 
 if __name__ == '__main__':
-    m, v, p = check_arg()
-    print('mode =', m)
-    print('vcf =', v)
-    print('param =', p)
-    probabilities = executable(m, v, p)
+    m, v, p, s = check_arg()
+    if s == 'on':
+        print('mode =', m)
+        print('vcf =', v)
+        print('param =', p)
+        print('verbose mode =', s)
+    probabilities = executable(m, v, p, s)
+
+    if s == 'on':
+        verbose_pred_eyes(probabilities)

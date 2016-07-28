@@ -68,6 +68,7 @@ def _eyecolor(list):
         colors = colors[0]
         eyehue = str.split(colors, sep='/')
         eyehue = eyehue[1]
+        eyehues = eyehue
         if eyehue == ' I have mixed eye color':
             eyehue = 'mixed'
     else:
@@ -78,11 +79,12 @@ def _eyecolor(list):
             eyehues.append(hue)
 
     eye = [eyehue, eyesat]
-    return eye
+    return eye, eyehues
 
 
 def parse(file):
     strings = []
+    oc = []
     path = os.getcwd()
     answers = open(file, 'r', encoding='utf-8')
     for q, line in enumerate(answers):
@@ -99,16 +101,19 @@ def parse(file):
                 age = vals[2]
                 nat = _nation(vals[3])
                 eyes = vals[4:7]
-                eycol, eysat = _eyecolor(eyes)
+                eye, hues = _eyecolor(eyes)
+                eycol, eysat = eye
                 vals = [name, sex, age, nat, eycol, eysat]
+                original_colors = [name, hues, eysat]
                 strings.append(vals)
+                oc.append(original_colors)
         os.chdir(path)
         tab = np.array(strings)
 
-    return header, tab, name
+    return tab, name, oc
 
 
-def _verbose_res(line):
+def verbose_res(line):
     print('The data provided on:', line[0], 'is the following.', line[0], 'is a', line[1], line[2],
           'years old that belongs to', line[3])
     if line[4] == 'mixed':
@@ -123,22 +128,22 @@ def story(array, name):
         for i in array:
             result = re.match(i[0], name)
             if result is not None:
-                _verbose_res(i)
                 result.append(i)
     else:
         for i in array:
-            _verbose_res(i)
             result.append(i)
     return result
 
 
 def whole_poll(file, s):
-    head, pli, name = parse(file)
-    stop = story(pli, s)
+    total, sample_lab, iris_color = parse(file)
+    stop = story(total, s)
 
-    return pli
+    return total, iris_color
 
 
 if __name__ == '__main__':
     file, s = impo()
-    table = whole_poll(file, s)
+    table, iris = whole_poll(file, s)
+    for i in table:
+        verbose_res(i)
