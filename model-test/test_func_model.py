@@ -20,23 +20,29 @@ class MT_TestCase(unittest.TestCase):
 
     # def test__value_setter(self):
 
-
     def test_get_snp(self):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
         snp = ['rs6867641']
         bs = {('test','rs6867641'): 0}
         self.assertTrue(model_test.get_snp(vcf, snp), bs)
 
-    def test_snp_estim_eye(self):
+    def test_eye_estim(self):
         bs = {('BS-test.vcf', 'rs12203592;rs12203592;rs12203592'): 2.0, ('BS-test.vcf', 'rs12896399;rs12896399;rs12896399'): 1.0,\
               ('BS-test.vcf', 'rs16891982;rs16891982;rs16891982'): 2.0, ('BS-test.vcf', 'rs1800407;rs1800407;rs1800407'): 2.0,\
               ('BS-test.vcf', 'rs12913832;rs12913832;rs12913832'): 1.0, ('BS-test.vcf', 'rs1393350;rs1393350;rs1393350'): 2.0}
         beta = {'rs16891982': ['C', '-1.53', '-0.74'], 'rs12913832': ['T', '-4.87', '-1.99'],\
                 'rs1800407': ['A', '1.15', '1.05'], 'rs12203592': ['T', '0.60', '0.69'],\
                 'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
-        res = [0.80, 2.45]
-        self.assertTrue(model_test.snp_estim_eye(bs, beta), res)
+        res = [-4.08, 0.52]
+        self.assertTrue(model_test.eye_estim(bs, beta), res)
 
+    def test__sumgetter(self):
+        l1 = [2.3, 1.2, 0.44, -4.87, -0.0, -1.06]
+        l2 = [2.1, 1.38, 0.26, -1.99, -0.0, -0.02]
+        strings = [-1.37, 1.49]
+        self.assertTrue(model_test._sumgetter(l1, l2), strings)
+
+    def test_
 
 if __name__ == '__main__':
     unittest.main()

@@ -14,6 +14,7 @@ import ast
 
 # Print all the arguments given to the program
 def check_arg(args=None):
+    #
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
                         help='mode of analysis: eye, hair, skin',
@@ -189,6 +190,13 @@ def param(path_to_param, mode):
     return snp_val, alpha
 
 
+def _sumgetter(lst_beone, lst_betwo):
+    tot1 = round(sum(lst_beone))
+    tot2 = round(sum(lst_betwo))
+    sums_lst = [tot1, tot2]
+    return sums_lst
+
+
 def eye_estim(dict_of_analyzed, parameters_for_snp):
     beone = []
     betwo = []
@@ -206,7 +214,8 @@ def eye_estim(dict_of_analyzed, parameters_for_snp):
                 b2 = float(beta2)
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
-    coefs = [round(sum(beone), 4), round(sum(betwo), 4)]
+    coefs = _sumgetter(beone, betwo)
+
     return coefs
 
 
