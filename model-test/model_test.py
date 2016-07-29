@@ -146,9 +146,13 @@ def get_snp(vcf, snp):
 
 # Grep the parameters for a model, parameters is a csv file
 def param(path_to_param, mode):
+    if path_to_param != 'self-report/':
+        usepath = path_to_param
+    else:
+        usepath = os.path.abspath('self-report/')
     snp_val = {}
     path = os.getcwd()
-    os.chdir(path_to_param)
+    os.chdir(usepath)
     if mode == 'eye':
         with open('parameters_iris_rs.csv') as csvfile:
             rs_param = csv.reader(csvfile, delimiter=';')
@@ -262,6 +266,7 @@ def verbose_pred_eyes(probability):
 
 
 def executable(m, v, p, s):
+    snip = get_rs(m, p)
 
     if s == 'off':
         if snip is None:
@@ -276,7 +281,8 @@ def executable(m, v, p, s):
         print('You are now analysing %d SNPs.' % len(bs_snp))
 
     # Read all the parameters
-    beta, alpha = param(p, m)
+    coefficients = param(p, m)
+    beta, alpha = coefficients
     sums = snp_estim(bs_snp, beta, m)
 
     prob = get_prob(sums, alpha)
@@ -288,13 +294,13 @@ def executable(m, v, p, s):
 
 
 if __name__ == '__main__':
-    mode, vcf, param, silent = check_arg()
-    if s == 'off':
+    mode, vcf, par, silent = check_arg()
+    if silent == 'off':
         print('mode =', mode)
         print('vcf =', vcf)
-        print('param =', param)
-        print('verbose mode =', silent)
-    probabilities = executable(mode, vcf, param, silent)
+        print('param =', par)
+        print('silent mode =', silent)
+    probabilities = executable(mode, vcf, par, silent)
 
-    if s == 'off':
+    if silent == 'off':
         verbose_pred_eyes(probabilities)
