@@ -18,7 +18,7 @@ class MT_TestCase(unittest.TestCase):
                    ['BS-tst', 'PASS', 'rs756853;rs756853;rs756853',]]
         self.assertTrue(model_test._parse_vcf(vcf), strings)
 
-    def test__value_setter(self):
+    # def test__value_setter(self):
 
 
     def test_get_snp(self):

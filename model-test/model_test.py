@@ -217,7 +217,7 @@ def hair_estim(dict_of_analyzed, parameters_for_snp):
                 mf = dict_of_analyzed[a]
                 beta1 = float((parameters_for_snp[v])[1])
                 beta2 = float((parameters_for_snp[v])[2])
-                beta3 = float((parameters_for_snp[v])[3]))
+                beta3 = float((parameters_for_snp[v])[3])
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
                 betre.append(mf * b3)
