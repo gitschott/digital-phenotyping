@@ -42,7 +42,18 @@ class MT_TestCase(unittest.TestCase):
         strings = [-1.37, 1.49]
         self.assertTrue(model_test._sumgetter(l1, l2), strings)
 
-    def test_
+    def test_get_prob(self):
+        sums = [1, 1]
+        alpha = [['3.84', '0.37']]
+        res = [126.4693, 3.9353]
+        self.assertTrue(model_test.get_prob(sums, alpha), res)
+
+    def eyecolor_prob(self):
+        list = [1, 6]
+        res = {'blue': 0.125, 'intermed': 0.75, 'brown': 0.125}
+        self.assertTrue(model_test.eyecolor_probs(list), res)
+
+
 
 if __name__ == '__main__':
     unittest.main()

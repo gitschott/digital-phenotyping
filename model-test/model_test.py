@@ -253,7 +253,10 @@ def get_prob(list_w_sums, alpha_val_model):
     alp = alpha_val_model[0]
     beta1 = math.exp(float(list_w_sums[0]) + float(alp[0]))
     beta2 = math.exp(float(list_w_sums[1]) + float(alp[1]))
+    beta1 = round(beta1, 4)
+    beta2 = round(beta2, 4)
     prob = [beta1, beta2]
+    print(prob)
 
     return prob
 
