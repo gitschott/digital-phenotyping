@@ -12,7 +12,6 @@ import math
 import ast
 
 
-
 # Print all the arguments given to the program
 def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
@@ -28,11 +27,11 @@ def check_arg(args=None):
                         default='self-report/')
     parser.add_argument('-s', '--silent',
                         help='on / off -- print the output or not',
-                        default='off')
+                        default='on')
     results = parser.parse_args()
     if results is None:
-        print("You need to specify mode of analysis and a path\
-         to the vcf file. For detailed information please refer to README")
+        print("You need to specify mode of analysis and a path"
+              "to the vcf file. For detailed information please refer to README")
     return (results.mode,
             results.vcf,
             results.param,
@@ -41,7 +40,11 @@ def check_arg(args=None):
 
 # Get the list rs relevant for particular mode of the analysis
 def get_rs(mode, path_to_param):
-    for file in os.listdir(os.path.abspath('self-report/')):
+    if path_to_param != 'self-report/':
+        usepath = path_to_param
+    else:
+        usepath = os.path.abspath('self-report/')
+    for file in os.listdir(usepath):
         # select eye / hair / skin -marks.txt
         if file.startswith(mode):
             path = os.getcwd()
@@ -252,13 +255,15 @@ def eyecolor_probs(prob_list):
 
     return colors
 
+
 def verbose_pred_eyes(probability):
-    print('Eyes are: ', 'blue', probability['blue'], 'intermediate', probability['intermed'], 'brown', probability['brown'])
+    print('Eyes are: ', 'blue', probability['blue'],
+          'intermediate', probability['intermed'], 'brown', probability['brown'])
+
 
 def executable(m, v, p, s):
-    snip = get_rs(m, p)
 
-    if s == 'on':
+    if s == 'off':
         if snip is None:
             print('Something whent wrong when we tried to get to rs.')
         else:
@@ -267,7 +272,7 @@ def executable(m, v, p, s):
 
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
-    if s == 'on':
+    if s == 'off':
         print('You are now analysing %d SNPs.' % len(bs_snp))
 
     # Read all the parameters
@@ -283,13 +288,13 @@ def executable(m, v, p, s):
 
 
 if __name__ == '__main__':
-    m, v, p, s = check_arg()
-    if s == 'on':
-        print('mode =', m)
-        print('vcf =', v)
-        print('param =', p)
-        print('verbose mode =', s)
-    probabilities = executable(m, v, p, s)
+    mode, vcf, param, silent = check_arg()
+    if s == 'off':
+        print('mode =', mode)
+        print('vcf =', vcf)
+        print('param =', param)
+        print('verbose mode =', silent)
+    probabilities = executable(mode, vcf, param, silent)
 
-    if s == 'on':
+    if s == 'off':
         verbose_pred_eyes(probabilities)
