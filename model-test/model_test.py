@@ -14,7 +14,6 @@ import ast
 
 # Print all the arguments given to the program
 def check_arg(args=None):
-    #
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
                         help='mode of analysis: eye, hair, skin',
@@ -75,8 +74,8 @@ def labelling(str_filename):
 
 
 def _parse_vcf(file):
-    strings = []
-    fl = []
+    # reading the vcf sample
+    strings = [] # list that is filled with output
     path = os.getcwd()
     vicief = open(file, 'r', encoding='cp1252')
     for q, line in enumerate(vicief):
@@ -88,34 +87,48 @@ def _parse_vcf(file):
             if line.startswith('chr'):
                 file = labelling(file)
                 string = str.split(line, sep='\t')
-                filt = string[6]
-                rs = string[2]
-                ref = string[3]
-                alt = string[4]
-                gt = str.split(string[9], sep=':')
-                gt = gt[0]
-                lst = [file, filt, rs, ref, alt, gt]
-                strings.append(lst)
+                if string[6] == 'PASS':
+                    rs = string[2]
+                    if rs != '.':
+                        ref = string[3]
+                        alt = string[4]
+                        gt = str.split(string[9], sep=':')
+                        gt = gt[0]
+                        # list containing name of sample, rs,
+                        # reference and alternative nucleotides and genotype
+                        lst = [file, rs, ref, alt, gt]
+                        strings.append(lst)
+                    else:
+                        pass
+                else:
+                    pass
     os.chdir(path)
     return strings
 
 
 def _value_setter(string):
-    ref = string[3]
-    gent = str.split(string[5], sep='/')
-    alt = str.split(string[4], sep=',')
+    # getting the value of genotype
+    ref = string[2]
+    gent = str.split(string[4], sep='/')
+    alt = str.split(string[3], sep=',')
+    # in model complementary nucleotides have equal input
     nucl = {'A': 's1', 'T': 's1', 'G': 's2', 'C': 's2'}
     if gent[0] == gent[1]:
+        # homozygote
         index = int(gent[0]) - 1
         letter = alt[index]
         if nucl[ref] == nucl[letter]:
+            # no significant substitutions
             val = float(0)
         else:
+            # homozygote is completely different from the reference
             val = float(2)
     else:
+        # heterozygote
         index = int(gent != 0) - 1
         letter = alt[index]
         if nucl[ref] == nucl[letter]:
+            # filter for complementary nucleotides
             val = float(0)
         else:
             val = float(1)
@@ -125,68 +138,65 @@ def _value_setter(string):
 
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
 def get_snp(vcf, snp):
+    # dictionary of values
     bs = {}
     data = _parse_vcf(vcf)
     for c, string in enumerate(data):
         for i in snp:
-            s = string[2]
+            s = string[1]
+            # selection of mode-relevant rs
             result = re.match(i, s)
             if result is not None:
-            # quality filter
-                if string[1] == 'PASS':
-                    lab = (string[0], s)
-                    val = _value_setter(string)
-                    bs[lab] = val
-                else:
-                    pass
+                lab = (string[0], s)
+                val = _value_setter(string)
+                # dictionary with genotype values
+                bs[lab] = val
             else:
                 pass
 
     return bs
 
 
+def _mode_fit(filename, mode):
+    # getting the correct file with parameters
+    name = filename[::-1]
+    name = name[4:]
+    x = len(mode)
+    name = name[:x]
+    name = name[::-1]
+    return name
+
 # Grep the parameters for a model, parameters is a csv file
 def param(path_to_param, mode):
+    # path check
     if path_to_param != 'self-report/':
         usepath = path_to_param
     else:
         usepath = os.path.abspath('self-report/')
+    # output dictionary of values
     snp_val = {}
+    alpha = []
     path = os.getcwd()
     os.chdir(usepath)
-    if mode == 'eye':
-        with open('parameters_iris_rs.csv') as csvfile:
-            rs_param = csv.reader(csvfile, delimiter=';')
-            headers = next(rs_param)
-            for row in rs_param:
-                snp_val[row[1]] = row[2:5]
-    elif mode == 'hair':
-        with open('parameters_hair4_rs.csv') as csvfile:
-            rs_param = csv.reader(csvfile, delimiter=';')
-            headers = next(rs_param)
-            for row in rs_param:
-                snp_val[row[1]] = row[2:6]
-    else:
-        print('Nothing to analyze')
-    alpha = []
-    if mode == 'eye':
-        with open('parameters_iris_alpha.csv') as csvfile:
-            rs_param = csv.reader(csvfile, delimiter=';')
-            headers = next(rs_param)
-            headers = next(rs_param)
-            for row in rs_param:
-                alpha.append(row)
-        os.chdir(path)
-    elif mode == 'hair':
-        with open('parameters_hair4_alpha.csv') as csvfile:
-            rs_param = csv.reader(csvfile, delimiter=';')
-            headers = next(rs_param)
-            headers = next(rs_param)
-            for row in rs_param:
-                alpha.append(row)
-        os.chdir(path)
-    else:
-        print('Nothing to analyze')
+    # selectin beta parameters
+    for file in os.listdir('.'):
+        if file.startswith('par_beta'):
+            name = _mode_fit(file, mode)
+            if mode == name:
+                with open(file) as csvfile:
+                    rs_param = csv.reader(csvfile, delimiter=';')
+                    headers = next(rs_param)
+                    for row in rs_param:
+                        snp_val[row[1]] = row[2:5]
+        elif file.startswith('par_alpha'):
+            name = _mode_fit(file, mode)
+            if mode == name:
+                with open(file) as csvfile:
+                    rs_param = csv.reader(csvfile, delimiter=';')
+                    headers = next(rs_param)
+                    for row in rs_param:
+                        alpha.append(row)
+    os.chdir(path)
     return snp_val, alpha
 
 
@@ -256,7 +266,6 @@ def get_prob(list_w_sums, alpha_val_model):
     beta1 = round(beta1, 4)
     beta2 = round(beta2, 4)
     prob = [beta1, beta2]
-    print(prob)
 
     return prob
 
@@ -301,7 +310,6 @@ def executable(m, v, p, s):
 
     # # # Counting three probs
     probs = eyecolor_probs(prob)
-
     return probs
 
 
@@ -316,3 +324,4 @@ if __name__ == '__main__':
 
     if silent == 'off':
         verbose_pred_eyes(probabilities)
+

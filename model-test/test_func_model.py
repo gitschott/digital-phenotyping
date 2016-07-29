@@ -14,8 +14,8 @@ class MT_TestCase(unittest.TestCase):
 
     def test__parse_vcf(self):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
-        strings = [['BS-tst', 'PASS', 'rs6867641;rs6867641;rs6867641', ],
-                   ['BS-tst', 'PASS', 'rs756853;rs756853;rs756853',]]
+        strings = [['BS-tst', 'rs6867641;rs6867641;rs6867641', ],
+                   ['BS-tst', 'rs756853;rs756853;rs756853',]]
         self.assertTrue(model_test._parse_vcf(vcf), strings)
 
     # def test__value_setter(self):
@@ -52,6 +52,12 @@ class MT_TestCase(unittest.TestCase):
         list = [1, 6]
         res = {'blue': 0.125, 'intermed': 0.75, 'brown': 0.125}
         self.assertTrue(model_test.eyecolor_probs(list), res)
+
+    def test__mode_fit(self):
+        filename = 'vkdnfkdnfl_mops.txt'
+        mode = 'anya'
+        out = 'mops'
+        self.assertTrue(model_test._mode_fit(filename, mode), out)
 
 
 
