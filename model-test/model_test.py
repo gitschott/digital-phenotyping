@@ -74,10 +74,6 @@ def _parse_vcf(file):
                         # reference and alternative nucleotides and genotype
                         lst = [file, rs, ref, alt, gt]
                         strings.append(lst)
-                    else:
-                        pass
-                else:
-                    pass
     return strings
 
 
@@ -132,46 +128,35 @@ def get_snp(vcf, snp):
     return bs
 
 
-def _mode_fit(filename, mode):
-    # getting the correct file with parameters
-    name = filename[::-1]
-    name = name[4:]
-    x = len(mode)
-    name = name[:x]
-    name = name[::-1]
-    return name
-
 # Grep the parameters for a model, parameters is a csv file
 def param(path_to_param, mode):
     # path check
-    if path_to_param != 'self-report/':
-        usepath = path_to_param
-    else:
-        usepath = os.path.abspath('self-report/')
+    newpath = os.path.abspath(path_to_param)
     # output dictionary of values
     snp_val = {}
     alpha = []
-    path = os.getcwd()
-    os.chdir(usepath)
     # selectin beta parameters
-    for file in os.listdir('.'):
-        if file.startswith('par_beta'):
-            name = _mode_fit(file, mode)
-            if mode == name:
+    for file in os.listdir(newpath):
+        name = os.path.splitext(file)
+        name = name[0]
+        if name.startswith('par_beta_'):
+            lab = re.sub('par_beta_', '', name)
+            if mode == lab:
+                file = os.path.join(newpath, file)
                 with open(file) as csvfile:
                     rs_param = csv.reader(csvfile, delimiter=';')
                     headers = next(rs_param)
                     for row in rs_param:
                         snp_val[row[1]] = row[2:5]
-        elif file.startswith('par_alpha'):
-            name = _mode_fit(file, mode)
-            if mode == name:
+        elif name.startswith('par_alpha_'):
+            lab = re.sub('par_alpha_', '', name)
+            if mode == lab:
+                file = os.path.join(newpath, file)
                 with open(file) as csvfile:
                     rs_param = csv.reader(csvfile, delimiter=';')
                     headers = next(rs_param)
                     for row in rs_param:
                         alpha.append(row)
-    os.chdir(path)
     return snp_val, alpha
 
 
