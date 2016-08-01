@@ -29,7 +29,7 @@ def check_arg(args=None):
                         help='on / off -- print the output or not',
                         default='on')
     results = parser.parse_args()
-    
+
     return (results.mode,
             results.vcf,
             results.param,
@@ -44,22 +44,25 @@ def get_rs(mode, path_to_param):
         usepath = os.path.abspath('self-report/')
     for file in os.listdir(usepath):
         # select eye / hair / skin -marks.txt
+        rsnp = []
         if file.startswith(mode):
             path = os.getcwd()
             os.chdir('self-report/')
             f = open(file, 'r', encoding='cp1252')
-            rs = [line.split('\n') for line in f.readlines()]
-            # remove the comment
-            del rs[len(rs) - 1]
-            rsnp = []
-            # make rs list
-            for i in rs:
-                rsnp.append(i[0])
-            # remove the blank
-            del rsnp[len(rsnp) - 1]
-            os.chdir(path)
-
-            return rsnp
+            for q, line in enumerate(f):
+                # exclude comment lines
+                if line.startswith('#'):
+                    pass
+                else:
+                    if len(line) == 0:
+                        pass
+                    else:
+                        rs = f.readlines()
+                    # make rs list
+                    for i in rs:
+                        rsnp.append(i[0])
+                    os.chdir(path)
+                    return rsnp
 
 
 def labelling(str_filename):

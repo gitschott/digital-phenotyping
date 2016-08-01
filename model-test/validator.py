@@ -87,7 +87,10 @@ def prob_dict_parser(dict_with_probs):
         else:
             pred = 'Blue'
     elif (pbro > pint > pblu) or (pbro > pblu > pint):
-        pred = 'Brown'
+        if pbro > 0.65:
+            pred = 'Brown'
+        else:
+            pred = 'Intermediate'
     else:
         pred = 'Intermediate'
     return pred
