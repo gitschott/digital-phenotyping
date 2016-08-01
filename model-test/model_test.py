@@ -42,27 +42,25 @@ def get_rs(mode, path_to_param):
         usepath = path_to_param
     else:
         usepath = os.path.abspath('self-report/')
+    rsnp = []
     for file in os.listdir(usepath):
         # select eye / hair / skin -marks.txt
-        rsnp = []
         if file.startswith(mode):
-            path = os.getcwd()
-            os.chdir('self-report/')
-            f = open(file, 'r', encoding='cp1252')
-            for q, line in enumerate(f):
-                # exclude comment lines
-                if line.startswith('#'):
-                    pass
-                else:
-                    if len(line) == 0:
+            address = os.path.abspath(os.path.join(usepath, file))
+            with open(address, 'r', encoding='cp1252') as f:
+                for q, line in enumerate(f):
+                    # exclude comment lines
+                    if line.startswith('#'):
                         pass
                     else:
-                        rs = f.readlines()
-                    # make rs list
-                    for i in rs:
-                        rsnp.append(i[0])
-                    os.chdir(path)
-                    return rsnp
+                        if len(line) == 0:
+                            pass
+                        else:
+                            line = str.split(line, sep='\n')
+                            if len(line[0]) != 0:
+                                rsnp.append(line[0])
+    print(rsnp)
+    return rsnp
 
 
 def labelling(str_filename):
