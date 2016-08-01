@@ -58,10 +58,7 @@ def _parse_vcf(file):
     # reading the vcf sample
     strings = [] # list that is filled with output
     with open(file, 'r', encoding='cp1252') as vicief:
-        lab = os.path.split(file)
-        for element in lab:
-            if element:
-                file = element
+        lab = os.path.basename(file)
         for q, line in enumerate(vicief):
             # exclude comment lines
             if line.startswith('chr'):
