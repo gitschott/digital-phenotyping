@@ -38,10 +38,7 @@ def check_arg(args=None):
 
 # Get the list rs relevant for particular mode of the analysis
 def get_rs(mode, path_to_param):
-    if path_to_param != 'self-report/':
-        usepath = path_to_param
-    else:
-        usepath = os.path.abspath('self-report/')
+    usepath = os.path.abspath(path_to_param)
     rsnp = []
     for file in os.listdir(usepath):
         # select eye / hair / skin -marks.txt
@@ -60,18 +57,13 @@ def get_rs(mode, path_to_param):
 def _parse_vcf(file):
     # reading the vcf sample
     strings = [] # list that is filled with output
-    path = os.getcwd()
-    vicief = open(file, 'r', encoding='cp1252')
-    lab = os.path.split(file)
-    for element in lab:
-        if element != 0:
-            file = element
-    for q, line in enumerate(vicief):
-        # exclude comment lines
-        if line.startswith('#'):
-            pass
-        else:
-            # analyse only actual informative lines
+    with open(file, 'r', encoding='cp1252') as vicief:
+        lab = os.path.split(file)
+        for element in lab:
+            if element:
+                file = element
+        for q, line in enumerate(vicief):
+            # exclude comment lines
             if line.startswith('chr'):
                 string = str.split(line, sep='\t')
                 if string[6] == 'PASS':
@@ -89,7 +81,6 @@ def _parse_vcf(file):
                         pass
                 else:
                     pass
-    os.chdir(path)
     return strings
 
 
