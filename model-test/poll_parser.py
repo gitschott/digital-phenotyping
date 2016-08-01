@@ -96,6 +96,7 @@ def parse(file):
                 pass
             else:
                 vals = vals [2:]
+                # _label is only required if the file has BS format
                 name = _label(vals[0])
                 sex = _malefe(vals[1])
                 age = vals[2]
