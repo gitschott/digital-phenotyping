@@ -48,24 +48,13 @@ def get_rs(mode, path_to_param):
         if file.startswith(mode):
             address = os.path.abspath(os.path.join(usepath, file))
             with open(address, 'r', encoding='cp1252') as f:
-                for q, line in enumerate(f):
+                for line in f:
                     # exclude comment lines
-                    if not line.startswith('#'):
-                        if len(line) != 0:
-                            line = str.split(line, sep='\n')
-                            if len(line[0]) != 0:
-                                rsnp.append(line[0])
-    print(rsnp)
+                    if line and not line.startswith('#'):
+                        line = str.strip(line)
+                        rsnp.append(line)
+
     return rsnp
-
-
-def labelling(str_filename):
-    # makes an adequate label out of filename
-    file = str_filename[::-1]
-    new = file[:10]
-    file = new[::-1]
-    file = file[:6]
-    return file
 
 
 def _parse_vcf(file):
@@ -73,6 +62,10 @@ def _parse_vcf(file):
     strings = [] # list that is filled with output
     path = os.getcwd()
     vicief = open(file, 'r', encoding='cp1252')
+    lab = os.path.split(file)
+    for element in lab:
+        if element != 0:
+            file = element
     for q, line in enumerate(vicief):
         # exclude comment lines
         if line.startswith('#'):
@@ -80,7 +73,6 @@ def _parse_vcf(file):
         else:
             # analyse only actual informative lines
             if line.startswith('chr'):
-                file = labelling(file)
                 string = str.split(line, sep='\t')
                 if string[6] == 'PASS':
                     rs = string[2]
