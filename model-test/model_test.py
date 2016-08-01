@@ -50,12 +50,8 @@ def get_rs(mode, path_to_param):
             with open(address, 'r', encoding='cp1252') as f:
                 for q, line in enumerate(f):
                     # exclude comment lines
-                    if line.startswith('#'):
-                        pass
-                    else:
-                        if len(line) == 0:
-                            pass
-                        else:
+                    if not line.startswith('#'):
+                        if len(line) != 0:
                             line = str.split(line, sep='\n')
                             if len(line[0]) != 0:
                                 rsnp.append(line[0])
