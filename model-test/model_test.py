@@ -29,9 +29,7 @@ def check_arg(args=None):
                         help='on / off -- print the output or not',
                         default='on')
     results = parser.parse_args()
-    if results is None:
-        print("You need to specify mode of analysis and a path"
-              "to the vcf file. For detailed information please refer to README")
+    
     return (results.mode,
             results.vcf,
             results.param,
