@@ -91,6 +91,7 @@ def prob_dict_parser(dict_with_probs):
             pred = 'Brown'
         else:
             pred = 'Intermediate'
+
     else:
         pred = 'Intermediate'
     return pred

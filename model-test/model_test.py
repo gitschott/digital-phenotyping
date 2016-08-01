@@ -77,23 +77,26 @@ def _parse_vcf(file):
     return strings
 
 
-def _value_setter(string):
+def _value_setter(lst_from_vcf_string):
     # getting the value of genotype
-    ref = string[2]
-    gent = str.split(string[4], sep='/')
-    alt = str.split(string[3], sep=',')
+    ref = lst_from_vcf_string[2]
+    gent = str.split(lst_from_vcf_string[4], sep='/')
+    alt = str.split(lst_from_vcf_string[3], sep=',')
     # in model complementary nucleotides have equal input
     nucl = {'A': 's1', 'T': 's1', 'G': 's2', 'C': 's2'}
     if gent[0] == gent[1]:
         # homozygote
         index = int(gent[0]) - 1
         letter = alt[index]
-        if nucl[ref] == nucl[letter]:
-            # no significant substitutions
+        if gent[0] == 0:
             val = float(0)
         else:
-            # homozygote is completely different from the reference
-            val = float(2)
+            if nucl[ref] == nucl[letter]:
+                # no significant substitutions
+                val = float(0)
+            else:
+                # homozygote is completely different from the reference
+                val = float(2)
     else:
         # heterozygote
         index = int(gent != 0) - 1
