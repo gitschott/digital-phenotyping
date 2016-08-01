@@ -27,7 +27,7 @@ def check_arg(args=None):
                         default='self-report/')
     parser.add_argument('-s', '--silent',
                         help='on / off -- print the output or not',
-                        default='on')
+                        default='off')
     results = parser.parse_args()
 
     return (results.mode,
@@ -244,6 +244,15 @@ def eyecolor_probs(prob_list):
     return colors
 
 
+def model_iris_plex(snp_sample_dict, beta_coefficients, mode_of_analysis,
+                    alpha_parameters):
+    sums = snp_estim(snp_sample_dict, beta_coefficients, mode_of_analysis)
+    prob = get_prob(sums, alpha_parameters)
+    # # # Counting three probs
+    probs = eyecolor_probs(prob)
+    return probs
+
+
 def verbose_pred_eyes(probability):
     print('Eyes are: ', 'blue', probability['blue'],
           'intermediate', probability['intermed'], 'brown', probability['brown'])
@@ -251,28 +260,13 @@ def verbose_pred_eyes(probability):
 
 def executable(m, v, p, s):
     snip = get_rs(m, p)
-
-    if s == 'off':
-        if snip is None:
-            print('Something whent wrong when we tried to get to rs.')
-        else:
-            print('You are predicting pigmentation of', m)
-            print('Your rs list includes %d elements' % len(snip))
-
     # selection of snps in a way required for a model
     bs_snp = get_snp(v, snip)
-    if s == 'off':
-        print('You are now analysing %d SNPs.' % len(bs_snp))
-
     # Read all the parameters
     coefficients = param(p, m)
     beta, alpha = coefficients
-    sums = snp_estim(bs_snp, beta, m)
+    probs = model_iris_plex(bs_snp, beta, m, alpha)
 
-    prob = get_prob(sums, alpha)
-
-    # # # Counting three probs
-    probs = eyecolor_probs(prob)
     return probs
 
 
@@ -284,6 +278,8 @@ if __name__ == '__main__':
         print('param =', par)
         print('silent mode =', silent)
     probabilities = executable(mode, vcf, par, silent)
+    if silent == 'off':
+        print('You are predicting pigmentation of', mode)
 
     if silent == 'off':
         verbose_pred_eyes(probabilities)
