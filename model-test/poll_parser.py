@@ -15,11 +15,8 @@ def impo(args=None):
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
                         default='all')
-    try:
-        results = parser.parse_args()
-        return (results.poll, results.sample)
-    except SystemExit:
-        print("do something else")
+    results = parser.parse_args()
+    return (results.poll, results.sample)
 
 def _label(name):
     # Select the label
@@ -54,21 +51,12 @@ def _nation(value):
     return natio
 
 
-def most_common(lst):
-    return max(set(lst), key=lst.count)
-
-
 def _eyecolor(list):
-    saturation = str.split(list[1], sep="'")
-    saturation = saturation[0]
-    saturation = str.split(saturation, sep="/")
-    eyesat = saturation[1]
+    eyesat = list[1].split("'")[0].split("/")[1]
     colors = str.split(list[0], sep=',')
     if len(colors) == 1:
         colors = colors[0]
-        eyehue = str.split(colors, sep='/')
-        eyehue = eyehue[1]
-        eyehues = eyehue
+        eyehues = str.split(colors, sep='/')[1]
         if eyehue == ' I have mixed eye color':
             eyehue = 'mixed'
     else:
@@ -85,36 +73,36 @@ def _eyecolor(list):
 def parse(file):
     strings = []
     oc = []
-    path = os.getcwd()
-    answers = open(file, 'r', encoding='utf-8')
-    for q, line in enumerate(answers):
-        if q == 0:
-            header = str.split(line, sep='"')
-        else:
-            vals = str.split(line, sep='\t')
-            if vals[0] == '':
-                pass
+    with open(file, 'r', encoding='utf-8') as answers:
+        for q in answers:
+            if q == 0:
+                header = str.split(line, sep='"')
             else:
-                vals = vals [2:]
-                # _label is only required if the file has BS format
-                name = _label(vals[0])
-                sex = _malefe(vals[1])
-                age = vals[2]
-                nat = _nation(vals[3])
-                eyes = vals[4:7]
-                eye, hues = _eyecolor(eyes)
-                eycol, eysat = eye
-                vals = [name, sex, age, nat, eycol, eysat]
-                original_colors = [name, hues, eysat]
-                strings.append(vals)
-                oc.append(original_colors)
-        os.chdir(path)
-        tab = np.array(strings)
+                vals = str.split(line, sep='\t')
+                if vals[0]:
+                    vals = vals[2:]
+                    # _label is only required if the file has BS format
+                    name = _label(vals[0])
+                    sex = _malefe(vals[1])
+                    age = vals[2]
+                    nat = _nation(vals[3])
+                    eyes = vals[4:7]
+                    color, hues = _eyecolor(eyes)
+                    eycol, eysat = color
+                    vals = [name, sex, age, nat, eycol, eysat]
+                    original_colors = [name, hues, eysat]
+                    strings.append(vals)
+                    oc.append(original_colors)
+    # TODO: EDIT THIS to a normal output
+    tab = np.array(strings)
 
     return tab, name, oc
 
 
 def verbose_res(line):
+    # line is a list of results of interpretation
+    # of a poll and a model
+    # the function compares and verbalises them both
     print('The data provided on:', line[0], 'is the following.', line[0], 'is a', line[1], line[2],
           'years old that belongs to', line[3])
     if line[4] == 'mixed':
@@ -126,25 +114,24 @@ def verbose_res(line):
 def story(array, name):
     result = []
     if name != 'all':
-        for i in array:
-            result = re.match(i[0], name)
-            if result is not None:
-                result.append(i)
+        for lifestory_string in array:
+            if lifestory_string[0] == name:
+                result.append(lifestory_string)
     else:
-        for i in array:
-            result.append(i)
+        for lifestory_string in array:
+            result.append(lifestory_string)
     return result
 
 
 def whole_poll(file, s):
     total, sample_lab, iris_color = parse(file)
-    stop = story(total, s)
+    _ = story(total, s)
 
     return total, iris_color
 
 
 if __name__ == '__main__':
-    file, s = impo()
-    table, iris = whole_poll(file, s)
+    file, sample = impo()
+    table, iris = whole_poll(file, sample)
     for i in table:
         verbose_res(i)

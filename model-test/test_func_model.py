@@ -10,13 +10,13 @@ class MT_TestCase(unittest.TestCase):
 
     def test_get_rs(self):
         rs_test = ['rs12203592']
-        self.assertTrue(model_test.get_rs('iris', '/Users/apple/digital-phenotyping/test_data'), rs_test)
+        self.assertEqual(model_test.get_rs('iris', '/Users/apple/digital-phenotyping/test_data'), rs_test)
 
     def test__parse_vcf(self):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
         strings = [['BS-tst', 'rs6867641;rs6867641;rs6867641', ],
                    ['BS-tst', 'rs756853;rs756853;rs756853',]]
-        self.assertTrue(model_test._parse_vcf(vcf), strings)
+        self.assertEqual(model_test._parse_vcf(vcf), strings)
 
     # def test__value_setter(self):
 
@@ -24,7 +24,7 @@ class MT_TestCase(unittest.TestCase):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
         snp = ['rs6867641']
         bs = {('test','rs6867641'): 0}
-        self.assertTrue(model_test.get_snp(vcf, snp), bs)
+        self.assertEqual(model_test.get_snp(vcf, snp), bs)
 
     def test_eye_estim(self):
         bs = {('BS-test.vcf', 'rs12203592;rs12203592;rs12203592'): 2.0, ('BS-test.vcf', 'rs12896399;rs12896399;rs12896399'): 1.0,\
@@ -34,30 +34,24 @@ class MT_TestCase(unittest.TestCase):
                 'rs1800407': ['A', '1.15', '1.05'], 'rs12203592': ['T', '0.60', '0.69'],\
                 'rs12896399': ['T', '-0.53', '-0.01'], 'rs1393350': ['A', '0.44', '0.26']}
         res = [-4.08, 0.52]
-        self.assertTrue(model_test.eye_estim(bs, beta), res)
+        self.assertEqual(model_test.eye_estim(bs, beta), res)
 
     def test__sumgetter(self):
         l1 = [2.3, 1.2, 0.44, -4.87, -0.0, -1.06]
         l2 = [2.1, 1.38, 0.26, -1.99, -0.0, -0.02]
         strings = [-1.37, 1.49]
-        self.assertTrue(model_test._sumgetter(l1, l2), strings)
+        self.assertEqual(model_test._sumgetter(l1, l2), strings)
 
     def test_get_prob(self):
         sums = [1, 1]
         alpha = [['3.84', '0.37']]
-        res = [126.4693, 3.9353]
-        self.assertTrue(model_test.get_prob(sums, alpha), res)
+        res = [126.4694, 3.9354]
+        self.assertEqual(model_test.get_prob(sums, alpha), res)
 
     def eyecolor_prob(self):
         list = [1, 6]
         res = {'blue': 0.125, 'intermed': 0.75, 'brown': 0.125}
-        self.assertTrue(model_test.eyecolor_probs(list), res)
-
-    def test__mode_fit(self):
-        filename = 'vkdnfkdnfl_mops.txt'
-        mode = 'anya'
-        out = 'mops'
-        self.assertTrue(model_test._mode_fit(filename, mode), out)
+        self.assertEqual(model_test.eyecolor_probs(list), res)
 
 
 

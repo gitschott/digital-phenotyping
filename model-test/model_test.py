@@ -72,7 +72,7 @@ def _parse_vcf(file):
                         gt = gt[0]
                         # list containing name of sample, rs,
                         # reference and alternative nucleotides and genotype
-                        lst = [file, rs, ref, alt, gt]
+                        lst = [lab, rs, ref, alt, gt]
                         strings.append(lst)
     return strings
 
@@ -82,52 +82,46 @@ def _value_setter(lst_from_vcf_string):
     ref = lst_from_vcf_string[2]
     gent = str.split(lst_from_vcf_string[4], sep='/')
     alt = str.split(lst_from_vcf_string[3], sep=',')
-    # in model complementary nucleotides have equal input
+    letters = [ref, alt[0], alt[1], alt[2]]
     nucl = {'A': 's1', 'T': 's1', 'G': 's2', 'C': 's2'}
+    # in model complementary nucleotides have equal input
     if gent[0] == gent[1]:
-        # homozygote
-        index = int(gent[0]) - 1
-        letter = alt[index]
-        if gent[0] == 0:
+        if int(gent[0]) == 0:
             val = float(0)
         else:
-            if nucl[ref] == nucl[letter]:
-                # no significant substitutions
-                val = float(0)
-            else:
-                # homozygote is completely different from the reference
-                val = float(2)
+            val = float(2)
     else:
-        # heterozygote
-        index = int(gent != 0) - 1
-        letter = alt[index]
-        if nucl[ref] == nucl[letter]:
-            # filter for complementary nucleotides
-            val = float(0)
-        else:
-            val = float(1)
-
+        alt1 = int(gent[0])
+        alt2 = int(gent[1])
+        # if nucl[letters[alt1]] == nucl[letters[alt2]]:
+        #     print()
+        #      if nucl[ref] == nucl[letters[alt1]]:
+        #          val = float(0)
+        #      else:
+        #          val = float(1)
+        # else:
+        #     val = float(1)
     return val
 
 
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
-def get_snp(vcf, snp):
+def get_snp(vcf_file, snp_list):
     # dictionary of values
     bs = {}
-    data = _parse_vcf(vcf)
-    for c, string in enumerate(data):
-        for i in snp:
-            s = string[1]
+    data = _parse_vcf(vcf_file)
+    for vcf_string in data:
+        for snp in snp_list:
+            s = vcf_string[1]
+            s = str.split(s, sep=";")
+            rs = s[0]
             # selection of mode-relevant rs
-            result = re.match(i, s)
-            if result is not None:
-                lab = (string[0], s)
-                val = _value_setter(string)
-                # dictionary with genotype values
+            if snp == rs:
+                lab = (vcf_string[0], rs)
+                val = _value_setter(vcf_string)
                 bs[lab] = val
+                # dictionary with genotype values
             else:
                 pass
-
     return bs
 
 
@@ -136,31 +130,27 @@ def param(path_to_param, mode):
     # path check
     newpath = os.path.abspath(path_to_param)
     # output dictionary of values
-    snp_val = {}
-    alpha = []
+    beta_dict_snp_values = {}
+    alpha_list = []
     # selectin beta parameters
     for file in os.listdir(newpath):
-        name = os.path.splitext(file)
-        name = name[0]
-        if name.startswith('par_beta_'):
-            lab = re.sub('par_beta_', '', name)
-            if mode == lab:
-                file = os.path.join(newpath, file)
-                with open(file) as csvfile:
-                    rs_param = csv.reader(csvfile, delimiter=';')
-                    headers = next(rs_param)
+        file = os.path.join(newpath, file)
+        with open(file) as csvfile:
+            rs_param = csv.reader(csvfile, delimiter=';')
+            next(rs_param)
+            name = os.path.splitext(file)[0]
+            if name.startswith('par_beta_'):
+                lab = re.sub('par_beta_', '', name)
+                if mode == lab:
                     for row in rs_param:
-                        snp_val[row[1]] = row[2:5]
-        elif name.startswith('par_alpha_'):
-            lab = re.sub('par_alpha_', '', name)
-            if mode == lab:
-                file = os.path.join(newpath, file)
-                with open(file) as csvfile:
-                    rs_param = csv.reader(csvfile, delimiter=';')
-                    headers = next(rs_param)
+                        beta_dict_snp_values[row[1]] = row[2:5]
+            elif name.startswith('par_alpha_'):
+                lab = re.sub('par_alpha_', '', name)
+                if mode == lab:
                     for row in rs_param:
-                        alpha.append(row)
-    return snp_val, alpha
+                        alpha_list.append(row)
+
+    return beta_dict_snp_values, alpha_list
 
 
 def _sumgetter(lst_beone, lst_betwo):
@@ -170,21 +160,21 @@ def _sumgetter(lst_beone, lst_betwo):
     return sums_lst
 
 
-def eye_estim(dict_of_analyzed, parameters_for_snp):
+def eye_estim(dict_of_analyzed, dict_par_for_snp):
+    # dict_of_analyzed contains genotypes as values and sample name and rs as labels
+    # dict_par_for_snp contains beta parameters of IrisPlex model as values
+    # and rs as labels
     beone = []
     betwo = []
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
-        for v in parameters_for_snp:
+        for v in dict_par_for_snp:
             # match proper parameters
-            result = re.match(rs[0], v)
-            if result is not None:
+            if rs[0] == v:
                 # implement the model
                 mf = dict_of_analyzed[a]
-                beta1 = (parameters_for_snp[v])[1]
-                beta2 = (parameters_for_snp[v])[2]
-                b1 = float(beta1)
-                b2 = float(beta2)
+                b1 = float((dict_par_for_snp[v])[1])
+                b2 = float((dict_par_for_snp[v])[2])
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
     coefs = _sumgetter(beone, betwo)
@@ -199,9 +189,7 @@ def hair_estim(dict_of_analyzed, parameters_for_snp):
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
         for v in parameters_for_snp:
-            # match proper parameters
-            result = re.match(rs[0], v)
-            if result is not None:
+            if rs[0] == v:
                 # implement the model
                 mf = dict_of_analyzed[a]
                 beta1 = float((parameters_for_snp[v])[1])
@@ -239,7 +227,6 @@ def eyecolor_probs(prob_list):
     pint = prob_list[1] / (1 + prob_list[0] + prob_list[1])
     pbrown = 1 - pblue - pint
     colors = {col[0]: pblue, col[1]: pint, col[2]: pbrown}
-    probability = [pblue, pint, pbrown]
 
     return colors
 
@@ -258,14 +245,13 @@ def verbose_pred_eyes(probability):
           'intermediate', probability['intermed'], 'brown', probability['brown'])
 
 
-def executable(m, v, p, s):
-    snip = get_rs(m, p)
+def executable(mode, vcf_file, path_to_param):
+    snip = get_rs(mode, path_to_param)
     # selection of snps in a way required for a model
-    bs_snp = get_snp(v, snip)
+    bs_snp_dict = get_snp(vcf_file, snip)
     # Read all the parameters
-    coefficients = param(p, m)
-    beta, alpha = coefficients
-    probs = model_iris_plex(bs_snp, beta, m, alpha)
+    beta_dict, alpha_list = param(path_to_param, mode)
+    probs = model_iris_plex(bs_snp_dict, beta_dict, mode, alpha_list)
 
     return probs
 
