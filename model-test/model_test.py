@@ -48,10 +48,8 @@ def get_rs(mode, path_to_param):
                 for line in f:
                     # exclude comment lines
                     if len(line) > 1  and not line.startswith('#'):
-                        print(line)
                         line = str.strip(line)
                         rsnp.append(line)
-
     return rsnp
 
 
