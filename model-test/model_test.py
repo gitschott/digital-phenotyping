@@ -47,7 +47,8 @@ def get_rs(mode, path_to_param):
             with open(address, 'r', encoding='cp1252') as f:
                 for line in f:
                     # exclude comment lines
-                    if line and not line.startswith('#'):
+                    if len(line) > 1  and not line.startswith('#'):
+                        print(line)
                         line = str.strip(line)
                         rsnp.append(line)
 
@@ -93,15 +94,14 @@ def _value_setter(lst_from_vcf_string):
     else:
         alt1 = int(gent[0])
         alt2 = int(gent[1])
-        # if nucl[letters[alt1]] == nucl[letters[alt2]]:
-        #     print()
-        #      if nucl[ref] == nucl[letters[alt1]]:
-        #          val = float(0)
-        #      else:
-        #          val = float(1)
-        # else:
-        #     val = float(1)
-    return val
+        if nucl[letters[alt1]] == nucl[letters[alt2]]:
+            if nucl[ref] == nucl[letters[alt1]]:
+                val = float(0)
+            else:
+                val = float(1)
+        else:
+            val = float(1)
+            return val
 
 
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
@@ -137,7 +137,7 @@ def param(path_to_param, mode):
         file = os.path.join(newpath, file)
         with open(file) as csvfile:
             rs_param = csv.reader(csvfile, delimiter=';')
-            next(rs_param)
+            headers = next(rs_param)
             name = os.path.splitext(file)[0]
             if name.startswith('par_beta_'):
                 lab = re.sub('par_beta_', '', name)
@@ -263,7 +263,7 @@ if __name__ == '__main__':
         print('vcf =', vcf)
         print('param =', par)
         print('silent mode =', silent)
-    probabilities = executable(mode, vcf, par, silent)
+    probabilities = executable(mode, vcf, par)
     if silent == 'off':
         print('You are predicting pigmentation of', mode)
 

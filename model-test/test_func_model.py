@@ -14,8 +14,8 @@ class MT_TestCase(unittest.TestCase):
 
     def test__parse_vcf(self):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
-        strings = [['BS-tst', 'rs6867641;rs6867641;rs6867641', ],
-                   ['BS-tst', 'rs756853;rs756853;rs756853',]]
+        strings = [['BS-tst.vcf', 'rs6867641;rs6867641;rs6867641', 'T', 'A,C,G', '0/0' ],
+                   ['BS-tst.vcf', 'rs756853;rs756853;rs756853', 'G', 'A,C,T', '0/1']]
         self.assertEqual(model_test._parse_vcf(vcf), strings)
 
     # def test__value_setter(self):
@@ -23,7 +23,7 @@ class MT_TestCase(unittest.TestCase):
     def test_get_snp(self):
         vcf = '/Users/apple/digital-phenotyping/test_data/test/BS-tst.vcf'
         snp = ['rs6867641']
-        bs = {('test','rs6867641'): 0}
+        bs = {('BS-tst.vcf','rs6867641'): 0.0}
         self.assertEqual(model_test.get_snp(vcf, snp), bs)
 
     def test_eye_estim(self):
