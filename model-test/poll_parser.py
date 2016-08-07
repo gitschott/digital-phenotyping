@@ -53,47 +53,49 @@ def _nation(value):
 
 def _eyecolor(list):
     eyesat = list[1].split("'")[0].split("/")[1]
-    colors = str.split(list[0], sep=',')
-    if len(colors) == 1:
-        colors = colors[0]
-        eyehue = str.split(colors, sep='/')[1]
-        if eyehue == ' I have mixed eye color':
-            eyehue = 'mixed'
+    colors = str.split(list[0], sep=',')[0].split("/")[1]
+    if colors == ' I have mixed eye color':
+        iris = 'mixed'
     else:
-        iris = []
-        eyehue = 'mixed'
-        for c in colors:
-            hue = (str.split(c, sep='/')[1])
-            iris.append(hue)
+        iris = colors
 
-        eye = [iris, eyesat]
-        return eye, eyehue
+    # if len(colors) == 1:
+    #     colors = colors[0]
+    #     eyehue = str.split(colors, sep='/')[1]
+    #     if eyehue == ' I have mixed eye color':
+    #         eyehue = 'mixed'
+    # else:
+    #     iris = []
+    #     eyehue = 'mixed'
+    #     for c in colors:
+    #         hue = (str.split(c, sep='/')[1])
+    #         iris.append(hue)
+
+    eye = [iris, eyesat, colors]
+    return eye
 
 
 def parse(file):
     strings = []
     oc = []
     with open(file, 'r', encoding='utf-8') as answers:
+        header = next(answers)
         for line in answers:
-            if line == 0:
-                header = str.split(line, sep='"')
-            else:
-                vals = str.split(line, sep='\t')
-                if vals[0]:
-                    vals = vals[2:]
-                    # _label is only required if the file has BS format
-                    name = _label(vals[0])
-                    sex = _malefe(vals[1])
-                    age = vals[2]
-                    nat = _nation(vals[3])
-                    eyes = vals[4:7]
-                    print(eyes)
-                    color, hues = _eyecolor(eyes)
-                    eycol, eysat = color
-                    vals = [name, sex, age, nat, eycol, eysat]
-                    original_colors = [name, hues, eysat]
-                    strings.append(vals)
-                    oc.append(original_colors)
+            vals = str.split(line, sep='\t')
+            if vals[0]:
+                vals = vals[2:]
+                # _label is only required if the file has BS format
+                name = _label(vals[0])
+                sex = _malefe(vals[1])
+                age = vals[2]
+                nat = _nation(vals[3])
+                eyes = vals[4:7]
+                color = _eyecolor(eyes)
+                eycol, eysat, person = color
+                features = [name, sex, age, nat, eycol, eysat]
+                original_colors = [name, person, eysat]
+                strings.append(features)
+                oc.append(original_colors)
     # TODO: EDIT THIS to a normal output
     tab = np.array(strings)
 
@@ -115,6 +117,7 @@ def verbose_res(line):
 def story(array, name):
     result = []
     if name != 'all':
+        name.upper()
         for lifestory_string in array:
             if lifestory_string[0] == name:
                 result.append(lifestory_string)

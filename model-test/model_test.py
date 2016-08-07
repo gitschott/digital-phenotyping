@@ -47,7 +47,7 @@ def get_rs(mode, path_to_param):
             with open(address, 'r', encoding='cp1252') as f:
                 for line in f:
                     # exclude comment lines
-                    if len(line) > 1  and not line.startswith('#'):
+                    if len(line) > 1 and not line.startswith('#'):
                         line = str.strip(line)
                         rsnp.append(line)
     return rsnp
@@ -95,20 +95,16 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
     alt = str.split(lst_from_vcf_string[3], sep=',')
     for each in alt:
         letters.append(each)
-    gt1 = int(gent[0])
-    gt2 = int(gent[1])
     # select the genotype
-    genotype = [letters[gt1], letters[gt2]]
+    genotype = [letters[int(gent[0])], letters[int(gent[1])]]
     # estimate the genotype
     val = float(0)
     for label in beta_parameters_dict:
         if label == rs_name:
             values = beta_parameters_dict[rs_name]
-            print(genotype)
             for gtype in genotype:
                 if gtype == values[0]:
                     val+= 1
-            # print(gtype, val)
             return val
 
 
