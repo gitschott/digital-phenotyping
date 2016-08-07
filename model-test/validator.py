@@ -128,7 +128,7 @@ if __name__ == '__main__':
     for vc in os.listdir(v):
         if vc.endswith('vcf'):
             filetowork = os.path.join(v, vc)
-            prob = model_test.executable(m, filetowork, p, 'off')
+            prob = model_test.executable(m, filetowork, p)
             vc = vc[:6]
             res = [vc, prob]
             probs.append(res)

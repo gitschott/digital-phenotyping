@@ -56,26 +56,26 @@ def _eyecolor(list):
     colors = str.split(list[0], sep=',')
     if len(colors) == 1:
         colors = colors[0]
-        eyehues = str.split(colors, sep='/')[1]
+        eyehue = str.split(colors, sep='/')[1]
         if eyehue == ' I have mixed eye color':
             eyehue = 'mixed'
     else:
-        eyehues = []
+        iris = []
         eyehue = 'mixed'
         for c in colors:
             hue = (str.split(c, sep='/')[1])
-            eyehues.append(hue)
+            iris.append(hue)
 
-    eye = [eyehue, eyesat]
-    return eye, eyehues
+        eye = [iris, eyesat]
+        return eye, eyehue
 
 
 def parse(file):
     strings = []
     oc = []
     with open(file, 'r', encoding='utf-8') as answers:
-        for q in answers:
-            if q == 0:
+        for line in answers:
+            if line == 0:
                 header = str.split(line, sep='"')
             else:
                 vals = str.split(line, sep='\t')
@@ -87,6 +87,7 @@ def parse(file):
                     age = vals[2]
                     nat = _nation(vals[3])
                     eyes = vals[4:7]
+                    print(eyes)
                     color, hues = _eyecolor(eyes)
                     eycol, eysat = color
                     vals = [name, sex, age, nat, eycol, eysat]

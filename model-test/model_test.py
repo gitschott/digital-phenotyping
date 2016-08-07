@@ -13,7 +13,7 @@ import ast
 
 
 # Print all the arguments given to the program
-def check_arg(args=None):
+def check_arg():
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
                         help='mode of analysis: eye, hair, skin',
@@ -53,69 +53,77 @@ def get_rs(mode, path_to_param):
     return rsnp
 
 
+def _vcf_str_to_lst(vcf_chr_line):
+    vc_lst = []
+    vcf_lst = str.split(vcf_chr_line, sep='\t')
+    if len(vcf_lst) == 1:
+        vcf_lst = str.split(vcf_lst[0], sep=' ')
+    else:
+        pass
+    for vc_string in vcf_lst:
+        if vc_string:
+            vc_lst.append(vc_string)
+    return vc_lst
+
 def _parse_vcf(file):
     # reading the vcf sample
     strings = [] # list that is filled with output
-    with open(file, 'r', encoding='cp1252') as vicief:
+    with open(file, 'r', encoding='utf-8') as vicief:
         lab = os.path.basename(file)
         for q, line in enumerate(vicief):
             # exclude comment lines
             if line.startswith('chr'):
-                string = str.split(line, sep='\t')
+                # line is a vcf string that is to become a list
+                string = _vcf_str_to_lst(line)
                 if string[6] == 'PASS':
                     rs = string[2]
                     if rs != '.':
                         ref = string[3]
                         alt = string[4]
-                        gt = str.split(string[9], sep=':')
-                        gt = gt[0]
+                        gt = str.split(string[9], sep=':')[0]
                         # list containing name of sample, rs,
-                        # reference and alternative nucleotides and genotype
+                        #  reference and alternative nucleotides and genotype
                         lst = [lab, rs, ref, alt, gt]
                         strings.append(lst)
     return strings
 
 
-def _value_setter(lst_from_vcf_string):
-    # getting the value of genotype
-    ref = lst_from_vcf_string[2]
+def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
+    # letters is a list of nucleotides, first element is the reference
+    letters = [lst_from_vcf_string[2]]
     gent = str.split(lst_from_vcf_string[4], sep='/')
     alt = str.split(lst_from_vcf_string[3], sep=',')
-    letters = [ref, alt[0], alt[1], alt[2]]
-    nucl = {'A': 's1', 'T': 's1', 'G': 's2', 'C': 's2'}
-    # in model complementary nucleotides have equal input
-    if gent[0] == gent[1]:
-        if int(gent[0]) == 0:
-            val = float(0)
-        else:
-            val = float(2)
-    else:
-        alt1 = int(gent[0])
-        alt2 = int(gent[1])
-        if nucl[letters[alt1]] == nucl[letters[alt2]]:
-            if nucl[ref] == nucl[letters[alt1]]:
-                val = float(0)
-            else:
-                val = float(1)
-        else:
-            val = float(1)
+    for each in alt:
+        letters.append(each)
+    gt1 = int(gent[0])
+    gt2 = int(gent[1])
+    # select the genotype
+    genotype = [letters[gt1], letters[gt2]]
+    # estimate the genotype
+    val = float(0)
+    for label in beta_parameters_dict:
+        if label == rs_name:
+            values = beta_parameters_dict[rs_name]
+            print(genotype)
+            for gtype in genotype:
+                if gtype == values[0]:
+                    val+= 1
+            # print(gtype, val)
             return val
 
 
 # Grep the particular snps relevant for the analysis (from vcf-containing folder)
-def get_snp(vcf_file, snp_list):
+def get_snp(vcf_file, snp_list, beta_parameters_dict):
     # dictionary of values
     bs = {}
     data = _parse_vcf(vcf_file)
     for vcf_string in data:
         for snp in snp_list:
-            s = vcf_string[1]
-            s = str.split(s, sep=";")
-            rs = s[0]
+            rs = str.split(vcf_string[1], sep=";")[0]
             # selection of mode-relevant rs
             if snp == rs:
                 lab = (vcf_string[0], rs)
-                val = _value_setter(vcf_string)
+                val = _value_setter(vcf_string, rs, beta_parameters_dict)
                 bs[lab] = val
                 # dictionary with genotype values
             else:
@@ -132,28 +140,30 @@ def param(path_to_param, mode):
     alpha_list = []
     # selectin beta parameters
     for file in os.listdir(newpath):
-        file = os.path.join(newpath, file)
-        with open(file) as csvfile:
+        name = os.path.join(newpath, file)
+        with open(name, encoding='utf-8') as csvfile:
             rs_param = csv.reader(csvfile, delimiter=';')
-            headers = next(rs_param)
             name = os.path.splitext(file)[0]
             if name.startswith('par_beta_'):
                 lab = re.sub('par_beta_', '', name)
                 if mode == lab:
+                    headers = next(rs_param)
                     for row in rs_param:
                         beta_dict_snp_values[row[1]] = row[2:5]
             elif name.startswith('par_alpha_'):
                 lab = re.sub('par_alpha_', '', name)
                 if mode == lab:
-                    for row in rs_param:
-                        alpha_list.append(row)
-
+                    headers = next(rs_param)
+                    for line in rs_param:
+                        alpha_list.append(line)
+            else:
+                pass
     return beta_dict_snp_values, alpha_list
 
 
 def _sumgetter(lst_beone, lst_betwo):
-    tot1 = round(sum(lst_beone))
-    tot2 = round(sum(lst_betwo))
+    tot1 = round(sum(lst_beone), 4)
+    tot2 = round(sum(lst_betwo), 4)
     sums_lst = [tot1, tot2]
     return sums_lst
 
@@ -245,10 +255,10 @@ def verbose_pred_eyes(probability):
 
 def executable(mode, vcf_file, path_to_param):
     snip = get_rs(mode, path_to_param)
-    # selection of snps in a way required for a model
-    bs_snp_dict = get_snp(vcf_file, snip)
     # Read all the parameters
     beta_dict, alpha_list = param(path_to_param, mode)
+    # selection of snps in a way required for a model
+    bs_snp_dict = get_snp(vcf_file, snip, beta_dict)
     probs = model_iris_plex(bs_snp_dict, beta_dict, mode, alpha_list)
 
     return probs
