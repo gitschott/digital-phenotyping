@@ -124,6 +124,7 @@ def get_snp(vcf_file, snp_list, beta_parameters_dict):
                 # dictionary with genotype values
             else:
                 pass
+    print(bs)
     return bs
 
 
@@ -134,6 +135,7 @@ def param(path_to_param, mode):
     # output dictionary of values
     beta_dict_snp_values = {}
     alpha_list = []
+    complement = {'A': 'T', 'T':'A', 'C':'G', 'G':'C'}
     # selectin beta parameters
     for file in os.listdir(newpath):
         name = os.path.join(newpath, file)
@@ -145,7 +147,10 @@ def param(path_to_param, mode):
                 if mode == lab:
                     headers = next(rs_param)
                     for row in rs_param:
-                        beta_dict_snp_values[row[1]] = row[2:5]
+                        if row[5] == 'R':
+                            row[2] = complement[row[2]]
+                        else:
+                            beta_dict_snp_values[row[1]] = row[2:5]
             elif name.startswith('par_alpha_'):
                 lab = re.sub('par_alpha_', '', name)
                 if mode == lab:
@@ -154,7 +159,11 @@ def param(path_to_param, mode):
                         alpha_list.append(line)
             else:
                 pass
-    return beta_dict_snp_values, alpha_list
+
+    if mode == 'hair':
+        print('Not available yet')
+    else:
+        return beta_dict_snp_values, alpha_list
 
 
 def _sumgetter(lst_beone, lst_betwo):
@@ -255,9 +264,17 @@ def executable(mode, vcf_file, path_to_param):
     beta_dict, alpha_list = param(path_to_param, mode)
     # selection of snps in a way required for a model
     bs_snp_dict = get_snp(vcf_file, snip, beta_dict)
-    probs = model_iris_plex(bs_snp_dict, beta_dict, mode, alpha_list)
-
-    return probs
+    if mode == 'eye':
+        probs = model_iris_plex(bs_snp_dict, beta_dict, mode, alpha_list)
+        return probs
+    elif mode == 'hair':
+        print('Not ready yet!')
+        probs = None
+        return probs
+    else:
+        print('This mode is not available')
+        probs = None
+        return probs
 
 
 if __name__ == '__main__':
@@ -272,5 +289,6 @@ if __name__ == '__main__':
         print('You are predicting pigmentation of', mode)
 
     if silent == 'off':
-        verbose_pred_eyes(probabilities)
+        if probabilities:
+            verbose_pred_eyes(probabilities)
 
