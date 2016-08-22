@@ -5,6 +5,7 @@ import poll_parser
 import model_test
 import argparse
 import os
+import csv
 
 
 def argu(args=None):
@@ -22,6 +23,12 @@ def argu(args=None):
     parser.add_argument('-c', '--checklist',
                         help='full path to the tab-delimited phenotypic questionnaire',
                         required='True')
+    parser.add_argument('-t', '--threshold',
+                        help="model output categories csv file, default: self-report/iris_thresh.csv",
+                        required='True')
+    parser.add_argument('-cat', '--categories',
+                        help="model categories csv file",
+                        default=0.65)
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
                         default='all')
@@ -33,6 +40,8 @@ def argu(args=None):
             results.vcf,
             results.param,
             results.checklist,
+            results.threshold,
+            results.categories,
             results.sample)
 
 
@@ -56,40 +65,49 @@ def _pred_count(int, sat):
         prediction = 'Intermediate'
     return prediction
 
-def irisplex_interpreter_poll(poll_parsed_list):
+def irisplex_interpreter_poll(poll_parsed_list, threshold_csv):
+    print(poll_parsed_list, threshold_csv)
     # greps sample label and eyecolor, modifies it into predicted hue
     predict = {}
+    iris = {}
+    with open(threshold_csv, encoding='utf-8') as csvfile:
+        iris_thresh = csv.reader(csvfile, delimiter=';')
+        for row in iris_thresh:
+            iris[row[0]] = int(row[1])
     for p in poll_parsed_list:
-        print(p)
         lab = p[0]
         hue = p[1]
         sat = p[2]
-        iris = {' Gray': 2, ' Blue': 1, ' Green': 3,
-                ' Hazel': 4, ' Brown': 5, ' I have mixed eye color': 6,
-                ' I have heterochromia': 7, ' Red (albino phenotype)': 8}
         check = type(hue) is list
-        if check == True:
-            if sat == ' Dark':
-                pred = 'Brown'
-            else:
-                pred = 'Intermediate'
-        else:
-            pred = _pred_count(iris[hue], sat)
+        print(lab, hue, sat)
+        # if check == True:
+        #     if sat == ' Dark':
+        #         pred = 'Brown'
+        #     else:
+        #         pred = 'Intermediate'
+        # else:
+        pred = _pred_count(iris[hue], sat)
         predict[lab] = pred
     return predict
 
 
-def prob_dict_parser(dict_with_probs):
+def iplex_prob_dict_parser(dict_with_probs, threshold_csv):
+    with open(threshold_csv, encoding='utf-8') as csvfile:
+        iris_thresh = csv.reader(csvfile, delimiter=';')
+        _ = next(iris_thresh)
+        for row in iris_thresh:
+            blue_const = float(row[0])
+            bro_const = float(row[0])
     pblu = dict_with_probs['blue']
     pint = dict_with_probs['intermed']
     pbro = dict_with_probs['brown']
     if (pblu > pint > pbro) or (pblu > pbro > pint):
-        if pblu < 0.9:
+        if pblu < blue_const:
             pred = 'Intermediate'
         else:
             pred = 'Blue or Gray'
     elif (pbro > pint > pblu) or (pbro > pblu > pint):
-        if pbro > 0.65:
+        if pbro > bro_const:
             pred = 'Brown'
         else:
             pred = 'Intermediate'
@@ -98,12 +116,12 @@ def prob_dict_parser(dict_with_probs):
         pred = 'Intermediate'
     return pred
 
-def irisplex_interpreter_model(model_out):
+def irisplex_interpreter_model(model_out, threshold_csv):
     predictions = {}
     for i in model_out:
         lab = i[0]
         vals = i[1]
-        res = prob_dict_parser(vals)
+        res = iplex_prob_dict_parser(vals, threshold_csv)
         predictions[lab] = res
     return predictions
 
@@ -125,7 +143,7 @@ def compariser(dct_pred, dct_selfrep):
 
 
 if __name__ == '__main__':
-    mode, vcf, phen_param, checklist, s = argu()
+    mode, vcf, phen_param, checklist, thresh, poll_thresh, s = argu()
     probs = []
     for vc in os.listdir(vcf):
         if vc.endswith('vcf'):
@@ -137,8 +155,8 @@ if __name__ == '__main__':
 
     table, iris_color = poll_parser.whole_poll(checklist, s)
 
-    pred = irisplex_interpreter_poll(iris_color)
-    pred_mod = irisplex_interpreter_model(probs)
+    pred = irisplex_interpreter_poll(iris_color, poll_thresh)
+    pred_mod = irisplex_interpreter_model(probs, thresh)
 
     total, yes, no, mistake = compariser(pred_mod, pred)
     print('Model is correct in ', float(yes/total)*100, 'per cent cases')

@@ -124,7 +124,6 @@ def get_snp(vcf_file, snp_list, beta_parameters_dict):
                 # dictionary with genotype values
             else:
                 pass
-    print(bs)
     return bs
 
 
@@ -145,7 +144,7 @@ def param(path_to_param, mode):
             if name.startswith('par_beta_'):
                 lab = re.sub('par_beta_', '', name)
                 if mode == lab:
-                    headers = next(rs_param)
+                    _ = next(rs_param)
                     for row in rs_param:
                         if row[5] == 'R':
                             row[2] = complement[row[2]]
@@ -154,7 +153,7 @@ def param(path_to_param, mode):
             elif name.startswith('par_alpha_'):
                 lab = re.sub('par_alpha_', '', name)
                 if mode == lab:
-                    headers = next(rs_param)
+                    _ = next(rs_param)
                     for line in rs_param:
                         alpha_list.append(line)
             else:

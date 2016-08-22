@@ -99,7 +99,7 @@ def parse(file):
                 color = _eyecolor(eyes)
                 eycol, eysat, person = color
                 features = [name, sex, age, nat, eycol, eysat]
-                original_colors = [name, person, eysat]
+                original_colors = [name, eycol, eysat]
                 strings.append(features)
                 oc.append(original_colors)
     # TODO: EDIT THIS to a normal output
