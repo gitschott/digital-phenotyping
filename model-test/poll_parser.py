@@ -59,6 +59,12 @@ def _eyecolor(list):
     else:
         iris = colors
 
+    if list[3]:
+        extra_eyecol = list[3].split("/")[1]
+        if iris == ' Blue' or ' Gray' and extra_eyecol == ' Hazel' or ' Brown':
+            iris = 'mixed'
+        if iris == ' Brown' or ' Hazel' and extra_eyecol == ' Brown':
+            iris = ' Brown'
     # if len(colors) == 1:
     #     colors = colors[0]
     #     eyehue = str.split(colors, sep='/')[1]
@@ -89,7 +95,7 @@ def parse(file):
                 sex = _malefe(vals[1])
                 age = vals[2]
                 nat = _nation(vals[3])
-                eyes = vals[4:7]
+                eyes = vals[4:8]
                 color = _eyecolor(eyes)
                 eycol, eysat, person = color
                 features = [name, sex, age, nat, eycol, eysat]

@@ -38,10 +38,11 @@ def argu(args=None):
 
 def _pred_count(int, sat):
     if int < 3:
-        if sat == ' Dark':
-            prediction = 'Intermediate'
-        else:
-            prediction = 'Blue'
+        prediction = 'Blue or Gray'
+        # if sat == ' Dark':
+        #     prediction = 'Intermediate'
+        # else:
+        #     prediction = 'Blue'
     elif int > 6:
         prediction = 'Unknown. This is a special case. It is not tested here.'
     elif int == 5:
@@ -59,6 +60,7 @@ def irisplex_interpreter_poll(poll_parsed_list):
     # greps sample label and eyecolor, modifies it into predicted hue
     predict = {}
     for p in poll_parsed_list:
+        print(p)
         lab = p[0]
         hue = p[1]
         sat = p[2]
@@ -85,7 +87,7 @@ def prob_dict_parser(dict_with_probs):
         if pblu < 0.9:
             pred = 'Intermediate'
         else:
-            pred = 'Blue'
+            pred = 'Blue or Gray'
     elif (pbro > pint > pblu) or (pbro > pblu > pint):
         if pbro > 0.65:
             pred = 'Brown'
@@ -123,17 +125,17 @@ def compariser(dct_pred, dct_selfrep):
 
 
 if __name__ == '__main__':
-    m, v, p, c, s = argu()
+    mode, vcf, phen_param, checklist, s = argu()
     probs = []
-    for vc in os.listdir(v):
+    for vc in os.listdir(vcf):
         if vc.endswith('vcf'):
-            filetowork = os.path.join(v, vc)
-            prob = model_test.executable(m, filetowork, p)
+            filetowork = os.path.join(vcf, vc)
+            prob = model_test.executable(mode, filetowork, phen_param)
             vc = vc[:6]
             res = [vc, prob]
             probs.append(res)
 
-    table, iris_color = poll_parser.whole_poll(c, s)
+    table, iris_color = poll_parser.whole_poll(checklist, s)
 
     pred = irisplex_interpreter_poll(iris_color)
     pred_mod = irisplex_interpreter_model(probs)
