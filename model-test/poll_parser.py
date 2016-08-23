@@ -58,8 +58,7 @@ def _eyecolor(list):
         iris = 'mixed'
     else:
         iris = colors
-
-    if list[3]:
+    if list[2].split("'")[0].split("/")[1] == ' Yes':
         extra_eyecol = list[3].split("/")[1]
         if iris == ' Blue' or ' Gray' and extra_eyecol == ' Hazel' or ' Brown':
             iris = 'mixed'

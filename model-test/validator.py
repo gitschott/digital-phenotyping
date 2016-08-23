@@ -48,10 +48,6 @@ def argu(args=None):
 def _pred_count(int, sat):
     if int < 3:
         prediction = 'Blue or Gray'
-        # if sat == ' Dark':
-        #     prediction = 'Intermediate'
-        # else:
-        #     prediction = 'Blue'
     elif int > 6:
         prediction = 'Unknown. This is a special case. It is not tested here.'
     elif int == 5:
@@ -66,7 +62,6 @@ def _pred_count(int, sat):
     return prediction
 
 def irisplex_interpreter_poll(poll_parsed_list, threshold_csv):
-    print(poll_parsed_list, threshold_csv)
     # greps sample label and eyecolor, modifies it into predicted hue
     predict = {}
     iris = {}
@@ -79,7 +74,6 @@ def irisplex_interpreter_poll(poll_parsed_list, threshold_csv):
         hue = p[1]
         sat = p[2]
         check = type(hue) is list
-        print(lab, hue, sat)
         # if check == True:
         #     if sat == ' Dark':
         #         pred = 'Brown'
@@ -97,16 +91,18 @@ def iplex_prob_dict_parser(dict_with_probs, threshold_csv):
         _ = next(iris_thresh)
         for row in iris_thresh:
             blue_const = float(row[0])
-            bro_const = float(row[0])
+            bro_const = float(row[1])
     pblu = dict_with_probs['blue']
     pint = dict_with_probs['intermed']
     pbro = dict_with_probs['brown']
-    if (pblu > pint > pbro) or (pblu > pbro > pint):
+    if pblu == max(pblu, pint, pbro):
+    # (pblu > pint > pbro) or (pblu > pbro > pint):
         if pblu < blue_const:
             pred = 'Intermediate'
         else:
             pred = 'Blue or Gray'
-    elif (pbro > pint > pblu) or (pbro > pblu > pint):
+    elif pbro == max(pblu, pint, pbro):
+    # (pbro > pint > pblu) or (pbro > pblu > pint):
         if pbro > bro_const:
             pred = 'Brown'
         else:
@@ -159,4 +155,4 @@ if __name__ == '__main__':
     pred_mod = irisplex_interpreter_model(probs, thresh)
 
     total, yes, no, mistake = compariser(pred_mod, pred)
-    print('Model is correct in ', float(yes/total)*100, 'per cent cases')
+    print('Prediction is correct in ', float(yes/total)*100, 'per cent cases')
