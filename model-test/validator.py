@@ -25,10 +25,10 @@ def argu(args=None):
                         required='True')
     parser.add_argument('-t', '--threshold',
                         help="model output categories csv file, default: self-report/iris_thresh.csv",
-                        required='True')
+                        default='self-report/iris_thresh.csv')
     parser.add_argument('-cat', '--categories',
                         help="model categories csv file",
-                        default=0.65)
+                        default='self-report/poll_thresh.csv')
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
                         default='all')
@@ -68,7 +68,7 @@ def irisplex_interpreter_poll(poll_parsed_list, threshold_csv):
     with open(threshold_csv, encoding='utf-8') as csvfile:
         iris_thresh = csv.reader(csvfile, delimiter=';')
         for row in iris_thresh:
-            iris[row[0]] = int(row[1])
+            iris[row[0]] = float(row[1])
     for p in poll_parsed_list:
         lab = p[0]
         hue = p[1]
@@ -150,7 +150,6 @@ if __name__ == '__main__':
             probs.append(res)
 
     table, iris_color = poll_parser.whole_poll(checklist, s)
-
     pred = irisplex_interpreter_poll(iris_color, poll_thresh)
     pred_mod = irisplex_interpreter_model(probs, thresh)
 
