@@ -90,7 +90,10 @@ def parse(file):
             if vals[0]:
                 vals = vals[2:]
                 # _label is only required if the file has BS format
-                name = _label(vals[0])
+                if vals[0].upper().startswith('BS'):
+                    name = _label(vals[0])
+                else:
+                    name = vals[0]
                 sex = _malefe(vals[1])
                 age = vals[2]
                 nat = _nation(vals[3])
