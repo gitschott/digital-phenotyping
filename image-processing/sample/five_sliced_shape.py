@@ -1,38 +1,72 @@
 import numpy as np
 import cv2
+import json
+import argparse
+import os
 
-# Create a black image
-img = np.zeros((600,600,3), np.uint8)
-img[:]=(0,0,0)
+def pattern_pars(parameters_dict):
+    # load parameters of shapes:
+    with open(parameters_dict, 'r') as fp:
+        frame = json.load(fp)
+    border = frame["border"] # width of the borders
+    shape_height = frame["sq"] # side of the white square
+    rect_width = frame["color"] # side of CMY rectangle
+    x = frame["sq"] # starting coordinate x
+    y = frame["sq"] # starting coordinate y
+    cyan = x + shape_height + border
+    yellow = cyan + rect_width + border
+    magenta = yellow + rect_width + border
+    t_height = frame["total_height"]
+    t_width = frame["total_width"]
 
-#list parameters of shapes:
-border = 20 # width of the borders
-sq = 100 #side of the white square
-color = 40 #side of CMY rectangle
+    return border, shape_height, rect_width, x, y, cyan, yellow, magenta, t_height, t_width
 
-#draw first side
-c=0
-while c<4:
-    x=100
-    y=100
-    cv2.rectangle(img, (x,y), (x+sq,y+sq), (255, 255, 255), -1)
-    cyan = x+sq+border
-    cv2.rectangle(img, (cyan, y), (cyan+color, y + sq), (255, 255, 0), -1)
-    yellow = cyan+color+border
-    cv2.rectangle(img, (yellow, y), (yellow + color, y + sq), (0, 255, 255), -1)
-    magenta = yellow+color+border
-    cv2.rectangle(img, (magenta, y), (magenta+color, y + sq), (255, 0, 255), -1)
-    cols, rows, dims = img.shape
-    M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)
-    img = cv2.warpAffine(img,M,(cols,rows))
-    c+=1
+def color_coords(x, y, rect_width, rect_height):
+    # input is the starting coords of a coloured rectangle and the width + height
+    end = (x + rect_width, y + rect_height)
 
-# Draw a white frame
-cv2.rectangle(img, (0,0), (600,600), (255, 255, 255), 120)
-cv2.rectangle(img, (220,220), (380,380), (255, 255, 255), -1)
+    return end
 
-#Save
-cv2.imwrite("~/digital-phenotyping/image-processing/sample/piece.jpg", img)
-#Display the image
-cv2.imshow("img", img)
-cv2.waitKey(0)
+
+def side_drawer(border, sq, color, x, y, cyan, yellow, magenta, t_height, t_width):
+    cv2.rectangle(img, (x, y), color_coords(x, y, sq, sq), (255, 255, 255), -1)
+    cv2.rectangle(img, (cyan, y), color_coords(cyan, y, color, sq), (255, 255, 0), -1)
+    cv2.rectangle(img, (yellow, y), color_coords(yellow, y, color, sq), (0, 255, 255), -1)
+    cv2.rectangle(img, (magenta, y), color_coords(magenta, y, color, sq), (255, 0, 255), -1)
+
+    return img
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser(description="creating a basic shape")
+    ap.add_argument("-p", "--parameters", help="Path to the shape parameters, "
+                                               "default: piece_parameters.json",
+                    default = "piece_parameters.json")
+    ap.add_argument('-s', '--save', help="Path to the created pattern", required = True)
+    args = vars(ap.parse_args())
+
+    border, shape_height, rect_width, start_x, start_y, cyan, \
+    yellow, magenta, t_height, t_width = pattern_pars('piece_parameters.json')
+
+    c = 0
+    # the shape is symmetrical and the pattern depends on the initial parameters above
+    # when the first side is drawn the shape is rotated at 90 degrees and the next side is drawn in the same fashion
+    img = np.zeros((t_height, t_width, 3), np.uint8)
+    img[:] = (0, 0, 0)
+    while c < 4:
+        img = side_drawer(border, shape_height, rect_width, start_x, start_y, cyan, yellow, magenta, t_height, t_width)
+        cols, rows, dims = img.shape
+        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
+        img = cv2.warpAffine(img, M, (cols, rows))
+        c += 1
+
+    # Draw a white frame
+    cv2.rectangle(img, (0, 0), (t_height, t_width), (255, 255, 255), 120)
+    # Draw the ROI area
+    cv2.rectangle(img, (cyan, cyan), (380,380), (255, 255, 255), -1)
+
+    # Save
+    name = os.path.join(args["save"], "piece.jpg")
+    cv2.imwrite(name, img)
+    # Display the image
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
