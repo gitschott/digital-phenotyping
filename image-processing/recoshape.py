@@ -12,6 +12,7 @@ from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
 import json
+import os
 
 
 def pattern_pars(parameters_json):
@@ -38,10 +39,11 @@ def pattern_pars(parameters_json):
 
 def show_pic(image_to_show, number_of_the_image):
     if args['panic']:
-        cv2.imshow('analysis', image_to_show)
+        cv2.imshow('image_to_show', image_to_show)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        name = os.path.join(args['panic'], 'pic'+number_of_the_image+'.jpg')
+        frag = str(number_of_the_image)
+        name = os.path.join(args['panic'], 'pic'+frag+'.jpg')
         cv2.imwrite(name, img)
         number_of_the_image +=1
         return number_of_the_image
@@ -283,80 +285,36 @@ def geometry_fun(contour, corners):
     return(centre, wid, hei)
 
 
-def geometry_of_white(image, list_of_corners, width, height, constants):
-    # this finds white areas
-    # constants are known from the palette sketch found in sample folder
+def get_square_coords(i, width, height, constants):
     x_coef = width / side
     y_coef = height / side
-    wi = constants[0]
-    he = constants[1]
-    # d_coef = diag / 678.8225099390856
-
-    white = np.zeros_like(image)
-    white_coords = []
-
-    for i in list_of_corners:
-        if i[0] < centre[0]:
-            x = int(i[0] + wi * x_coef)
-            p = int(i[0] + he * x_coef)
-            if i[1] < centre[1]:
-                y = int(i[1] + wi * y_coef)
-                q = int(i[1] + he * y_coef)
-            else:
-                y = int(i[1] - wi * y_coef)
-                q = int(i[1] - he * y_coef)
-        else:
-            x = int(i[0] - wi * x_coef)
-            p = int(i[0] - he * x_coef)
-            if i[1] < centre[1]:
-                y = int(i[1] + wi * y_coef)
-                q = int(i[1] + he * y_coef)
-            else:
-                y = int(i[1] - wi * y_coef)
-                q = int(i[1] - he * y_coef)
-
-        white_coords.append(((x, y), (p, q)))
-
-    # white can be seen if "panic regime" is on
-    for i in white_coords:
-        cv2.rectangle(white, i[0], i[1], (255, 255, 255), -1)
-
-    pts = np.where(white == [255, 255, 255])
-
-    x = pts[0]
-    y = pts[1]
-
-    wh = []
-    for i in range(len(x)):
-        wh.append((x[i], y[i]))
-
-    intensities = []
-    for i in range(len(wh)):
-        x, y = wh[i]
-        intensities.append(image[x, y])
-        white[x, y] = intensities[i]
-
-    whites = np.unique(white)
-    whites = whites[1:]
-
-    return whites, intensities, white
-
-
-def geometry_of_color(image, list_of_corners, width, height, constants):
-    # this finds white areas
-    # constants are known from the palette sketch found in sample folder
-    x_coef = width / 480
-    y_coef = height / 480
     wi1 = constants[0]
     wi2 = constants[1]
     he1 = constants[2]
     he2 = constants[3]
-    # d_coef = diag / 678.8225099390856
+    coords = []
 
-    color = np.zeros_like(image)
-    color_coords = []
-
-    for i in list_of_corners:
+    if wi1 == wi2:
+        if i[0] < centre[0]:
+            x = int(i[0] + wi1 * x_coef)
+            p = int(i[0] + he1 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + wi1 * y_coef)
+                q = int(i[1] + he1 * y_coef)
+            else:
+                y = int(i[1] - wi1 * y_coef)
+                q = int(i[1] - he1 * y_coef)
+        else:
+            x = int(i[0] - wi1 * x_coef)
+            p = int(i[0] - he1 * x_coef)
+            if i[1] < centre[1]:
+                y = int(i[1] + wi1 * y_coef)
+                q = int(i[1] + he1 * y_coef)
+            else:
+                y = int(i[1] - wi1 * y_coef)
+                q = int(i[1] - he1 * y_coef)
+        res = ((x, y), (p, q))
+    else:
         if i[0] < centre[0]:
             if i[1] < centre[1]:
                 x = int(i[0] + wi1 * x_coef)
@@ -379,10 +337,45 @@ def geometry_of_color(image, list_of_corners, width, height, constants):
                 p = int(i[0] - wi2 * x_coef)
                 y = int(i[1] - he1 * y_coef)
                 q = int(i[1] - he2 * y_coef)
+        res = ((x, y), (p, q))
+    return res
 
-        color_coords.append(((x, y), (p, q)))
 
+def geometry_of_white(image, list_of_corners, width, height, constants):
+    # this finds white areas
+    # constants are known from the palette sketch found in sample folder
+    white = np.zeros_like(image)
+    square_coords = []
+    for i in list_of_corners:
+        square_coords.append(get_square_coords(i, width, height, constants))
     # white can be seen if "panic regime" is on
+    for sc in square_coords:
+        cv2.rectangle(white, sc[0], sc[1], (255, 255, 255), -1)
+
+    x = np.where(white == [255, 255, 255])[0]
+    y = np.where(white == [255, 255, 255])[1]
+    wh = []
+    for i in range(len(x)):
+        wh.append((x[i], y[i]))
+
+    intensities = []
+    for i in range(len(wh)):
+        x, y = wh[i]
+        intensities.append(image[x, y])
+        white[x, y] = intensities[i]
+    whites = np.unique(white)[1:]
+
+    return whites, intensities, white
+
+
+def geometry_of_color(image, list_of_corners, width, height, constants):
+    # this finds coloured areas
+    # constants are known from the palette sketch found in sample folder
+    color = np.zeros_like(image)
+    color_coords = []
+    for i in list_of_corners:
+        color_coords.append(get_square_coords(i, width, height, constants))
+
     for i in color_coords:
         cv2.rectangle(color, i[0], i[1], (255, 255, 255), -1)
 
@@ -403,6 +396,23 @@ def geometry_of_color(image, list_of_corners, width, height, constants):
 
     return intensities, color
 
+
+def colorwork(regime, img, corners, width, height, w_const, c_const, m_const, y_const):
+    whites, intensities, white = geometry_of_white(img, corners, width, height, w_const)
+    show_pic(whites, num)
+    white_av, color_dev = whitecheck(whites)
+    cy_int, cyan = geometry_of_color(img, corners, width, height, c_const)
+    show_pic(cyan, num)
+    ma_int, magenta = geometry_of_color(img, corners, width, height, m_const)
+    show_pic(magenta, num)
+    ye_int, yellow = geometry_of_color(img, corners, width, height, y_const)
+    show_pic(yellow, num)
+    # Comparing the retreived values
+    cy = color_average(cy_int)
+    ma = color_average(ma_int)
+    ye = color_average(ye_int)
+
+    return white_av, cy, ma, ye
 
 def whitecheck(white_pixel_values):
     white_av = sum(white_pixel_values) / (len(white_pixel_values))
@@ -434,7 +444,8 @@ def color_average(values_interval):
         g += pixlg
         b += pixlb
         count += 1
-    return (r / count), (g / count), (b / count)
+    color = [(r / count), (g / count), (b / count)]
+    return color
 
 
 def info(array):
@@ -460,7 +471,7 @@ if __name__ == '__main__':
     w_const, c_const, m_const, y_const, tolerance, side = pattern_pars(args['json'])
     img = cv2.imread(args['image'])
     contours, th2 = contours_selection_threshold(img)
-    show_pic(contours, num)
+    show_pic(th2, num)
 
     square = square_selection(contours, img, tolerance)
 
@@ -472,47 +483,30 @@ if __name__ == '__main__':
     corners = [topleft, botleft, botright, topright]
     centre, width, height = geometry_fun(square, corners)
 
+    # Working with the color
+    white_av, cy, ma, ye = colorwork(args['panic'], img, corners, width, height, w_const, c_const, m_const, y_const)
+    print(cy, white_av)
+    print(ma, white_av)
+    print(ye, white_av)
 
-    whites, intensities, white = geometry_of_white(img, corners, width, height, w_const)
-    white_av, color_dev = whitecheck(whites)
-
-    cy_int, cyan = geometry_of_color(img, corners, width, height, c_const)
-    show_pic(cyan, num)
-
-    ma_int, magenta = geometry_of_color(img, corners, width, height, m_const)
-    show_pic(magenta, num)
-
-    ye_int, yellow = geometry_of_color(img, corners, width, height, y_const)
-    show_pic(yellow, num)
-
-    # Comparing the retreived values
-
-    cy_r, cy_g, cy_b = color_average(cy_int)
-    ma_r, ma_g, ma_b = color_average(ma_int)
-    ye_r, ye_g, ye_b = color_average(ye_int)
-
-    print(cy_r, cy_g, cy_b, white_av)
-    print(ma_r, ma_g, ma_b, white_av)
-    print(ye_r, ye_g, ye_b, white_av)
-
-    if cy_r < ma_r:
-        if cy_r < ye_r:
+    if cy[0] < ma[0]:
+        if cy[0] < ye[0]:
             cyanred = True
         else:
             cyanred = False
     else:
         cyanred = False
 
-    if ma_g < cy_g:
-        if ma_g < ye_g:
+    if ma[1] < cy[1]:
+        if ma[1] < ye[1]:
             magentagreen = True
         else:
             magentagreen = False
     else:
         magentagreen = False
 
-    if ye_b < cy_b:
-        if ye_b < ma_b:
+    if ye[1] < cy[1]:
+        if ye[1] < ma[1]:
             yellowblue = True
         else:
             yellowblue = False
@@ -535,7 +529,6 @@ if __name__ == '__main__':
         print("Your yellow is not quite yellow, normalisation is required.")
 
     # Normalisation of values
-    show_pic(whites, num)
     # finding contour areas
 
-print("the end")
+    print("the end")
