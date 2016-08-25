@@ -21,34 +21,36 @@ c_const = [170, 200, 90, 130]
 m_const = [290, 320, 90, 130]
 y_const = [230, 260, 90, 130]
 
-# Contours selection facilitating function enhanced with the threshold
+
+def show_pic(image_to_show):
+    cv2.imshow("img", image_to_show)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def contours_selection_threshold(image):
-    # this is a primary step of image processing, its output is list of contours and a thresholded image array
-    image = cv2.GaussianBlur(image, (5, 5), 0)  # blur is added to denoise the image
+    # This is a primary step of image processing, its output is list of contours and a thresholded image array
+    # Blur is added to denoise the image, then it is converted to binary
+    image = cv2.GaussianBlur(image, (5, 5), 0)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # further operations are for binary pictures only
     ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    # thresholding step allows select the black frame
-    tresh = np.copy(th2)  # when "panic regime" is on this picture is shown
+    tresh = np.copy(th2)
     im, cnts, hier = cv2.findContours(th2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    # getting the external contours
 
     return cnts, tresh
 
 
 def square_selection(contours, image):
-    # this selects contour of a black square
+    # This selects contour of a pattern to recognize
     areas = []
     # a and b are needed to calculate the square
     a = int(image.shape[0])
     b = int(image.shape[1])
     for c in contours:
         areas.append(cv2.contourArea(c))
-
     c_areas = np.asarray(areas)
-    # biggest areas are the whole image and a square
+
+    # The biggest areas are the whole image and a square
     top = c_areas.argsort()[-2:][::-1]
     c = cv2.contourArea(contours[top[0]])
 
@@ -301,14 +303,6 @@ if __name__ == '__main__':
     ap.add_argument("-i", "--image", required=True, help="Path to the image")
     ap.add_argument('-p', '--panic', action='store_true', help="Show every image on each step")
     args = vars(ap.parse_args())
-    # ap = argparse.ArgumentParser(description ="Upload of the picture for the analysis, specify some details.")
-    # ap.add_argument('-i','--image', required=True, help="Path to the image file")
-    # # ap.add_argument('-c', '--contours', stored='store_true', help="Show image with contours")
-    # # ap.add_argument('-i', '--save', stored='store_true', help="Save the result")
-    # # args = vars(ap.parse_args(['-i','-c','-s']))
-    # args = ap.parse_args()
-    # print(args)
-    # print(args[image])
 
     # Read the image and convert it to acceptable array for analysis
     img = cv2.imread(args['image'])  # image for analysis
@@ -352,23 +346,17 @@ if __name__ == '__main__':
     cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
     if args['panic']:
-        cv2.imshow("img", cyan)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        show_pic(cyan)
 
     ma_int, magenta = geometry_of_color(img, corners, wid, hei, m_const)
 
     if args['panic']:
-        cv2.imshow("img", magenta)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        show_pic(magenta)
 
     ye_int, yellow = geometry_of_color(img, corners, wid, hei, y_const)
 
     if args['panic']:
-        cv2.imshow("img", yellow)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        show_pic(yellow)
 
     # Comparing the retreived values
 
@@ -420,9 +408,10 @@ if __name__ == '__main__':
         print("Your yellow is not quite yellow, normalisation is required.")
 
     # Normalisation of values
-
-    # cv2.drawContours(component, contours, sq, (255,255,255), -1)
-    # cv2.imwrite("/test_images/badwhite3.jpg", white)
+    if args['panic']:
+        cv2.imshow("img", whites)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     # finding contour areas
 
 print("the end")
