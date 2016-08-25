@@ -448,6 +448,47 @@ def color_average(values_interval):
     return color
 
 
+def color_comp(cy, ma, ye):
+    if cy[0] < ma[0]:
+        if cy[0] < ye[0]:
+            cyanred = True
+        else:
+            cyanred = False
+    else:
+        cyanred = False
+
+    if ma[1] < cy[1]:
+        if ma[1] < ye[1]:
+            magentagreen = True
+        else:
+            magentagreen = False
+    else:
+        magentagreen = False
+
+    if ye[1] < cy[1]:
+        if ye[1] < ma[1]:
+            yellowblue = True
+        else:
+            yellowblue = False
+    else:
+        yellowblue = False
+
+    if cyanred:
+        print("Your cyan is cyan")
+    else:
+        print("Your cyan is not quite cyan, normalisation is required.")
+
+    if magentagreen:
+        print("Your magenta is magenta")
+    else:
+        print("Your magenta is not quite magenta, normalisation is required.")
+
+    if yellowblue:
+        print("Your yellow is yellow")
+    else:
+        print("Your yellow is not quite yellow, normalisation is required.")
+
+
 def info(array):
     a = type(array)
     b = array[0]
@@ -489,44 +530,7 @@ if __name__ == '__main__':
     print(ma, white_av)
     print(ye, white_av)
 
-    if cy[0] < ma[0]:
-        if cy[0] < ye[0]:
-            cyanred = True
-        else:
-            cyanred = False
-    else:
-        cyanred = False
-
-    if ma[1] < cy[1]:
-        if ma[1] < ye[1]:
-            magentagreen = True
-        else:
-            magentagreen = False
-    else:
-        magentagreen = False
-
-    if ye[1] < cy[1]:
-        if ye[1] < ma[1]:
-            yellowblue = True
-        else:
-            yellowblue = False
-    else:
-        yellowblue = False
-
-    if cyanred:
-        print("Your cyan is cyan")
-    else:
-        print("Your cyan is not quite cyan, normalisation is required.")
-
-    if magentagreen:
-        print("Your magenta is magenta")
-    else:
-        print("Your magenta is not quite magenta, normalisation is required.")
-
-    if yellowblue:
-        print("Your yellow is yellow")
-    else:
-        print("Your yellow is not quite yellow, normalisation is required.")
+    color_comp(cy, ma, ye)
 
     # Normalisation of values
     # finding contour areas
