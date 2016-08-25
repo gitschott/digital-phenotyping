@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import math
 import ast
+import json
 
 
 # Print all the arguments given to the program
@@ -138,31 +139,20 @@ def param(path_to_param, mode):
     # selectin beta parameters
     for file in os.listdir(newpath):
         name = os.path.join(newpath, file)
-        with open(name, encoding='utf-8') as csvfile:
-            rs_param = csv.reader(csvfile, delimiter=';')
-            name = os.path.splitext(file)[0]
-            if name.startswith('par_beta_'):
-                lab = re.sub('par_beta_', '', name)
-                if mode == lab:
-                    _ = next(rs_param)
-                    for row in rs_param:
-                        if row[5] == 'R':
-                            row[2] = complement[row[2]]
-                        else:
-                            beta_dict_snp_values[row[1]] = row[2:5]
-            elif name.startswith('par_alpha_'):
-                lab = re.sub('par_alpha_', '', name)
-                if mode == lab:
-                    _ = next(rs_param)
-                    for line in rs_param:
-                        alpha_list.append(line)
-            else:
-                pass
-
-    if mode == 'hair':
+        if file.startswith('alpha'):
+            lab = os.path.splitext(file)[0].split('_')[1]
+            if lab == mode:
+                with open(name, 'r') as fp:
+                    alpha_list = json.load(fp)
+        elif file.startswith('beta'):
+            lab = os.path.splitext(file)[0].split('_')[1]
+            if lab == mode:
+                with open(name, 'r') as fp:
+                    beta_dict_snp_values = json.load(fp)
+    if mode != 'eye':
         print('Not available yet')
-    else:
-        return beta_dict_snp_values, alpha_list
+
+    return beta_dict_snp_values, alpha_list
 
 
 def _sumgetter(lst_beone, lst_betwo):
@@ -223,9 +213,8 @@ def snp_estim(dict_of_analyzed, parameters_for_snp, mode):
 
 
 def get_prob(list_w_sums, alpha_val_model):
-    alp = alpha_val_model[0]
-    beta1 = math.exp(float(list_w_sums[0]) + float(alp[0]))
-    beta2 = math.exp(float(list_w_sums[1]) + float(alp[1]))
+    beta1 = math.exp(float(list_w_sums[0]) + float(alpha_val_model[0]))
+    beta2 = math.exp(float(list_w_sums[1]) + float(alpha_val_model[1]))
     beta1 = round(beta1, 4)
     beta2 = round(beta2, 4)
     prob = [beta1, beta2]
