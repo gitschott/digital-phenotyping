@@ -5,21 +5,21 @@ import argparse
 import os
 
 
-def pattern_pars(parameters_dict):
+def pattern_pars(parameters_json):
     """
     Load the .json file that contains information on parameters of the shape
 
-    :param parameters_dict: is a .json file either chosen by default from the repository or defined by the user
+    :param parameters_json: is a .json file either chosen by default from the repository or defined by the user
     :return:
-    border is an: integer, a distance from the rectangle side to the edge of the pattern
-    shape_height: is an integer, a size of the side of the white square in the corner that defines the height
-    rect_width: is an integer, a width of a colored (C, M or Y) rectangle
-    x, y: are integers, starting points for the pattern
-    cyan, yellow, magenta: are integers, x starting points for C, Y and M rectangles respectively
-    t_height, t_width: are integers, x and y coordinates of the bottom right corner of the whole image
+    :type border: int, a distance from the rectangle side to the edge of the pattern
+    :type shape_height: int, a size of the side of the white square in the corner that defines the height
+    :type rect_width: int, a width of a colored (C, M or Y) rectangle
+    :type x:, :type y: int, starting points for the pattern
+    :type cyan:, :type yellow:, :type magenta:: int, x starting points for C, Y and M rectangles respectively
+    :type t_height:, :type t_width: int, x and y coordinates of the bottom right corner of the whole image
     """
 
-    with open(parameters_dict, 'r') as fp:
+    with open(parameters_json, 'r') as fp:
         frame = json.load(fp)
     border = frame["border"] # width of the borders
     shape_height = frame["sq"] # side of the white square
@@ -39,11 +39,12 @@ def color_coords(x, y, rect_width, rect_height):
     """
     Count the bottom left corner coordinates of the rectangle
 
-    :param x: is an integer, is a starting point x
-    :param y: is an integer, is a starting point y
-    :param rect_width: is a step within the x-axis
-    :param rect_height: is a step within the y-axis
-    :return: tuple of rectangle bottom right corner coordinates
+    :type x: int, is a starting point x
+    :type y: int, is a starting point y
+    :type rect_width: int, is a step within the x-axis
+    :type rect_height: int, is a step within the y-axis
+    :return:
+    :type end: tuple, rectangle bottom right corner coordinates
     """
 
     end = (x + rect_width, y + rect_height)
@@ -55,14 +56,14 @@ def side_drawer(sq, color, x, y, cyan, yellow, magenta):
     """
     Draw a side of the shape that is required for the analysis.
 
-    :param sq: is an integer, a size of the side of the white square in the corner
-    :param color: is an integer, a width of a colored (C, M or Y) rectangle
-    :param x: is an integer, a starting point x coordinate
-    :param y: is an integer, a starting point y coordinate
-    :param cyan: is an integer, a starting point x for the C rectangle
-    :param yellow: is an integer, a starting point x for the Y rectangle
-    :param magenta: is an integer, a starting point x for the M rectangle
-    :return: is a numpy 3-dimensional array, an image, which has one side coloured as a pattern for recognition
+    :type sq: int, a size of the side of the white square in the corner
+    :type color: int, a width of a colored (C, M or Y) rectangle
+    :type x: int, a starting point x coordinate
+    :type y: int, a starting point y coordinate
+    :type cyan: int, a starting point x for the C rectangle
+    :type yellow: int, a starting point x for the Y rectangle
+    :type magenta: int, a starting point x for the M rectangle
+    :return: np.ndarray, an image, which has one side coloured as a pattern for recognition
     """
     cv2.rectangle(img, (x, y), color_coords(x, y, sq, sq), (255, 255, 255), -1)
     cv2.rectangle(img, (cyan, y), color_coords(cyan, y, color, sq), (255, 255, 0), -1)

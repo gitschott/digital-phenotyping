@@ -11,26 +11,50 @@ import matplotlib.mlab as mlab
 from scipy.signal import argrelextrema
 from scipy.stats import norm
 import sys
-
-# List of constants for colors
-# all of the constants are 
-tol = 0.97  # tolerance to contour area is 97 per cent
-side = 480  # from five-sliced-shape script
-w_const = [60, 60, 120, 120]
-c_const = [170, 200, 90, 130]
-m_const = [290, 320, 90, 130]
-y_const = [230, 260, 90, 130]
+import json
 
 
-def show_pic(image_to_show):
-    cv2.imshow("img", image_to_show)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+def pattern_pars(parameters_json):
+    """
+    Load the .json file that contains information on parameters of the shape for the analysis
+
+    :param parameters_json: is a .json file either chosen by default from the repository or defined by the user
+    :return:
+    *_const are lists with x and y coordinates of the top left and bottom right of the rectangles
+    tolerance is a float, a value that is used to select the ROI
+    side is an int, length of a side of ROI
+    """
+    with open(parameters_json, 'r') as fp:
+        param = json.load(fp)
+    w_const = param['white_c']
+    c_const = param['cyan_c']
+    m_const = param['magenta_c']
+    y_const = param['yellow_c']
+    tolerance = param['tolerance']
+    side = param['side']
+
+    return w_const, c_const, m_const, y_const, tolerance, side
+
+
+def show_pic(image_to_show, number_of_the_image):
+    if args['panic']:
+        cv2.imshow('analysis', image_to_show)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        name = os.path.join(args['panic'], 'pic'+number_of_the_image+'.jpg')
+        cv2.imwrite(name, img)
 
 
 def contours_selection_threshold(image):
-    # This is a primary step of image processing, its output is list of contours and a thresholded image array
-    # Blur is added to denoise the image, then it is converted to binary
+    """
+    Take an image for analysis, de-noise it by blurring and then threshold it to select the ROI with the pattern.
+
+    :param image: a numpy 3-dimensional array, that is an image loaded with cv2
+    :return:
+    :cnts: list, contours found
+    :tresh: numpy 3-dimensional array, a thresholded image
+    """
+
     image = cv2.GaussianBlur(image, (5, 5), 0)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -40,99 +64,137 @@ def contours_selection_threshold(image):
     return cnts, tresh
 
 
-def square_selection(contours, image):
-    # This selects contour of a pattern to recognize
+def square_selection(contours, image, tol):
+    """
+    Select the contour of the ROI of a pattern.
+
+    :type contours: list, all of the contours found in the image
+    :type image: np.ndarray, the original image
+    :type tol: float, most part of the image
+    :return:
+    sq: float, area of ROI
+    """
     areas = []
-    # a and b are needed to calculate the square
-    a = int(image.shape[0])
-    b = int(image.shape[1])
-    for c in contours:
-        areas.append(cv2.contourArea(c))
+    height = int(image.shape[0])
+    width = int(image.shape[1])
+    for contour in contours:
+        areas.append(cv2.contourArea(contour))
     c_areas = np.asarray(areas)
 
     # The biggest areas are the whole image and a square
     top = c_areas.argsort()[-2:][::-1]
     c = cv2.contourArea(contours[top[0]])
 
-    if c >= tol*a*b:
+    if c >= tol * height * width:
         print('The biggest contour is the picture border, the second biggest contour was selected.')
-        top_regime = True
+        sq = int(top[1])
     else:
         print('The biggest contour is not defined properly. The result might be unreliable.')
-        top_regime = False
+        sq = int(top[0])
 
-    # the choice of the contour depends on the square
-    return top, top_regime
+    return sq
 
 
-def shrink_the_mask(square_contour, image):
-    # this gives the coordinates of a frame
-    perimeter = cv2.arcLength(square_contour, True)  # finds closed contour
+def square_or_not(sq_contour):
+    """
+    Check, whether the found contour is a square.
+
+    :type sq_contour: list, coordinates of the contour selected as a ROI
+    :return:
+    :approx: list of coords, approximation of the contour,
+    :type square_log: bool
+    """
+    perimeter = cv2.arcLength(square_contour, True)
     if perimeter == 0:
         print('The square is not recognized.')
-    epsilon = 0.1 * perimeter
-    approx = cv2.approxPolyDP(square_contour, epsilon, True)
+    else:
+        epsilon = 0.1 * perimeter
+        approx = cv2.approxPolyDP(square_contour, epsilon, True)
+        if len(approx) > 4:
+            print('The square is not recognized.')
+        if len(approx) == 2:
+            print("It is a square!")
+            square_log = True
+        else:
+            square_log = False
+        return approx, square_log
 
-    if len(approx) > 4:
-        print('The square is not recognized.')
 
-    component = np.zeros_like(image)
-    mask = np.zeros_like(image)
+def coords_check(approx, square_log):
+    """
+    Select the coordinates of the ROI according to the approximation
 
-    if len(approx) == 2:
-        print("It is a square!")
-        # square marker is used further in analysis of white areas
-        square = True
+    :type approx: list, coordinates of an approximated contour
+    :type square_log: bool, statement whether the ROI is square
+    :return: coordinates of the ROI rectangle
+    """
+    if square_log:
         x, z = approx
         x = x[0]
         y = (0, 0)
         z = z[0]
         h = (0, 0)
-        cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
-        component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
-        cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
-        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-
-        c = 0
-        for (l, m), unit in np.ndenumerate(component):
-            if component[l, m] == mask[l, m]:
-                c += 0
-            else:
-                c += 1
-
-        # checkpoint marker tells whether the square is distorted,
-        # might be combined with distortion-correction algorithm
-
-        if c > image.shape[0] * image.shape[1] * tol:
-            print('Your square fits perfectly.')
-            checkpoint = True
-        else:
-            print('The square is rotated or distorted.')
-            checkpoint = False
-
     else:
-        square = False
         x, y, z, h = approx
         x = tuple(x[0])
         y = tuple(y[0])
         z = tuple(z[0])
         h = tuple(h[0])
+    return x, y, z, h
 
-        cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
-        cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
-        component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
-        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-        print('There are new coordinates of corners lying inside the contour of the square.')
+def draw_the_sq(approx_contour, component, mask, square_log):
+    x, y, z, h = coords_check(approx_contour, square_log)
+    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+    component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
+    cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-        if mask[x[1], x[0]] == 255:
-            print('Your square fits perfectly.')
-            checkpoint = True
+    c = 0
+    for (l, m), unit in np.ndenumerate(component):
+        if component[l, m] == mask[l, m]:
+            c += 0
         else:
-            print('The square is rotated or distorted.')
-            checkpoint = False
+            c += 1
 
-    return x, y, z, h, mask, component, square, checkpoint
+    # checkpoint marker tells whether the square is distorted,
+    # might be combined with distortion-correction algorithm
+
+    if c > image.shape[0] * image.shape[1] * tol:
+        print('Your square fits perfectly.')
+        checkpoint = True
+    else:
+        print('The square is rotated or distorted.')
+        checkpoint = False
+
+    return mask, checkpoint_log, square_log
+
+
+def draw_the_stuff(approx_contour, component, mask, square_log):
+    x, y, z, h = coords_check(approx_contour, square_log)
+    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+    cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
+    component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+    print('There are new coordinates of corners lying inside the contour of the square.')
+    if mask[x[1], x[0]] == 255:
+        print('Your square fits perfectly.')
+        checkpoint_log = True
+    else:
+        print('The square is rotated or distorted.')
+        checkpoint_log = False
+    return mask, checkpoint_log, square_log
+
+def shrink_the_mask(square_contour, image, sq_log):
+    component = np.zeros_like(image)
+    mask = np.zeros_like(image)
+    if len(approx) == 2:
+        mask, chp_log, sq_log = draw_the_sq(approx, component, mask, sq_log)
+    else:
+        mask, chp_log, sq_log = draw_the_stuff(approx, component, mask, sq_log)
+
+    return approx, mask, component, sq_log, chp_log
 
 
 def geometry_of_white(image, list_of_corners, width, height, constants):
@@ -299,23 +361,23 @@ def info(array):
 
 # Construct the argument parse and parse the arguments
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(description="let the process begin")
-    ap.add_argument("-i", "--image", required=True, help="Path to the image")
-    ap.add_argument('-p', '--panic', action='store_true', help="Show every image on each step")
+    ap = argparse.ArgumentParser(description='let the process begin')
+    ap.add_argument('-i', '--image', required=True, help='Full path to the image')
+    ap.add_argument('-p', '--panic', help='Show every image on each step and save it to the directory mentioned')
+    ap.add_argument('-j', '--json',
+                    help='Path to the json parameters file with the constants required for the analysis',
+                    default='const.json')
     args = vars(ap.parse_args())
 
-    # Read the image and convert it to acceptable array for analysis
-    img = cv2.imread(args['image'])  # image for analysis
+    w_const, c_const, m_const, y_const, tolerance, side = pattern_pars(args['json'])
+    img = cv2.imread(args['image'])
     contours, th2 = contours_selection_threshold(img)
-    top, top_regime = square_selection(contours, img)
+    top = square_selection(contours, img, tolerance)
 
     # Checkpoint of contour sides
-    if top_regime:
-        sq = int(top[1])
-    else:
-        sq = int(top[0])
-
-    topleft, botleft, botright, topright, mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
+    approx, square_log = square_or_not(contours[sq])
+    topleft, botleft, botright, topright = coords_check(approx, square_log)
+    , mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
 
     if square:
         botleft = (topleft[0], botright[1])
@@ -345,18 +407,15 @@ if __name__ == '__main__':
 
     cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
 
-    if args['panic']:
-        show_pic(cyan)
+    show_pic(cyan)
 
     ma_int, magenta = geometry_of_color(img, corners, wid, hei, m_const)
 
-    if args['panic']:
-        show_pic(magenta)
+    show_pic(magenta)
 
     ye_int, yellow = geometry_of_color(img, corners, wid, hei, y_const)
 
-    if args['panic']:
-        show_pic(yellow)
+    show_pic(yellow)
 
     # Comparing the retreived values
 
@@ -408,10 +467,7 @@ if __name__ == '__main__':
         print("Your yellow is not quite yellow, normalisation is required.")
 
     # Normalisation of values
-    if args['panic']:
-        cv2.imshow("img", whites)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    show_pic(whites)
     # finding contour areas
 
 print("the end")
