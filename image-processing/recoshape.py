@@ -26,11 +26,11 @@ def pattern_pars(parameters_json):
     """
     with open(parameters_json, 'r') as fp:
         param = json.load(fp)
-    w_const = param['white_c']
-    c_const = param['cyan_c']
-    m_const = param['magenta_c']
-    y_const = param['yellow_c']
-    tolerance = param['tolerance']
+    w_const = param['w_const']
+    c_const = param['c_const']
+    m_const = param['m_const']
+    y_const = param['y_const']
+    tolerance = param['tol']
     side = param['side']
 
     return w_const, c_const, m_const, y_const, tolerance, side
@@ -43,16 +43,21 @@ def show_pic(image_to_show, number_of_the_image):
         cv2.destroyAllWindows()
         name = os.path.join(args['panic'], 'pic'+number_of_the_image+'.jpg')
         cv2.imwrite(name, img)
+        number_of_the_image +=1
+        return number_of_the_image
 
 
 def contours_selection_threshold(image):
     """
     Take an image for analysis, de-noise it by blurring and then threshold it to select the ROI with the pattern.
 
-    :param image: a numpy 3-dimensional array, that is an image loaded with cv2
+    :param image: image loaded with cv2
+    :type image: np.ndarray
     :return:
-    :cnts: list, contours found
-    :tresh: numpy 3-dimensional array, a thresholded image
+    :type cnts: list
+    :cnts: contours found
+    :type tresh: np.ndarray
+    :tresh: thresholded image
     """
 
     image = cv2.GaussianBlur(image, (5, 5), 0)
@@ -68,11 +73,14 @@ def square_selection(contours, image, tol):
     """
     Select the contour of the ROI of a pattern.
 
-    :type contours: list, all of the contours found in the image
-    :type image: np.ndarray, the original image
-    :type tol: float, most part of the image
+    :param contours: all of the contours found in the image
+    :type contours: list
+    :param image: the original image
+    :type image: np.ndarray
+    :param tol: most part of the image
+    :type tol: float
     :return:
-    sq: float, area of ROI
+    sq: the selected contour
     """
     areas = []
     height = int(image.shape[0])
@@ -92,6 +100,7 @@ def square_selection(contours, image, tol):
         print('The biggest contour is not defined properly. The result might be unreliable.')
         sq = int(top[0])
 
+    sq = contours[sq]
     return sq
 
 
@@ -100,16 +109,19 @@ def square_or_not(sq_contour):
     Check, whether the found contour is a square.
 
     :type sq_contour: list, coordinates of the contour selected as a ROI
-    :return:
-    :approx: list of coords, approximation of the contour,
+    :type approx: list
+    :return approx: approximation of the contour coordinates
     :type square_log: bool
+    :return square_log: the found contour is a square
     """
-    perimeter = cv2.arcLength(square_contour, True)
+    perimeter = cv2.arcLength(sq_contour, True)
     if perimeter == 0:
         print('The square is not recognized.')
     else:
         epsilon = 0.1 * perimeter
-        approx = cv2.approxPolyDP(square_contour, epsilon, True)
+        approx = cv2.approxPolyDP(sq_contour, epsilon, True)
+        # if the list has more than 4 elements, the contour is not rectangular
+        # if the list has just 2 elements, these are the square coordinates
         if len(approx) > 4:
             print('The square is not recognized.')
         if len(approx) == 2:
@@ -143,58 +155,132 @@ def coords_check(approx, square_log):
     return x, y, z, h
 
 
-def draw_the_sq(approx_contour, component, mask, square_log):
-    x, y, z, h = coords_check(approx_contour, square_log)
-    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
-    component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
-    cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
-    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+def count_match(array1, array2):
+    """
+    Count matches between two arrays.
 
+    :type array1: np.ndarray
+    :param array2: np.ndarray
+    :return: int, counts
+    """
     c = 0
-    for (l, m), unit in np.ndenumerate(component):
-        if component[l, m] == mask[l, m]:
+    for (l, m), unit in np.ndenumerate(array1):
+        if array1[l, m] == array2[l, m]:
             c += 0
         else:
             c += 1
+    return c
 
-    # checkpoint marker tells whether the square is distorted,
-    # might be combined with distortion-correction algorithm
 
-    if c > image.shape[0] * image.shape[1] * tol:
-        print('Your square fits perfectly.')
-        checkpoint = True
+def chpoint_check(image, mask, component, sq_log, x, tolerance):
+    """
+    Check is square distorted or not, might be combined with distortion-correction algorithm
+
+    :type image: np.ndarray, original image
+    :type mask: np.ndarray, size of original image
+    :type component: np.ndarray, size of original image
+    :type sq_log: bool, tells whether the found ROI is a square
+    :type x: tuple, coordinates of the top left corner
+    :return:
+    :type checkpoint_log: bool, True if the mask is square, False if distortions are found
+    """
+    if sq_log:
+        counts = count_match(component, mask)
+        if counts > image.shape[0] * image.shape[1] * tolerance:
+            print('Your square fits perfectly.')
+            checkpoint_log = True
+        else:
+            print('The square is rotated or distorted.')
+            checkpoint_log = False
     else:
-        print('The square is rotated or distorted.')
-        checkpoint = False
+        print('There are new coordinates of corners lying inside the contour of the square.')
+        if mask[x[1], x[0]] == 255:
+            print('Your square fits perfectly.')
+            checkpoint_log = True
+        else:
+            print('The square is rotated or distorted.')
+            checkpoint_log = False
+    return checkpoint_log
 
-    return mask, checkpoint_log, square_log
+
+def draw_the_sq(approx_contour, square_contour, mask, component, square_log):
+    """
+    When the mask is recognised as a square, it is to be drawn.
+
+    :type approx_contour: list, approximated contour coordinates
+    :type square_contour:
+    :type component: np.ndarray, size of original image
+    :type mask: np.ndarray, size of original image
+    :type square_log: bool, tells whether the found ROI is a square
+    :return:
+    :type mask: np.ndarray,
+    :type component:
+    :type checkpoint_log:
+    """
+    x, y, z, h = coords_check(approx_contour, square_log)
+    cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
+    component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
+    cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    return mask, component
 
 
-def draw_the_stuff(approx_contour, component, mask, square_log):
+def draw_the_stuff(approx_contour, square_contour, mask, component, square_log):
+    """
+
+    :param approx_contour:
+    :param square_contour:
+    :param mask:
+    :param component:
+    :param square_log:
+    :param tolerance:
+    :return:
+    """
     x, y, z, h = coords_check(approx_contour, square_log)
     cv2.rectangle(component, (x[0], x[1]), (z[0], z[1]), (255, 255, 255), -1)
     cv2.drawContours(mask, square_contour, -1, (255, 255, 255), -1)
     component = cv2.cvtColor(component, cv2.COLOR_BGR2GRAY)
     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-    print('There are new coordinates of corners lying inside the contour of the square.')
-    if mask[x[1], x[0]] == 255:
-        print('Your square fits perfectly.')
-        checkpoint_log = True
-    else:
-        print('The square is rotated or distorted.')
-        checkpoint_log = False
-    return mask, checkpoint_log, square_log
+    return mask, component
 
-def shrink_the_mask(square_contour, image, sq_log):
+
+def shrink_the_mask(approx, square_contour, image, sq_log, tolerance):
+    """
+
+    :type approx_contour: list, approximated contour coordinates
+    :param square_contour:
+    :param image:
+    :param sq_log:
+    :param tolerance:
+    :return:
+    """
     component = np.zeros_like(image)
     mask = np.zeros_like(image)
     if len(approx) == 2:
-        mask, chp_log, sq_log = draw_the_sq(approx, component, mask, sq_log)
+        mask, component = draw_the_sq(approx, square_contour,mask, component, sq_log)
     else:
-        mask, chp_log, sq_log = draw_the_stuff(approx, component, mask, sq_log)
+        mask, component = draw_the_stuff(approx, square_contour,mask, component, sq_log)
 
-    return approx, mask, component, sq_log, chp_log
+    return mask, component
+
+
+def geometry_fun(contour, corners):
+    topleft, botleft, botright, topright = corners
+    moments = cv2.moments(contour)
+    centre = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
+
+    diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
+    wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
+    hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
+
+    if diag ** 2 == wid ** 2 + hei ** 2:
+        print('Everything is fine.')
+
+    print('The diagonal of the rectangle is %d.' % diag)
+    print('The width of the rectangle is %d.' % wid)
+    print('The height of the rectangle is %d.' % hei)
+    return(centre, wid, hei)
 
 
 def geometry_of_white(image, list_of_corners, width, height, constants):
@@ -363,59 +449,41 @@ def info(array):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description='let the process begin')
     ap.add_argument('-i', '--image', required=True, help='Full path to the image')
-    ap.add_argument('-p', '--panic', help='Show every image on each step and save it to the directory mentioned')
+    ap.add_argument('-p', '--panic', help='Show every image on each step and save it to the directory mentioned',
+                    default=None)
     ap.add_argument('-j', '--json',
                     help='Path to the json parameters file with the constants required for the analysis',
                     default='const.json')
     args = vars(ap.parse_args())
 
+    num = 0
     w_const, c_const, m_const, y_const, tolerance, side = pattern_pars(args['json'])
     img = cv2.imread(args['image'])
     contours, th2 = contours_selection_threshold(img)
-    top = square_selection(contours, img, tolerance)
+    show_pic(contours, num)
+
+    square = square_selection(contours, img, tolerance)
 
     # Checkpoint of contour sides
-    approx, square_log = square_or_not(contours[sq])
+    approx, square_log = square_or_not(square)
     topleft, botleft, botright, topright = coords_check(approx, square_log)
-    , mask, component, square, checkpoint = shrink_the_mask(contours[sq], img)
+    mask, component = shrink_the_mask(approx, square, img, square_log, tolerance)
+    checkpoint_log = chpoint_check(img, mask, component, square_log, topleft, tolerance)
+    corners = [topleft, botleft, botright, topright]
+    centre, width, height = geometry_fun(square, corners)
 
-    if square:
-        botleft = (topleft[0], botright[1])
-        topright = (botright[0], topleft[1])
-        corners = [topleft, botleft, botright, topright]
-    else:
-        corners = [topleft, botleft, botright, topright]
 
-    # Getting the centre of the contour
-    moments = cv2.moments(contours[sq])
-    centre = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
-
-    diag = math.hypot(float(topleft[0]) - float(botright[0]), float(topleft[1]) - float(botright[1]))
-    wid = math.hypot(float(topleft[0]) - float(topright[0]), float(topleft[1]) - float(topright[1]))
-    hei = math.hypot(float(topleft[0]) - float(botleft[0]), float(topleft[1]) - float(botleft[1]))
-
-    if diag ** 2 == wid ** 2 + hei ** 2:
-        print('Everything is fine.')
-
-    print('The diagonal of the rectangle is %d.' % diag)
-    print('The width of the rectangle is %d.' % wid)
-    print('The height of the rectangle is %d.' % hei)
-
-    whites, intensities, white = geometry_of_white(img, corners, wid, hei, w_const)
-
+    whites, intensities, white = geometry_of_white(img, corners, width, height, w_const)
     white_av, color_dev = whitecheck(whites)
 
-    cy_int, cyan = geometry_of_color(img, corners, wid, hei, c_const)
+    cy_int, cyan = geometry_of_color(img, corners, width, height, c_const)
+    show_pic(cyan, num)
 
-    show_pic(cyan)
+    ma_int, magenta = geometry_of_color(img, corners, width, height, m_const)
+    show_pic(magenta, num)
 
-    ma_int, magenta = geometry_of_color(img, corners, wid, hei, m_const)
-
-    show_pic(magenta)
-
-    ye_int, yellow = geometry_of_color(img, corners, wid, hei, y_const)
-
-    show_pic(yellow)
+    ye_int, yellow = geometry_of_color(img, corners, width, height, y_const)
+    show_pic(yellow, num)
 
     # Comparing the retreived values
 
@@ -467,7 +535,7 @@ if __name__ == '__main__':
         print("Your yellow is not quite yellow, normalisation is required.")
 
     # Normalisation of values
-    show_pic(whites)
+    show_pic(whites, num)
     # finding contour areas
 
 print("the end")
