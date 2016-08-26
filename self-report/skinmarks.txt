@@ -1,0 +1,10 @@
+rs1540771 
+rs1805008 
+rs1805007 
+rs12203592
+rs1800414
+rs2424984
+rs4911414 
+rs12913832
+
+# skin pigmentation markers from HID review

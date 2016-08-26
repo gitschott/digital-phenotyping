@@ -1,0 +1,3 @@
+*.test_data.txt.swp
+*.DS_Store
+*/model-test/__pycache__/*.pyc
