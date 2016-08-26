@@ -1,3 +1,6 @@
 *.test_data.txt.swp
 *.DS_Store
 */model-test/__pycache__/*.pyc
+*.lab.md
+*/image-processing/test_images/.DS_Store
+*/image-processing/.idea/~
