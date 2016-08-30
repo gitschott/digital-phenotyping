@@ -21,7 +21,7 @@ def check_arg():
                         required='True',
                         default='total')
     parser.add_argument('-v', '--vcf',
-                        help='genotyping data path',
+                        help='genotype data path',
                         required='True')
     parser.add_argument('-p', '--param',
                         help='parameters data path, (default: self-report/ directory in repo)',
@@ -37,15 +37,15 @@ def check_arg():
             results.silent)
 
 
-def get_rs(mode, path_to_param):
+def get_rs(analysis_mode, path_to_param):
     """Get the list of loci relevant for the analysis.
 
     Relevance of the loci is estimated upon the mode of the analysis.
     The folder that is set by the path contains csv file with the loci list.
 
-    :param mode:
-    :param path_to_param:
-    :type mode: str
+    :param analysis_mode: which appearance trait is analysed
+    :param path_to_param: where the parameters are stored
+    :type analysis_mode: str
     :type path_to_param: str
     :return: list of loci
     :rtype: list
@@ -54,7 +54,7 @@ def get_rs(mode, path_to_param):
     rsnp = []
     for file in os.listdir(usepath):
         # select eye / hair / skin -marks.txt
-        if file.startswith(mode):
+        if file.startswith(analysis_mode):
             address = os.path.abspath(os.path.join(usepath, file))
             with open(address, 'r', encoding='cp1252') as f:
                 for line in f:
@@ -66,10 +66,12 @@ def get_rs(mode, path_to_param):
 
 
 def _vcf_str_to_lst(vcf_chr_line):
-    """
+    """Convert line from the vcf file to a list.
 
-    :param vcf_chr_line:
-    :return:
+    :param vcf_chr_line: line of a vcf file that starts with "chr"
+    :type vcf_chr_line: str
+    :return: split line of a vcf file
+    :rtype: list
     """
     vc_lst = []
     vcf_lst = str.split(vcf_chr_line, sep='\t')
@@ -82,9 +84,17 @@ def _vcf_str_to_lst(vcf_chr_line):
             vc_lst.append(vc_string)
     return vc_lst
 
+
 def _parse_vcf(file):
-    # reading the vcf sample
-    strings = [] # list that is filled with output
+    """Select information from the vcf that is required for the analysis.
+
+    :param file: name of the file
+    :type file: str
+    :return: information on relevant loci
+    :rtype: list
+    """
+
+    strings = []
     with open(file, 'r', encoding='utf-8') as vicief:
         lab = os.path.basename(file)
         for q, line in enumerate(vicief):
@@ -106,24 +116,33 @@ def _parse_vcf(file):
 
 
 def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
+    """Estimate the genotype.
+
+    According to the parameters of the model, each loci genotype is estimated.
+
+    :param lst_from_vcf_string: data on particular sample from vcf
+    :param rs_name:
+    :param beta_parameters_dict:
+    :type lst_from_vcf_string:
+    :type rs_name:
+    :type beta_parameters_dict:
+    :return:
+    """
     # letters is a list of nucleotides, first element is the reference
     letters = [lst_from_vcf_string[2]]
     gent = str.split(lst_from_vcf_string[4], sep='/')
     alt = str.split(lst_from_vcf_string[3], sep=',')
     for each in alt:
         letters.append(each)
-    # select the genotype
     genotype = [letters[int(gent[0])], letters[int(gent[1])]]
-    # estimate the genotype
     val = float(0)
     for label in beta_parameters_dict:
         if label == rs_name:
             values = beta_parameters_dict[rs_name]
             for gtype in genotype:
                 if gtype == values[0]:
-                    val+= 1
+                    val += 1
             return val
-
 
 
 def get_snp(vcf_file, snp_list, beta_parameters_dict):
@@ -151,34 +170,53 @@ def get_snp(vcf_file, snp_list, beta_parameters_dict):
     return bs
 
 
-# Grep the parameters for a model, parameters is a csv file
-def param(path_to_param, mode):
+def strandcheck(parameters_dict):
+    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    for rs in parameters_dict:
+        if parameters_dict[rs][3] == 'R':
+            parameters_dict[rs][0] = complement[parameters_dict[rs][3][0]]
+        else:
+            pass
+    return parameters_dict
+
+
+def param(path_to_param, analysis_mode):
+    """ Grep the parameters for a model, parameters is a csv file
+
+    :param path_to_param:
+    :param analysis_mode:
+    :return:
+    """
     # path check
     newpath = os.path.abspath(path_to_param)
     # output dictionary of values
     beta_dict_snp_values = {}
     alpha_list = []
-    complement = {'A': 'T', 'T':'A', 'C':'G', 'G':'C'}
-    # selectin beta parameters
     for file in os.listdir(newpath):
         name = os.path.join(newpath, file)
         if file.startswith('alpha'):
             lab = os.path.splitext(file)[0].split('_')[1]
-            if lab == mode:
+            if lab == analysis_mode:
                 with open(name, 'r') as fp:
                     alpha_list = json.load(fp)
         elif file.startswith('beta'):
             lab = os.path.splitext(file)[0].split('_')[1]
-            if lab == mode:
+            if lab == analysis_mode:
                 with open(name, 'r') as fp:
                     beta_dict_snp_values = json.load(fp)
-    if mode != 'eye':
+                    beta_dict_snp_values = strandcheck(beta_dict_snp_values)
+    if analysis_mode != 'eye':
         print('Not available yet')
-
     return beta_dict_snp_values, alpha_list
 
 
 def _sumgetter(lst_beone, lst_betwo):
+    """
+
+    :param lst_beone:
+    :param lst_betwo:
+    :return:
+    """
     tot1 = round(sum(lst_beone), 4)
     tot2 = round(sum(lst_betwo), 4)
     sums_lst = [tot1, tot2]
@@ -186,16 +224,23 @@ def _sumgetter(lst_beone, lst_betwo):
 
 
 def eye_estim(dict_of_analyzed, dict_par_for_snp):
+    """
+
+    :param dict_of_analyzed:
+    :param dict_par_for_snp:
+    :param path_to_param:
+    :return:
+    """
     # dict_of_analyzed contains genotypes as values and sample name and rs as labels
     # dict_par_for_snp contains beta parameters of IrisPlex model as values
     # and rs as labels
     beone = []
     betwo = []
     for a in dict_of_analyzed:
-        rs = str.split(a[1], sep=";")
+        rs = str.split(a[1], sep=";")[0]
         for v in dict_par_for_snp:
             # match proper parameters
-            if rs[0] == v:
+            if rs == v:
                 # implement the model
                 mf = dict_of_analyzed[a]
                 b1 = float((dict_par_for_snp[v])[1])
@@ -204,10 +249,16 @@ def eye_estim(dict_of_analyzed, dict_par_for_snp):
                 betwo.append(mf * b2)
     coefs = _sumgetter(beone, betwo)
 
-    return coefs
+    return coefs, len(beone)
 
 
 def hair_estim(dict_of_analyzed, parameters_for_snp):
+    """
+
+    :param dict_of_analyzed:
+    :param parameters_for_snp:
+    :return:
+    """
     beone = []
     betwo = []
     betre = []
@@ -217,25 +268,41 @@ def hair_estim(dict_of_analyzed, parameters_for_snp):
             if rs[0] == v:
                 # implement the model
                 mf = dict_of_analyzed[a]
-                beta1 = float((parameters_for_snp[v])[1])
-                beta2 = float((parameters_for_snp[v])[2])
-                beta3 = float((parameters_for_snp[v])[3])
+                b1 = float((parameters_for_snp[v])[1])
+                b2 = float((parameters_for_snp[v])[2])
+                b3 = float((parameters_for_snp[v])[3])
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
                 betre.append(mf * b3)
-    coefs = [round(sum(beone), 4), round(sum(betwo), 4), round(sum(betre), 4)]
-    return coefs
+    coefs = [round(sum(beone), 5), round(sum(betwo), 5), round(sum(betre), 5)]
+    return coefs, len(beone)
 
-def snp_estim(dict_of_analyzed, parameters_for_snp, mode):
-    if mode == 'eye':
-        coefs = eye_estim(dict_of_analyzed, parameters_for_snp)
-    elif mode == 'hair':
-        coefs = hair_estim(dict_of_analyzed, parameters_for_snp)
 
-    return coefs
+def snp_estim(dict_of_analyzed, parameters_for_snp, analysis_mode):
+    """
+
+    :param dict_of_analyzed:
+    :param parameters_for_snp:
+    :param analysis_mode:
+    :return:
+    """
+    if analysis_mode == 'eye':
+        coefs, loci = eye_estim(dict_of_analyzed, parameters_for_snp)
+    elif analysis_mode == 'hair':
+        coefs, loci = hair_estim(dict_of_analyzed, parameters_for_snp)
+    else:
+        print("Not available yet.")
+        coefs, loci = None
+    return coefs, loci
 
 
 def get_prob(list_w_sums, alpha_val_model):
+    """
+
+    :param list_w_sums:
+    :param alpha_val_model:
+    :return:
+    """
     beta1 = math.exp(float(list_w_sums[0]) + float(alpha_val_model[0]))
     beta2 = math.exp(float(list_w_sums[1]) + float(alpha_val_model[1]))
     beta1 = round(beta1, 4)
@@ -246,6 +313,11 @@ def get_prob(list_w_sums, alpha_val_model):
 
 
 def eyecolor_probs(prob_list):
+    """
+
+    :param prob_list:
+    :return:
+    """
     col = ['blue', 'intermed', 'brown']
     pblue = prob_list[0] / (1 + prob_list[0] + prob_list[1])
     pint = prob_list[1] / (1 + prob_list[0] + prob_list[1])
@@ -255,37 +327,80 @@ def eyecolor_probs(prob_list):
     return colors
 
 
+def auc_loss(probs, loci, path_to_param, analysis_mode):
+    """
+
+    :param probs:
+    :param loci:
+    :param path_to_param:
+    :param analysis_mode:
+    :return:
+    """
+    correction = {}
+    newpath = os.path.abspath(path_to_param)
+    for file in os.listdir(newpath):
+        name = os.path.join(newpath, file)
+        if file.endswith('.json') and file.startswith(analysis_mode):
+            lab = os.path.splitext(file)[0].split('_')[1]
+            if lab == 'accuracy':
+                with open(name, 'r') as fp:
+                    auc = json.load(fp)
+    for key in auc:
+        correction[key] = (auc[key] - probs[key])
+
+    return correction
+
+
 def model_iris_plex(snp_sample_dict, beta_coefficients, mode_of_analysis,
-                    alpha_parameters):
-    sums = snp_estim(snp_sample_dict, beta_coefficients, mode_of_analysis)
+                    alpha_parameters, path_to_param):
+    """
+
+    :param snp_sample_dict:
+    :param beta_coefficients:
+    :param mode_of_analysis:
+    :param alpha_parameters:
+    :return:
+    """
+    sums, loci = snp_estim(snp_sample_dict, beta_coefficients, mode_of_analysis)
     prob = get_prob(sums, alpha_parameters)
     # # # Counting three probs
     probs = eyecolor_probs(prob)
-    return probs
+    if loci < 6:
+        correction = auc_loss(probs, loci, path_to_param, mode_of_analysis)
+    else:
+        correction = {'blue': 0, 'intermed': 0, 'brown': 0}
+
+    return probs, correction
 
 
-def verbose_pred_eyes(probability):
+def verbose_pred_eyes(probability, correction):
     print('Eyes are: ', 'blue', probability['blue'],
           'intermediate', probability['intermed'], 'brown', probability['brown'])
+    if all(value == 0 for value in correction.values()):
+        pass
+    else:
+        print('There is loss in AUC according to the missing loci:'
+              'for blue:', correction['blue'],
+          ', for intermediate:', correction['intermed'], ', for brown:', correction['brown'])
 
 
-def executable(mode, vcf_file, path_to_param):
-    snip = get_rs(mode, path_to_param)
+def executable(analysis_mode, vcf_file, path_to_param):
+    snip = get_rs(analysis_mode, path_to_param)
     # Read all the parameters
-    beta_dict, alpha_list = param(path_to_param, mode)
+    beta_dict, alpha_list = param(path_to_param, analysis_mode)
     # selection of snps in a way required for a model
     bs_snp_dict = get_snp(vcf_file, snip, beta_dict)
-    if mode == 'eye':
-        probs = model_iris_plex(bs_snp_dict, beta_dict, mode, alpha_list)
-        return probs
-    elif mode == 'hair':
+    if analysis_mode == 'eye':
+        probs, correction = model_iris_plex(bs_snp_dict, beta_dict, analysis_mode, alpha_list, path_to_param)
+        return probs, correction
+    elif analysis_mode == 'hair':
         print('Not ready yet!')
         probs = None
-        return probs
+        return probs, correction
     else:
         print('This mode is not available')
         probs = None
-        return probs
+        return probs, correction
 
 
 if __name__ == '__main__':
@@ -295,11 +410,10 @@ if __name__ == '__main__':
         print('vcf =', vcf)
         print('param =', par)
         print('silent mode =', silent)
-    probabilities = executable(mode, vcf, par)
+    probabilities, correction = executable(mode, vcf, par)
     if silent == 'off':
         print('You are predicting pigmentation of', mode)
 
     if silent == 'off':
         if probabilities:
-            verbose_pred_eyes(probabilities)
-
+            verbose_pred_eyes(probabilities, correction)

@@ -1,7 +1,7 @@
 from collections import defaultdict
 import json
 
-constants_for_the_shape = ['3.84', '0.37']
+accuracy = {'blue': 0.94, 'intermed': 0.74, 'brown': 0.95}
 
-with open('/Users/apple/digital-phenotyping/self-report/alpha_eye_irisplex.json', 'w') as fp:
-    json.dump(constants_for_the_shape, fp, sort_keys=True, indent=4)
+with open('/Users/apple/digital-phenotyping/self-report/eye_accuracy.json', 'w') as fp:
+    json.dump(accuracy, fp, sort_keys=True, indent=4)

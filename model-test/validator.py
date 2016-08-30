@@ -73,13 +73,6 @@ def irisplex_interpreter_poll(poll_parsed_list, threshold_csv):
         lab = p[0]
         hue = p[1]
         sat = p[2]
-        check = type(hue) is list
-        # if check == True:
-        #     if sat == ' Dark':
-        #         pred = 'Brown'
-        #     else:
-        #         pred = 'Intermediate'
-        # else:
         pred = _pred_count(iris[hue], sat)
         predict[lab] = pred
     return predict
@@ -114,24 +107,38 @@ def iplex_prob_dict_parser(dict_with_probs, threshold_csv):
 
 def irisplex_interpreter_model(model_out, threshold_csv):
     predictions = {}
+    corrections = {}
     for i in model_out:
         lab = i[0]
         vals = i[1]
+        cor = i[2]
+        if all(value == 0 for value in cor.values()):
+            mark = False
+        else:
+            mark = True
+
         res = iplex_prob_dict_parser(vals, threshold_csv)
         predictions[lab] = res
-    return predictions
+        corrections[lab] = mark
+    return predictions, corrections
 
-def compariser(dct_pred, dct_selfrep):
+def compariser(dct_pred, dct_selfrep, dct_mistakes):
     correct = 0
     wrong = 0
     count = 0
     mistake = []
     for i in dct_selfrep:
-        count +=1
+        count += 1
         if dct_selfrep[i] == dct_pred[i]:
-            correct +=1
+            correct += 1
+            if dct_mistakes[i]:
+                print('The result for', i, 'is considered as correct, but it is doubtful, because', i,
+                      'sample is lacking loci required for analysis.')
         else:
-            wrong +=1
+            wrong += 1
+            if dct_mistakes[i]:
+                print('The result for', i, 'is considered as wrong, but it is doubtful, because', i,
+                      'sample is lacking loci required for analysis.')
             mistake.append(dct_selfrep[i])
             print('It was predicted that', i, 'has eyes coloured', dct_pred[i],
                   'But', i, 'is known for having eyes of', dct_selfrep[i], 'color.')
@@ -144,14 +151,14 @@ if __name__ == '__main__':
     for vc in os.listdir(vcf):
         if vc.endswith('vcf'):
             filetowork = os.path.join(vcf, vc)
-            prob = model_test.executable(mode, filetowork, phen_param)
+            prob, correction = model_test.executable(mode, filetowork, phen_param)
             vc = vc[:6]
-            res = [vc, prob]
+            res = [vc, prob, correction]
             probs.append(res)
 
     table, iris_color = poll_parser.whole_poll(checklist, s)
     pred = irisplex_interpreter_poll(iris_color, poll_thresh)
-    pred_mod = irisplex_interpreter_model(probs, thresh)
+    pred_mod, correct_mod = irisplex_interpreter_model(probs, thresh)
 
-    total, yes, no, mistake = compariser(pred_mod, pred)
+    total, yes, no, mistake = compariser(pred_mod, pred, correct_mod)
     print('Prediction is correct in ', float(yes/total)*100, 'per cent cases')
