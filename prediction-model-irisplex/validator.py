@@ -18,17 +18,17 @@ def argu(args=None):
                         help='genotyping data path',
                         required='True')
     parser.add_argument('-p', '--param',
-                        help='parameters data path, (default: self-report/ directory in repo)',
-                        default='self-report/')
+                        help='parameters data path, (default: irisplex-parameters/ directory in repo)',
+                        default='irisplex-parameters/')
     parser.add_argument('-c', '--checklist',
                         help='full path to the tab-delimited phenotypic questionnaire',
                         required='True')
     parser.add_argument('-t', '--threshold',
-                        help="model output categories csv file, default: self-report/iris_thresh.csv",
-                        default='self-report/iris_thresh.csv')
+                        help="model output categories csv file, default: irisplex-parameters/iris_thresh.csv",
+                        default='irisplex-parameters/iris_thresh.csv')
     parser.add_argument('-cat', '--categories',
                         help="model categories csv file",
-                        default='self-report/poll_thresh.csv')
+                        default='irisplex-parameters/poll_thresh.csv')
     parser.add_argument('-s', '--sample',
                         help="sample of interest",
                         default='all')

@@ -10,7 +10,7 @@ Primarily, you need to start test_func_model.py and test.py. They are to be star
  The code is to be started from the root repository "digital_phenotyping/" in the following way:
 
  
-     model-test/model_test.py -m eye -v /complete/path/to/the/vcf_file.vcf -s on -p /complete/path/to/model/arguments/folder/
+     prediction-model-irisplex/model_test.py -m eye -v /complete/path/to/the/vcf_file.vcf -s on -p /complete/path/to/model/arguments/folder/
 
  It requires 2 arguments:
 
@@ -31,7 +31,7 @@ Primarily, you need to start test_func_model.py and test.py. They are to be star
  Self-reported phenotype is obtained via poll-parser.py:
 
 
-     model-test/poll_parser.py -p /complete/path/to/the/poll/answers.tsv -s sample_name
+     prediction-model-irisplex/poll_parser.py -p /complete/path/to/the/poll/answers.tsv -s sample_name
 
  It requires 2 arguments:
 
@@ -46,7 +46,7 @@ Primarily, you need to start test_func_model.py and test.py. They are to be star
  Basically, it combines both of the scripts mentioned above and has interpreting set of functions and comparing set. The script to be implemented is validator.py
 
 
-     model-test/validator.py -m eye -v /complete/path/to/the/folder_with_vcfs -p /complete/path/to/model/arguments/folder/ -c /complete/path/to/the/poll/answers.tsv -s sample_name
+     prediction-model-irisplex/validator.py -m eye -v /complete/path/to/the/folder_with_vcfs -p /complete/path/to/model/arguments/folder/ -c /complete/path/to/the/poll/answers.tsv -s sample_name
 
  The arguments mentioned here are the combination of the arguments used above. 
 

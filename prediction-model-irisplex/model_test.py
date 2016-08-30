@@ -24,8 +24,8 @@ def check_arg():
                         help='genotype data path',
                         required='True')
     parser.add_argument('-p', '--param',
-                        help='parameters data path, (default: self-report/ directory in repo)',
-                        default='self-report/')
+                        help='parameters data path, (default: irisplex-parameters/ directory in repo)',
+                        default='irisplex-parameters/')
     parser.add_argument('-s', '--silent',
                         help='on / off -- print the output or not',
                         default='off')
