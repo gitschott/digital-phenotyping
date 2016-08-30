@@ -37,8 +37,19 @@ def check_arg():
             results.silent)
 
 
-# Get the list rs relevant for particular mode of the analysis
 def get_rs(mode, path_to_param):
+    """Get the list of loci relevant for the analysis.
+
+    Relevance of the loci is estimated upon the mode of the analysis.
+    The folder that is set by the path contains csv file with the loci list.
+
+    :param mode:
+    :param path_to_param:
+    :type mode: str
+    :type path_to_param: str
+    :return: list of loci
+    :rtype: list
+    """
     usepath = os.path.abspath(path_to_param)
     rsnp = []
     for file in os.listdir(usepath):
@@ -55,6 +66,11 @@ def get_rs(mode, path_to_param):
 
 
 def _vcf_str_to_lst(vcf_chr_line):
+    """
+
+    :param vcf_chr_line:
+    :return:
+    """
     vc_lst = []
     vcf_lst = str.split(vcf_chr_line, sep='\t')
     if len(vcf_lst) == 1:
@@ -109,8 +125,15 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
             return val
 
 
-# Grep the particular snps relevant for the analysis (from vcf-containing folder)
+
 def get_snp(vcf_file, snp_list, beta_parameters_dict):
+    """ Grep the particular snps relevant for the analysis (from vcf-containing folder)
+
+    :param vcf_file:
+    :param snp_list:
+    :param beta_parameters_dict:
+    :return:
+    """
     # dictionary of values
     bs = {}
     data = _parse_vcf(vcf_file)
