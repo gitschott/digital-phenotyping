@@ -36,6 +36,21 @@ class Loci(object):
         return ', '.join(['{0}:{1}'.format(x, y) for x, y in self.__dict__.items()])
 
 
+class Hloci(object):
+    def __init__(self, name, minor_allele, beta1, beta2, beta3,
+                 strand, rank):
+        self.name = name
+        self.minor_allele = minor_allele
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.beta3 = beta3
+        self.strand = strand
+        self.rank = rank
+
+    def __repr__(self):
+        return ', '.join(['{0}:{1}'.format(x, y) for x, y in self.__dict__.items()])
+
+
 def check_arg():
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
@@ -145,6 +160,7 @@ def strandcheck(parameters_for_locus):
     :param parameters_for_locus: parameters for one locus of IrisPlex model
     :type parameters_for_locus: <class '__main__.Loci'>
     :return: parameters for one locus of IrisPlex model
+    :rtype: parameters_for_locus: <class '__main__.Loci'>
     """
 
     complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
@@ -230,33 +246,43 @@ def param(path_to_param, analysis_mode):
         if file.endswith('json') and file.startswith(analysis_mode):
             with open(name, 'r') as inf:
                 data = json.load(inf)
+                return data
 
-    return data
 
+def _sumgetter(lst_beone, *lists):
+    """Append sums of vallues to one list.
 
-def _sumgetter(lst_beone, lst_betwo):
+    Get the sum of the list of genotypes multiplied by betaN (IrisPlex model).
+
+    :param lst_beone: list of genotypes multiplied by beta1
+    :param lists: lists of genotypes multiplied by betaNN
+    :type lst_beone: list
+    :type lists: list
+    :return: sums of genotypes multiplied by beta parameters
+    :rtype: list
     """
-
-    :param lst_beone:
-    :param lst_betwo:
-    :return:
-    """
-    tot1 = round(sum(lst_beone), 4)
-    tot2 = round(sum(lst_betwo), 4)
-    sums_lst = [tot1, tot2]
+    tot1 = round(sum(lst_beone), 5)
+    sums_lst = [tot1]
+    for arg in lists:
+        tot2 = round(sum(arg), 5)
+        sums_lst.append(tot2)
     return sums_lst
 
 
 def eye_estim(dict_of_analyzed, model_coefficients):
-    """
+    """Estimate the snp input.
+
+    Get the values of the genotypes and multiply them by beta parameters provided to ech locus by model.
+    Get the sum of all the values.
 
     :param dict_of_analyzed: analysed genotypes
-    :param dict_par_for_snp: parameters for IrisPlex
-    :return: values for estimation
+    :param model_coefficients: parameters for IrisPlex
+    :type dict_of_analyzed: dict
+    :type model_coefficients: dict
+    :return: values for estimation, number of loci have passed
+
     """
-    # dict_of_analyzed contains genotypes as values and sample name and rs as labels
-    # dict_par_for_snp contains beta parameters of IrisPlex model as values
-    # and rs as labels
+
     beone = []
     betwo = []
     for a in dict_of_analyzed:
@@ -266,50 +292,51 @@ def eye_estim(dict_of_analyzed, model_coefficients):
                          each['strand'], each['rank'])
             # match proper parameters
             if rs == locus.name:
-                # implement the model
                 mf = dict_of_analyzed[a]
-                b1 = locus.beta1
-                b2 = locus.beta2
-                beone.append(mf * b1)
-                betwo.append(mf * b2)
+                beone.append(mf * locus.beta1)
+                betwo.append(mf * locus.beta2)
     coefs = _sumgetter(beone, betwo)
 
     return coefs, len(beone)
 
 
-def hair_estim(dict_of_analyzed, parameters_for_snp):
+def hair_estim(dict_of_analyzed, model_coefficients):
     """
 
-    :param dict_of_analyzed:
-    :param parameters_for_snp:
-    :return:
+    :param dict_of_analyzed: analysed genotypes
+    :param model_coefficients: parameters for IrisPlex
+    :type dict_of_analyzed: dict
+    :type model_coefficients: dict
+    :return: values for estimation, number of loci have passed
     """
     beone = []
     betwo = []
     betre = []
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")
-        for v in parameters_for_snp:
-            if rs[0] == v:
+        for each in model_coefficients['loci']:
+            locus = Hloci(each['name'], each['minor_allele'], each['beta1'], each['beta2'],
+                          each['beta3'], each['strand'], each['rank'])
+            if rs[0] == locus.name:
                 # implement the model
                 mf = dict_of_analyzed[a]
-                b1 = float((parameters_for_snp[v])[1])
-                b2 = float((parameters_for_snp[v])[2])
-                b3 = float((parameters_for_snp[v])[3])
-                beone.append(mf * b1)
-                betwo.append(mf * b2)
-                betre.append(mf * b3)
-    coefs = [round(sum(beone), 5), round(sum(betwo), 5), round(sum(betre), 5)]
+                beone.append(mf * locus.beta1)
+                betwo.append(mf * locus.beta2)
+                betre.append(mf * locus.beta3)
+    coefs = _sumgetter(beone, betwo, betre)
     return coefs, len(beone)
 
 
 def snp_estim(dict_of_analyzed, model_coefficients, analysis_mode):
-    """
+    """Select the function relevant for the analysis.
 
-    :param dict_of_analyzed:
-    :param parameters_for_snp:
-    :param analysis_mode:
-    :return:
+    :param dict_of_analyzed: analysed genotypes
+    :param model_coefficients: parameters for IrisPlex
+    :param analysis_mode: the phenotypical trait that is analysed
+    :type dict_of_analyzed: dict
+    :type model_coefficients: dict
+    :type analysis_mode: str
+    :return: values for estimation, number of loci have passed
     """
     if analysis_mode == 'eye':
         coefs, loci = eye_estim(dict_of_analyzed, model_coefficients)
@@ -322,26 +349,28 @@ def snp_estim(dict_of_analyzed, model_coefficients, analysis_mode):
 
 
 def get_prob(list_w_sums, parameters):
+    """Estimate the probabilities.
+
+    :param list_w_sums: values for estimation, input of each locus
+    :param parameters: probability power
+    :return: list of probabilities
+    :rtype: list
     """
 
-    :param list_w_sums:
-    :param parameters:
-    :return:
-    """
-    beta1 = math.exp(float(list_w_sums[0]) + Parameters(parameters).alpha1)
-    beta2 = math.exp(float(list_w_sums[1]) + Parameters(parameters).alpha2)
-    beta1 = round(beta1, 4)
-    beta2 = round(beta2, 4)
+    beta1 = round(math.exp(float(list_w_sums[0]) + Parameters(parameters).alpha1), 5)
+    beta2 = round(math.exp(float(list_w_sums[1]) + Parameters(parameters).alpha2), 5)
     prob = [beta1, beta2]
 
     return prob
 
 
 def eyecolor_probs(prob_list):
-    """
+    """Get the verbalised version of probabilities.
 
-    :param prob_list:
-    :return:
+    :param prob_list: list of eyecolor probabilities
+    :type prob_list: list
+    :return: eyecolor dictionary
+    :rtype: dict
     """
     col = ['blue', 'intermed', 'brown']
     pblue = prob_list[0] / (1 + prob_list[0] + prob_list[1])
@@ -352,45 +381,43 @@ def eyecolor_probs(prob_list):
     return colors
 
 
-def auc_loss(probs, loci, path_to_param, analysis_mode):
-    """
+def auc_loss(probs, model_coefficients):
+    """Estimate loss in probability due to missing loci.
 
-    :param probs:
-    :param loci:
-    :param path_to_param:
-    :param analysis_mode:
-    :return:
+    :param probs: probability values estimated
+    :param model_coefficients: parameters of the IrisPlex model
+    :type probs: dict
+    :type model_coefficients: dict
+    :return: corrected values
+    :rtype: dict
     """
     correction = {}
-    newpath = os.path.abspath(path_to_param)
-    for file in os.listdir(newpath):
-        name = os.path.join(newpath, file)
-        if file.endswith('.json') and file.startswith(analysis_mode):
-            lab = os.path.splitext(file)[0].split('_')[1]
-            if lab == 'accuracy':
-                with open(name, 'r') as fp:
-                    auc = json.load(fp)
-                    for key in auc:
-                        correction[key] = (auc[key] - probs[key])
+    auc = model_coefficients['accuracy']
+    for key in probs:
+        correction[key] = (auc[key] - probs[key])
 
     return correction
 
 
-def model_iris_plex(snp_sample_dict, model_coefficients, mode_of_analysis, path_to_param):
-    """
+def model_iris_plex(snp_sample_dict, model_coefficients, mode_of_analysis):
+    """Implement the model.
 
-    :param snp_sample_dict:
-    :param beta_coefficients:
-    :param mode_of_analysis:
-    :param alpha_parameters:
-    :return:
+    IrisPlex description can be found in the README of the repository.
+
+    :param snp_sample_dict: values of the genotypes
+    :param model_coefficients: values of the IrisPlex model
+    :param mode_of_analysis: trait that is analysed
+    :type snp_sample_dict: dict
+    :type model_coefficients: dict
+    :type mode_of_analysis: str
+    :return: probabilities and corrected values (if any locus is missing)
     """
     sums, loci = snp_estim(snp_sample_dict, model_coefficients, mode_of_analysis)
     prob = get_prob(sums, model_coefficients)
-    # # # Counting three probs
     probs = eyecolor_probs(prob)
+
     if loci < 6:
-        correction = auc_loss(probs, loci, path_to_param, mode_of_analysis)
+        correction = auc_loss(probs, model_coefficients)
     else:
         correction = {'blue': 0, 'intermed': 0, 'brown': 0}
 
@@ -410,21 +437,21 @@ def verbose_pred_eyes(probability, correction):
 
 def executable(analysis_mode, vcf_file, path_to_param):
     snip = get_rs(analysis_mode, path_to_param)
-    # Read all the parameters
     parameters = param(path_to_param, analysis_mode)
-    # selection of snps in a way required for a model
     bs_snp_dict = get_snp(vcf_file, snip, parameters)
 
     if analysis_mode == 'eye':
-        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode, path_to_param)
+        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode)
         return probs, correction
     elif analysis_mode == 'hair':
         print('Not ready yet!')
         probs = None
+        correction = None
         return probs, correction
     else:
         print('This mode is not available')
         probs = None
+        correction = None
         return probs, correction
 
 
