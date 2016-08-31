@@ -5,7 +5,6 @@ import argparse
 import sys
 import os
 import re
-import csv
 import numpy as np
 import pandas as pd
 import math
@@ -229,7 +228,7 @@ def get_snp(vcf_file, snp_list, parameters_dict):
 
 
 def param(path_to_param, analysis_mode):
-    """ Grep the parameters for a model, parameters is a csv file
+    """ Grep the parameters for a model.
 
     :param path_to_param: where parameters are
     :param analysis_mode: what trait is analysed

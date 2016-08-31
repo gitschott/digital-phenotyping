@@ -5,7 +5,6 @@ import poll_parser
 import model_test
 import argparse
 import os
-import csv
 import json
 
 

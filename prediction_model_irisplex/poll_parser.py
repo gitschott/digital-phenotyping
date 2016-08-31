@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import csv
 import os
 import numpy as np
 import re
