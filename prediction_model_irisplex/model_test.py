@@ -23,8 +23,14 @@ class Parameters:
 
 
 class Loci(object):
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
+    def __init__(self, name, minor_allele, beta1, beta2,
+                 strand, rank):
+        self.name = name
+        self.minor_allele = minor_allele
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.strand = strand
+        self.rank = rank
 
     def __repr__(self):
         return ', '.join(['{0}:{1}'.format(x, y) for x, y in self.__dict__.items()])
@@ -144,8 +150,6 @@ def strandcheck(parameters_for_locus):
     complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
     if parameters_for_locus.strand == 'R':
         parameters_for_locus.minor_allele = complement[parameters_for_locus.minor_allele]
-    else:
-        pass
     return parameters_for_locus
 
 
@@ -172,10 +176,12 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters):
     genotype = [letters[int(gent[0])], letters[int(gent[1])]]
     val = float(0)
     for locus in beta_parameters['loci']:
-        if Loci(**locus).name == rs_name:
-            updated_locus = strandcheck(Loci(**locus))
+        loc_param = Loci(locus['name'], locus['minor_allele'],
+                         locus['beta1'], locus['beta2'], locus['strand'], locus['rank'])
+        if loc_param.name == rs_name:
+            loc_param = strandcheck(loc_param)
             for gtype in genotype:
-                if gtype == updated_locus.minor_allele:
+                if gtype == loc_param.minor_allele:
                     val += 1
             return val
 
@@ -203,9 +209,6 @@ def get_snp(vcf_file, snp_list, parameters_dict):
                 lab = (vcf_string[0], rs)
                 val = _value_setter(vcf_string, rs, parameters_dict)
                 bs[lab] = val
-                # dictionary with genotype values
-            else:
-                pass
     return bs
 
 
@@ -259,13 +262,14 @@ def eye_estim(dict_of_analyzed, model_coefficients):
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")[0]
         for each in model_coefficients['loci']:
-            locus = Loci(**each)
+            locus = Loci(each['name'], each['minor_allele'], each['beta1'], each['beta2'],
+                         each['strand'], each['rank'])
             # match proper parameters
             if rs == locus.name:
                 # implement the model
                 mf = dict_of_analyzed[a]
-                b1 = float(locus.beta1)
-                b2 = float(locus.beta2)
+                b1 = locus.beta1
+                b2 = locus.beta2
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
     coefs = _sumgetter(beone, betwo)
