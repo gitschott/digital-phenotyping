@@ -13,7 +13,46 @@ import ast
 import json
 
 
-# Print all the arguments given to the program
+class Parameters(object):
+
+    def __init__(self, alpha1, alpha2, loci):
+        self.alpha1 = alpha1
+        self.alpha2 = alpha2
+        self.loci = loci
+
+
+
+class LocusIrisPlex(object):
+
+    def __init__(self, name, minor_allele, beta1, beta2,
+                 strand, rank):
+        self.name = name
+        self.minor_allele = minor_allele
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.strand = strand
+        self.rank = rank
+
+
+def as_irisplex_loci(dictionary_list):
+    values = []
+    for i in dictionary_list:
+        print(dictionary_list)
+        if "beta1" in dictionary_list[i]:
+            values.append(LocusIrisPlex(dictionary_list['name'], dictionary_list['minor_allele'], dictionary_list['beta1'], dictionary_list['beta2'],
+                                 dictionary_list['strand'], dictionary_list['rank']))
+    return values
+
+
+def as_parameters(prmtrs_dict):
+    list_loci = []
+    if "beta1" in prmtrs_dict:
+        list_loci.append(prmtrs_dict)
+    print(list_loci)
+    if "alpha1" in prmtrs_dict:
+        return Parameters(prmtrs_dict['alpha1'], prmtrs_dict['alpha2'], as_irisplex_loci(list_loci))
+
+
 def check_arg():
     parser = argparse.ArgumentParser(description='Choose analysis mode and input data')
     parser.add_argument('-m', '--mode',
@@ -115,18 +154,19 @@ def _parse_vcf(file):
     return strings
 
 
-def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
+def _value_setter(lst_from_vcf_string, rs_name, beta_parameters):
     """Estimate the genotype.
 
     According to the parameters of the model, each loci genotype is estimated.
 
     :param lst_from_vcf_string: data on particular sample from vcf
-    :param rs_name:
-    :param beta_parameters_dict:
-    :type lst_from_vcf_string:
-    :type rs_name:
-    :type beta_parameters_dict:
+    :param rs_name: name of the loci that is analysed
+    :param beta_parameters: parameters for the model
+    :type lst_from_vcf_string: list
+    :type rs_name: str
+    :type beta_parameters: object
     :return:
+    :rtype: int
     """
     # letters is a list of nucleotides, first element is the reference
     letters = [lst_from_vcf_string[2]]
@@ -136,12 +176,10 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters_dict):
         letters.append(each)
     genotype = [letters[int(gent[0])], letters[int(gent[1])]]
     val = float(0)
-    for label in beta_parameters_dict:
-        if label == rs_name:
-            values = beta_parameters_dict[rs_name]
-            for gtype in genotype:
-                if gtype == values[0]:
-                    val += 1
+    if beta_parameters.name == rs_name:
+        for gtype in genotype:
+            if gtype == beta_parameters.minor_allele:
+                val += 1
             return val
 
 
@@ -194,20 +232,16 @@ def param(path_to_param, analysis_mode):
     alpha_list = []
     for file in os.listdir(newpath):
         name = os.path.join(newpath, file)
-        if file.startswith('alpha'):
-            lab = os.path.splitext(file)[0].split('_')[1]
-            if lab == analysis_mode:
+        if file.endswith('json'):
+            if file.startswith(mode):
                 with open(name, 'r') as fp:
-                    alpha_list = json.load(fp)
-        elif file.startswith('beta'):
-            lab = os.path.splitext(file)[0].split('_')[1]
-            if lab == analysis_mode:
-                with open(name, 'r') as fp:
-                    beta_dict_snp_values = json.load(fp)
-                    beta_dict_snp_values = strandcheck(beta_dict_snp_values)
-    if analysis_mode != 'eye':
-        print('Not available yet')
-    return beta_dict_snp_values, alpha_list
+                    prmtrs = json.load(fp, object_hook=as_parameters)
+    print(prmtrs.alpha1,
+          prmtrs.alpha2,
+          prmtrs.loci)
+
+
+    return prmtrs
 
 
 def _sumgetter(lst_beone, lst_betwo):
@@ -387,11 +421,11 @@ def verbose_pred_eyes(probability, correction):
 def executable(analysis_mode, vcf_file, path_to_param):
     snip = get_rs(analysis_mode, path_to_param)
     # Read all the parameters
-    beta_dict, alpha_list = param(path_to_param, analysis_mode)
+    parameters = param(path_to_param, analysis_mode)
     # selection of snps in a way required for a model
-    bs_snp_dict = get_snp(vcf_file, snip, beta_dict)
+    '''bs_snp_dict = get_snp(vcf_file, snip, parameters)
     if analysis_mode == 'eye':
-        probs, correction = model_iris_plex(bs_snp_dict, beta_dict, analysis_mode, alpha_list, path_to_param)
+        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode, alpha_list, path_to_param)
         return probs, correction
     elif analysis_mode == 'hair':
         print('Not ready yet!')
@@ -400,7 +434,7 @@ def executable(analysis_mode, vcf_file, path_to_param):
     else:
         print('This mode is not available')
         probs = None
-        return probs, correction
+        return probs, correction'''
 
 
 if __name__ == '__main__':
