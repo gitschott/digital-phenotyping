@@ -13,44 +13,21 @@ import ast
 import json
 
 
-class Parameters(object):
+class Parameters:
+    def __init__(self, jsondata):
+        self.alpha1 = jsondata['alpha1']
+        self.alpha2 = jsondata['alpha2']
 
-    def __init__(self, alpha1, alpha2, loci):
-        self.alpha1 = alpha1
-        self.alpha2 = alpha2
-        self.loci = loci
-
-
-
-class LocusIrisPlex(object):
-
-    def __init__(self, name, minor_allele, beta1, beta2,
-                 strand, rank):
-        self.name = name
-        self.minor_allele = minor_allele
-        self.beta1 = beta1
-        self.beta2 = beta2
-        self.strand = strand
-        self.rank = rank
+    def __repr__(self):
+        return "params a1={0}, a2={1}".format(self.alpha1, self.alpha2)
 
 
-def as_irisplex_loci(dictionary_list):
-    values = []
-    for i in dictionary_list:
-        print(dictionary_list)
-        if "beta1" in dictionary_list[i]:
-            values.append(LocusIrisPlex(dictionary_list['name'], dictionary_list['minor_allele'], dictionary_list['beta1'], dictionary_list['beta2'],
-                                 dictionary_list['strand'], dictionary_list['rank']))
-    return values
+class Loci(object):
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
-
-def as_parameters(prmtrs_dict):
-    list_loci = []
-    if "beta1" in prmtrs_dict:
-        list_loci.append(prmtrs_dict)
-    print(list_loci)
-    if "alpha1" in prmtrs_dict:
-        return Parameters(prmtrs_dict['alpha1'], prmtrs_dict['alpha2'], as_irisplex_loci(list_loci))
+    def __repr__(self):
+        return ', '.join(['{0}:{1}'.format(x, y) for x, y in self.__dict__.items()])
 
 
 def check_arg():
@@ -154,6 +131,24 @@ def _parse_vcf(file):
     return strings
 
 
+def strandcheck(parameters_for_locus):
+    """Check which strand snp is in the parameters.
+
+    If needed, change everything to forward strand.
+
+    :param parameters_for_locus: parameters for one locus of IrisPlex model
+    :type parameters_for_locus: <class '__main__.Loci'>
+    :return: parameters for one locus of IrisPlex model
+    """
+
+    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    if parameters_for_locus.strand == 'R':
+        parameters_for_locus.minor_allele = complement[parameters_for_locus.minor_allele]
+    else:
+        pass
+    return parameters_for_locus
+
+
 def _value_setter(lst_from_vcf_string, rs_name, beta_parameters):
     """Estimate the genotype.
 
@@ -165,10 +160,10 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters):
     :type lst_from_vcf_string: list
     :type rs_name: str
     :type beta_parameters: object
-    :return:
+    :return: genotype value (zygosity)
     :rtype: int
     """
-    # letters is a list of nucleotides, first element is the reference
+
     letters = [lst_from_vcf_string[2]]
     gent = str.split(lst_from_vcf_string[4], sep='/')
     alt = str.split(lst_from_vcf_string[3], sep=',')
@@ -176,22 +171,28 @@ def _value_setter(lst_from_vcf_string, rs_name, beta_parameters):
         letters.append(each)
     genotype = [letters[int(gent[0])], letters[int(gent[1])]]
     val = float(0)
-    if beta_parameters.name == rs_name:
-        for gtype in genotype:
-            if gtype == beta_parameters.minor_allele:
-                val += 1
+    for locus in beta_parameters['loci']:
+        if Loci(**locus).name == rs_name:
+            updated_locus = strandcheck(Loci(**locus))
+            for gtype in genotype:
+                if gtype == updated_locus.minor_allele:
+                    val += 1
             return val
 
 
-def get_snp(vcf_file, snp_list, beta_parameters_dict):
+def get_snp(vcf_file, snp_list, parameters_dict):
     """ Grep the particular snps relevant for the analysis (from vcf-containing folder)
 
-    :param vcf_file:
-    :param snp_list:
-    :param beta_parameters_dict:
-    :return:
+    :param vcf_file: path to vcf
+    :param snp_list: relevant snp
+    :param parameters_dict: irisplex parameters
+    :type vcf_file: str
+    :type snp_list: list
+    :type parameters_dict: dict
+    :return: values for loci
+    :rtype: dict
     """
-    # dictionary of values
+
     bs = {}
     data = _parse_vcf(vcf_file)
     for vcf_string in data:
@@ -200,7 +201,7 @@ def get_snp(vcf_file, snp_list, beta_parameters_dict):
             # selection of mode-relevant rs
             if snp == rs:
                 lab = (vcf_string[0], rs)
-                val = _value_setter(vcf_string, rs, beta_parameters_dict)
+                val = _value_setter(vcf_string, rs, parameters_dict)
                 bs[lab] = val
                 # dictionary with genotype values
             else:
@@ -208,40 +209,26 @@ def get_snp(vcf_file, snp_list, beta_parameters_dict):
     return bs
 
 
-def strandcheck(parameters_dict):
-    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
-    for rs in parameters_dict:
-        if parameters_dict[rs][3] == 'R':
-            parameters_dict[rs][0] = complement[parameters_dict[rs][3][0]]
-        else:
-            pass
-    return parameters_dict
-
-
 def param(path_to_param, analysis_mode):
     """ Grep the parameters for a model, parameters is a csv file
 
-    :param path_to_param:
-    :param analysis_mode:
-    :return:
+    :param path_to_param: where parameters are
+    :param analysis_mode: what trait is analysed
+    :type path_to_param: str
+    :type analysis_mode: str
+    :return: irisplex model values
+    :rtype: dict
     """
     # path check
     newpath = os.path.abspath(path_to_param)
-    # output dictionary of values
-    beta_dict_snp_values = {}
-    alpha_list = []
+
     for file in os.listdir(newpath):
         name = os.path.join(newpath, file)
-        if file.endswith('json'):
-            if file.startswith(mode):
-                with open(name, 'r') as fp:
-                    prmtrs = json.load(fp, object_hook=as_parameters)
-    print(prmtrs.alpha1,
-          prmtrs.alpha2,
-          prmtrs.loci)
+        if file.endswith('json') and file.startswith(analysis_mode):
+            with open(name, 'r') as inf:
+                data = json.load(inf)
 
-
-    return prmtrs
+    return data
 
 
 def _sumgetter(lst_beone, lst_betwo):
@@ -257,13 +244,12 @@ def _sumgetter(lst_beone, lst_betwo):
     return sums_lst
 
 
-def eye_estim(dict_of_analyzed, dict_par_for_snp):
+def eye_estim(dict_of_analyzed, model_coefficients):
     """
 
-    :param dict_of_analyzed:
-    :param dict_par_for_snp:
-    :param path_to_param:
-    :return:
+    :param dict_of_analyzed: analysed genotypes
+    :param dict_par_for_snp: parameters for IrisPlex
+    :return: values for estimation
     """
     # dict_of_analyzed contains genotypes as values and sample name and rs as labels
     # dict_par_for_snp contains beta parameters of IrisPlex model as values
@@ -272,13 +258,14 @@ def eye_estim(dict_of_analyzed, dict_par_for_snp):
     betwo = []
     for a in dict_of_analyzed:
         rs = str.split(a[1], sep=";")[0]
-        for v in dict_par_for_snp:
+        for each in model_coefficients['loci']:
+            locus = Loci(**each)
             # match proper parameters
-            if rs == v:
+            if rs == locus.name:
                 # implement the model
                 mf = dict_of_analyzed[a]
-                b1 = float((dict_par_for_snp[v])[1])
-                b2 = float((dict_par_for_snp[v])[2])
+                b1 = float(locus.beta1)
+                b2 = float(locus.beta2)
                 beone.append(mf * b1)
                 betwo.append(mf * b2)
     coefs = _sumgetter(beone, betwo)
@@ -312,7 +299,7 @@ def hair_estim(dict_of_analyzed, parameters_for_snp):
     return coefs, len(beone)
 
 
-def snp_estim(dict_of_analyzed, parameters_for_snp, analysis_mode):
+def snp_estim(dict_of_analyzed, model_coefficients, analysis_mode):
     """
 
     :param dict_of_analyzed:
@@ -321,24 +308,24 @@ def snp_estim(dict_of_analyzed, parameters_for_snp, analysis_mode):
     :return:
     """
     if analysis_mode == 'eye':
-        coefs, loci = eye_estim(dict_of_analyzed, parameters_for_snp)
+        coefs, loci = eye_estim(dict_of_analyzed, model_coefficients)
     elif analysis_mode == 'hair':
-        coefs, loci = hair_estim(dict_of_analyzed, parameters_for_snp)
+        coefs, loci = hair_estim(dict_of_analyzed, model_coefficients)
     else:
         print("Not available yet.")
         coefs, loci = None
     return coefs, loci
 
 
-def get_prob(list_w_sums, alpha_val_model):
+def get_prob(list_w_sums, parameters):
     """
 
     :param list_w_sums:
-    :param alpha_val_model:
+    :param parameters:
     :return:
     """
-    beta1 = math.exp(float(list_w_sums[0]) + float(alpha_val_model[0]))
-    beta2 = math.exp(float(list_w_sums[1]) + float(alpha_val_model[1]))
+    beta1 = math.exp(float(list_w_sums[0]) + Parameters(parameters).alpha1)
+    beta2 = math.exp(float(list_w_sums[1]) + Parameters(parameters).alpha2)
     beta1 = round(beta1, 4)
     beta2 = round(beta2, 4)
     prob = [beta1, beta2]
@@ -379,14 +366,13 @@ def auc_loss(probs, loci, path_to_param, analysis_mode):
             if lab == 'accuracy':
                 with open(name, 'r') as fp:
                     auc = json.load(fp)
-    for key in auc:
-        correction[key] = (auc[key] - probs[key])
+                    for key in auc:
+                        correction[key] = (auc[key] - probs[key])
 
     return correction
 
 
-def model_iris_plex(snp_sample_dict, beta_coefficients, mode_of_analysis,
-                    alpha_parameters, path_to_param):
+def model_iris_plex(snp_sample_dict, model_coefficients, mode_of_analysis, path_to_param):
     """
 
     :param snp_sample_dict:
@@ -395,8 +381,8 @@ def model_iris_plex(snp_sample_dict, beta_coefficients, mode_of_analysis,
     :param alpha_parameters:
     :return:
     """
-    sums, loci = snp_estim(snp_sample_dict, beta_coefficients, mode_of_analysis)
-    prob = get_prob(sums, alpha_parameters)
+    sums, loci = snp_estim(snp_sample_dict, model_coefficients, mode_of_analysis)
+    prob = get_prob(sums, model_coefficients)
     # # # Counting three probs
     probs = eyecolor_probs(prob)
     if loci < 6:
@@ -423,9 +409,10 @@ def executable(analysis_mode, vcf_file, path_to_param):
     # Read all the parameters
     parameters = param(path_to_param, analysis_mode)
     # selection of snps in a way required for a model
-    '''bs_snp_dict = get_snp(vcf_file, snip, parameters)
+    bs_snp_dict = get_snp(vcf_file, snip, parameters)
+
     if analysis_mode == 'eye':
-        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode, alpha_list, path_to_param)
+        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode, path_to_param)
         return probs, correction
     elif analysis_mode == 'hair':
         print('Not ready yet!')
@@ -434,7 +421,7 @@ def executable(analysis_mode, vcf_file, path_to_param):
     else:
         print('This mode is not available')
         probs = None
-        return probs, correction'''
+        return probs, correction
 
 
 if __name__ == '__main__':
