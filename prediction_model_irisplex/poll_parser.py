@@ -7,7 +7,15 @@ import os
 import numpy as np
 import re
 
-def impo(args=None):
+
+class Iris(object):
+    def __init__(self, name, hue, saturation, extra):
+        self.name = name
+        self.hue = hue
+        self.saturation = saturation
+        self.extra = extra
+
+def impo():
     parser = argparse.ArgumentParser(description='Select poll input data')
     parser.add_argument('-p', '--poll',
                         help="the file that contains information on volunteers' phenotypes",
@@ -16,7 +24,8 @@ def impo(args=None):
                         help="sample of interest",
                         default='all')
     results = parser.parse_args()
-    return (results.poll, results.sample)
+    return results.poll, results.sample
+
 
 def _label(name):
     # Select the label
@@ -64,18 +73,6 @@ def _eyecolor(list):
             iris = 'mixed'
         if iris == ' Brown' or ' Hazel' and extra_eyecol == ' Brown':
             iris = ' Brown'
-    # if len(colors) == 1:
-    #     colors = colors[0]
-    #     eyehue = str.split(colors, sep='/')[1]
-    #     if eyehue == ' I have mixed eye color':
-    #         eyehue = 'mixed'
-    # else:
-    #     iris = []
-    #     eyehue = 'mixed'
-    #     for c in colors:
-    #         hue = (str.split(c, sep='/')[1])
-    #         iris.append(hue)
-
     eye = [iris, eyesat, colors]
     return eye
 
@@ -99,12 +96,10 @@ def parse(file):
                 nat = _nation(vals[3])
                 eyes = vals[4:8]
                 color = _eyecolor(eyes)
-                eycol, eysat, person = color
-                features = [name, sex, age, nat, eycol, eysat]
-                original_colors = [name, eycol, eysat]
+                original_colors = Iris(name, color[0], color[1], color[2])
+                features = [name, sex, age, nat, color[1], color[2]]
                 strings.append(features)
                 oc.append(original_colors)
-    # TODO: EDIT THIS to a normal output
     tab = np.array(strings)
 
     return tab, name, oc

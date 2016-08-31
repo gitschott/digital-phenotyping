@@ -1,0 +1,7 @@
+{" Blue": "Blue or Gray", " Gray": "Blue or Gray", " Green": "Intermediate",
+  " I have heterochromia": "Unknown. This is a special case. It is not tested here.",
+  " Red (albino phenotype)": "Unknown. This is a special case. It is not tested here.",
+  "mixed": ["Intermediate", "Brown"],
+  " Brown": "Brown",
+  " Hazel": ["Intermediate", "Brown"],
+  " I have mixed eye color": "Intermediate"}

@@ -261,10 +261,10 @@ def _sumgetter(lst_beone, *lists):
     :return: sums of genotypes multiplied by beta parameters
     :rtype: list
     """
-    tot1 = round(sum(lst_beone), 5)
+    tot1 = round(sum(lst_beone), 4)
     sums_lst = [tot1]
     for arg in lists:
-        tot2 = round(sum(arg), 5)
+        tot2 = round(sum(arg), 4)
         sums_lst.append(tot2)
     return sums_lst
 
@@ -357,8 +357,8 @@ def get_prob(list_w_sums, parameters):
     :rtype: list
     """
 
-    beta1 = round(math.exp(float(list_w_sums[0]) + Parameters(parameters).alpha1), 5)
-    beta2 = round(math.exp(float(list_w_sums[1]) + Parameters(parameters).alpha2), 5)
+    beta1 = round(math.exp(float(list_w_sums[0]) + Parameters(parameters).alpha1), 4)
+    beta2 = round(math.exp(float(list_w_sums[1]) + Parameters(parameters).alpha2), 4)
     prob = [beta1, beta2]
 
     return prob
@@ -391,12 +391,12 @@ def auc_loss(probs, model_coefficients):
     :return: corrected values
     :rtype: dict
     """
-    correction = {}
+    corrected_values = {}
     auc = model_coefficients['accuracy']
     for key in probs:
-        correction[key] = (auc[key] - probs[key])
+        corrected_values[key] = (auc[key] - probs[key])
 
-    return correction
+    return corrected_values
 
 
 def model_iris_plex(snp_sample_dict, model_coefficients, mode_of_analysis):
@@ -417,22 +417,22 @@ def model_iris_plex(snp_sample_dict, model_coefficients, mode_of_analysis):
     probs = eyecolor_probs(prob)
 
     if loci < 6:
-        correction = auc_loss(probs, model_coefficients)
+        correct_vals = auc_loss(probs, model_coefficients)
     else:
-        correction = {'blue': 0, 'intermed': 0, 'brown': 0}
+        correct_vals = {'blue': 0, 'intermed': 0, 'brown': 0}
 
-    return probs, correction
+    return probs, correct_vals
 
 
-def verbose_pred_eyes(probability, correction):
+def verbose_pred_eyes(probability, correct_val):
     print('Eyes are: ', 'blue', probability['blue'],
           'intermediate', probability['intermed'], 'brown', probability['brown'])
-    if all(value == 0 for value in correction.values()):
+    if all(value == 0 for value in correct_val.values()):
         pass
     else:
         print('There is loss in AUC according to the missing loci:'
-              'for blue:', correction['blue'],
-          ', for intermediate:', correction['intermed'], ', for brown:', correction['brown'])
+              'for blue:', correct_val['blue'],
+              ', for intermediate:', correct_val['intermed'], ', for brown:', correct_val['brown'])
 
 
 def executable(analysis_mode, vcf_file, path_to_param):
@@ -441,18 +441,18 @@ def executable(analysis_mode, vcf_file, path_to_param):
     bs_snp_dict = get_snp(vcf_file, snip, parameters)
 
     if analysis_mode == 'eye':
-        probs, correction = model_iris_plex(bs_snp_dict, parameters, analysis_mode)
-        return probs, correction
+        probs, correct_val = model_iris_plex(bs_snp_dict, parameters, analysis_mode)
+        return probs, correct_val
     elif analysis_mode == 'hair':
         print('Not ready yet!')
         probs = None
-        correction = None
-        return probs, correction
+        correct_val = None
+        return probs, correct_val
     else:
         print('This mode is not available')
         probs = None
-        correction = None
-        return probs, correction
+        correct_val = None
+        return probs, correct_val
 
 
 if __name__ == '__main__':
